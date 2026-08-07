@@ -42,3 +42,13 @@
 /content/1-ethical-hacking/3-footprinting-and-recon/10-using-tools-and-ai.html  /content/1-ethical-hacking/3-footprinting-and-recon/10-using-tools-and-ai  301!
 /content/1-ethical-hacking/3-footprinting-and-recon/11-footprinting-countermeasures.html  /content/1-ethical-hacking/3-footprinting-and-recon/11-footprinting-countermeasures  301!
 /content/1-ethical-hacking/3-footprinting-and-recon/12-footprinting-recon-cheat-sheet.html  /content/1-ethical-hacking/3-footprinting-and-recon/12-footprinting-recon-cheat-sheet  301!
+
+
+# Redirect UK, Australia, and Canada visitors to your contact/info page
+/*  Country=gb,au,ca  /contact.html  302
+
+# Redirect Spanish language browser settings to a Spanish landing page if created later
+# /*  Language=es  /es/index.html  302
+
+# Catch-all: Route any unmapped subpaths gracefully to your main homepage
+/*  /index.html  200
