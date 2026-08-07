@@ -1,0 +1,44 @@
+# ============================================================
+# Force .html → clean URL (so only one path needs to be locked)
+# ============================================================
+
+# --- Module 1: Introduction to Ethical Hacking (pages 03-09) ---
+/content/1-ethical-hacking/1-introduction-to-ethical-hacking/03-hacking-concepts.html  /content/1-ethical-hacking/1-introduction-to-ethical-hacking/03-hacking-concepts  301!
+/content/1-ethical-hacking/1-introduction-to-ethical-hacking/04-ethical-hacking-concepts.html  /content/1-ethical-hacking/1-introduction-to-ethical-hacking/04-ethical-hacking-concepts  301!
+/content/1-ethical-hacking/1-introduction-to-ethical-hacking/05-hacking-methodologies.html  /content/1-ethical-hacking/1-introduction-to-ethical-hacking/05-hacking-methodologies  301!
+/content/1-ethical-hacking/1-introduction-to-ethical-hacking/06-security-controls.html  /content/1-ethical-hacking/1-introduction-to-ethical-hacking/06-security-controls  301!
+/content/1-ethical-hacking/1-introduction-to-ethical-hacking/07-security-laws.html  /content/1-ethical-hacking/1-introduction-to-ethical-hacking/07-security-laws  301!
+/content/1-ethical-hacking/1-introduction-to-ethical-hacking/08-reporting-and-documentation.html  /content/1-ethical-hacking/1-introduction-to-ethical-hacking/08-reporting-and-documentation  301!
+/content/1-ethical-hacking/1-introduction-to-ethical-hacking/09-cheat-sheet.html  /content/1-ethical-hacking/1-introduction-to-ethical-hacking/09-cheat-sheet  301!
+
+# --- Module 2: Open Source Intelligence (pages 03-20) ---
+/content/1-ethical-hacking/2-open-source-intelligence/03-osint-threats-and-countermeasures.html  /content/1-ethical-hacking/2-open-source-intelligence/03-osint-threats-and-countermeasures  301!
+/content/1-ethical-hacking/2-open-source-intelligence/04-virtual-machines-for-osint.html  /content/1-ethical-hacking/2-open-source-intelligence/04-virtual-machines-for-osint  301!
+/content/1-ethical-hacking/2-open-source-intelligence/05-operating-systems-for-osint.html  /content/1-ethical-hacking/2-open-source-intelligence/05-operating-systems-for-osint  301!
+/content/1-ethical-hacking/2-open-source-intelligence/06-notes-and-operational-records.html  /content/1-ethical-hacking/2-open-source-intelligence/06-notes-and-operational-records  301!
+/content/1-ethical-hacking/2-open-source-intelligence/07-password-managers.html  /content/1-ethical-hacking/2-open-source-intelligence/07-password-managers  301!
+/content/1-ethical-hacking/2-open-source-intelligence/08-search-engines-and-google-dorking.html  /content/1-ethical-hacking/2-open-source-intelligence/08-search-engines-and-google-dorking  301!
+/content/1-ethical-hacking/2-open-source-intelligence/09-custom-search-engines.html  /content/1-ethical-hacking/2-open-source-intelligence/09-custom-search-engines  301!
+/content/1-ethical-hacking/2-open-source-intelligence/10-google-additional-tips.html  /content/1-ethical-hacking/2-open-source-intelligence/10-google-additional-tips  301!
+/content/1-ethical-hacking/2-open-source-intelligence/11-ftp-search.html  /content/1-ethical-hacking/2-open-source-intelligence/11-ftp-search  301!
+/content/1-ethical-hacking/2-open-source-intelligence/12-google-dorking-cheat-sheet.html  /content/1-ethical-hacking/2-open-source-intelligence/12-google-dorking-cheat-sheet  301!
+/content/1-ethical-hacking/2-open-source-intelligence/13-email-addresses-usernames-and-images.html  /content/1-ethical-hacking/2-open-source-intelligence/13-email-addresses-usernames-and-images  301!
+/content/1-ethical-hacking/2-open-source-intelligence/14-ip-addresses-and-dns.html  /content/1-ethical-hacking/2-open-source-intelligence/14-ip-addresses-and-dns  301!
+/content/1-ethical-hacking/2-open-source-intelligence/15-iot-search-engines.html  /content/1-ethical-hacking/2-open-source-intelligence/15-iot-search-engines  301!
+/content/1-ethical-hacking/2-open-source-intelligence/16-reconnaissance-tools.html  /content/1-ethical-hacking/2-open-source-intelligence/16-reconnaissance-tools  301!
+/content/1-ethical-hacking/2-open-source-intelligence/17-internet-structure.html  /content/1-ethical-hacking/2-open-source-intelligence/17-internet-structure  301!
+/content/1-ethical-hacking/2-open-source-intelligence/18-online-breach-data-and-leaks-resources.html  /content/1-ethical-hacking/2-open-source-intelligence/18-online-breach-data-and-leaks-resources  301!
+/content/1-ethical-hacking/2-open-source-intelligence/19-tor.html  /content/1-ethical-hacking/2-open-source-intelligence/19-tor  301!
+/content/1-ethical-hacking/2-open-source-intelligence/20-osint-cheat-sheet.html  /content/1-ethical-hacking/2-open-source-intelligence/20-osint-cheat-sheet  301!
+
+# --- Module 3: Footprinting & Reconnaissance (pages 03-12) ---
+/content/1-ethical-hacking/3-footprinting-and-recon/03-footprinting-through-search-engines.html  /content/1-ethical-hacking/3-footprinting-and-recon/03-footprinting-through-search-engines  301!
+/content/1-ethical-hacking/3-footprinting-and-recon/04-footprinting-through-internet-research-services.html  /content/1-ethical-hacking/3-footprinting-and-recon/04-footprinting-through-internet-research-services  301!
+/content/1-ethical-hacking/3-footprinting-and-recon/05-footprinting-through-social-networking-sites.html  /content/1-ethical-hacking/3-footprinting-and-recon/05-footprinting-through-social-networking-sites  301!
+/content/1-ethical-hacking/3-footprinting-and-recon/06-whois-footprinting.html  /content/1-ethical-hacking/3-footprinting-and-recon/06-whois-footprinting  301!
+/content/1-ethical-hacking/3-footprinting-and-recon/07-dns-footprinting.html  /content/1-ethical-hacking/3-footprinting-and-recon/07-dns-footprinting  301!
+/content/1-ethical-hacking/3-footprinting-and-recon/08-network-and-email-footprinting.html  /content/1-ethical-hacking/3-footprinting-and-recon/08-network-and-email-footprinting  301!
+/content/1-ethical-hacking/3-footprinting-and-recon/09-footprinting-through-social-engineering.html  /content/1-ethical-hacking/3-footprinting-and-recon/09-footprinting-through-social-engineering  301!
+/content/1-ethical-hacking/3-footprinting-and-recon/10-using-tools-and-ai.html  /content/1-ethical-hacking/3-footprinting-and-recon/10-using-tools-and-ai  301!
+/content/1-ethical-hacking/3-footprinting-and-recon/11-footprinting-countermeasures.html  /content/1-ethical-hacking/3-footprinting-and-recon/11-footprinting-countermeasures  301!
+/content/1-ethical-hacking/3-footprinting-and-recon/12-footprinting-recon-cheat-sheet.html  /content/1-ethical-hacking/3-footprinting-and-recon/12-footprinting-recon-cheat-sheet  301!

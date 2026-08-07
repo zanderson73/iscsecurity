@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Reporting & Threat Documentation | ISCSECURITY Master Class Series</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="/css/styles.css?v=2026_PRODUCTION_FINAL" />
+  
+  <!-- MemberSpace -->
+  <script>
+    window.MemberSpace = window.MemberSpace || { subdomain: "iscsecurity" };
+    (function(d){
+      var s = d.createElement("script");
+      s.src = "https://cdn.memberspace.com/scripts/widgets.js";
+      s.async = true;
+      d.head.appendChild(s);
+    })(document);
+  </script>
+  
+</head>
+
+<body class="page-lesson">
+
+<div class="site-topbar" role="note" aria-label="Legal notice">
+  <small class="topbar-note">
+    © 2026 ISCSECURITY · Authorization-first training. All testing must be lawful, scoped, and approved in writing.
+  </small>
+  <nav class="topbar-links" aria-label="Topbar links">
+      <a href="https://iscsecurity.org/index">Home</a>
+      <a href="https://iscsecurity.org/content/index">Content</a>
+	  <a href="https://iscsecurity.org/content/1-ethical-hacking">Ethical Hacking</a>
+      <a href="https://iscsecurity.org/contact">Contact</a>
+    </nav>
+</div>
+
+<main class="page modules-page no-shift" id="ethical-hacking-training-content" data-ms-content="members-only">
+  <article class="lesson-content overlay" tabindex="0" aria-label="Lesson content: Reporting and Threat Documentation">
+
+    <p class="breadcrumb">
+      <a href="https://iscsecurity.org/index">Home</a> →
+        <a href="https://iscsecurity.org/content/index">Content</a> →
+        <a href="https://iscsecurity.org/content/1-ethical-hacking">Ethical Hacking</a> →
+      <span aria-current="page">Page 8</span>
+    </p>
+
+    <h1>Reporting &amp; Threat Documentation</h1>
+
+    <!-- ============================================================ -->
+    <!-- AUTHORIZED USE BANNERS                                        -->
+    <!-- ============================================================ -->
+
+    <div class="reminder-auth">
+      <strong>🚨 AUTHORIZED USE ONLY:</strong>
+      <span>
+        All content in this document is for educational and defensive training purposes only.
+        The adversarial techniques described are derived from real-world tradecraft but
+        are documented exclusively for <strong>defensive analysis, detection engineering,
+        and authorized security testing</strong>. Unauthorized deployment of any technique
+        described may constitute a criminal offense under applicable national and
+        international cybercrime laws. Always obtain <strong>explicit written authorization</strong>
+        from the system owner or authorized legal entity before testing, executing, or
+        simulating any of the techniques outlined in this document.
+      </span>
+    </div>
+
+    <div class="reminder-comp">
+      <strong>🌍 INTERNATIONAL COMPLIANCE NOTICE:</strong>
+      <span>
+        Cybercrime laws vary significantly by jurisdiction. It's your sole responsibility
+        to understand and comply with the laws applicable to your location, the location
+        of any target systems, and your organization's policies. When in doubt,
+        <strong>consult a qualified legal professional</strong> before testing, executing,
+        or simulating any technique described in this document.
+      </span>
+    </div>
+
+<!-- ============================================================ -->
+<!-- EXECUTIVE SUMMARY                                             -->
+<!-- ============================================================ -->
+
+    <section class="module-section" id="executive-summary">
+      <h2>1. Executive Summary</h2>
+      <p>
+        Reporting and documentation are core responsibilities in ethical hacking. A penetration test is not complete when a vulnerability is discovered; it is complete when the finding is clearly documented, risk is explained, evidence is preserved, and remediation guidance is delivered to the right audience.
+      </p>
+      <p>
+        This section introduces professional reporting habits that support red teams, blue teams, purple teams, auditors, executives, and technical remediation teams.
+      </p>
+
+      <ul class="learning-objectives">
+        <li><strong>Objective 1:</strong> Understand why documentation is a critical part of ethical hacking.</li>
+        <li><strong>Objective 2:</strong> Learn the structure of a professional security report.</li>
+        <li><strong>Objective 3:</strong> Capture evidence, risk, impact, and remediation guidance clearly and ethically.</li>
+      </ul>
+    </section>
+
+<!-- ============================================================ -->
+<!-- 🟢 BEGINNER LEVEL                                             -->
+<!-- ============================================================ -->
+
+    <section class="module-section" id="beginner-level">
+      <h2>2. Beginner Level</h2>
+      <p>
+        Ethical hacking is not just about finding weaknesses. It is about communicating those weaknesses in a way that helps an organization understand risk and take action. Good documentation turns technical work into business value.
+      </p>
+      
+      <h3>Core Concepts</h3>
+      <ul>
+        <li><strong>Authorization:</strong> Always document the approved scope, dates, systems, and rules of engagement.</li>
+        <li><strong>Evidence:</strong> Record proof of what was discovered without exposing unnecessary sensitive data.</li>
+        <li><strong>Risk:</strong> Explain how serious a finding is and why it matters.</li>
+        <li><strong>Impact:</strong> Describe what could happen if the issue is exploited.</li>
+        <li><strong>Remediation:</strong> Provide practical steps to fix or reduce the risk.</li>
+        <li><strong>Audience:</strong> Write for both technical and non-technical readers.</li>
+      </ul>
+
+      <h3>Analogy / Context</h3>
+      <p>
+        Think of an ethical hacker like a building inspector. Finding a broken lock is useful, but the real value comes from writing a clear report that explains where the lock is, why it is dangerous, how it was verified, and how it should be repaired.
+      </p>
+
+      <div class="info-remember">
+        <em>Key Principle:</em> If a finding is not documented clearly, it may not be understood, prioritized, or fixed.
+      </div>
+    </section>
+
+<!-- ============================================================ -->
+<!-- 🟡 INTERMEDIATE LEVEL                                         -->
+<!-- ============================================================ -->
+
+    <section class="module-section" id="intermediate-level">
+      <h2>3. Intermediate Level</h2>
+      <p>
+        During an authorized engagement, notes should be collected continuously. Waiting until the end of testing often leads to missing commands, incomplete evidence, forgotten timestamps, and weak remediation advice.
+      </p>
+      
+      <h3>Practical Application</h3>
+      <p>
+        A basic ethical hacking report should connect technical evidence to business risk. For example, instead of only writing "SSH is exposed," a stronger report explains which host exposes SSH, whether weak authentication is possible, what evidence supports the observation, what risk this creates, and how the organization should respond.
+      </p>
+
+      <h3>Basic Reporting Workflow</h3>
+      <pre><code class="language-text">1. Confirm authorization and scope
+2. Take structured notes during testing
+3. Capture evidence carefully
+4. Validate each finding
+5. Assign risk severity
+6. Explain business impact
+7. Recommend remediation
+8. Review the report for accuracy
+9. Deliver findings securely
+10. Support the remediation discussion</code></pre>
+
+      <h3>Example Finding Structure</h3>
+      <pre><code class="language-text">Finding Title:
+Weak Password Policy Identified
+
+Affected Asset:
+Internal authentication portal
+
+Severity:
+Medium
+
+Description:
+The application allows short passwords and does not appear to enforce complexity requirements.
+
+Evidence:
+Screenshot of password policy behavior and test account result.
+
+Business Impact:
+Weak passwords increase the likelihood of account compromise.
+
+Recommendation:
+Enforce minimum password length, complexity requirements, account lockout protections, and multi-factor authentication where appropriate.</code></pre>
+
+      <div class="info-remember">
+        <em>Key Principle:</em> A report should be reproducible, readable, and actionable.
+      </div>
+    </section>
+
+<!-- ============================================================ -->
+<!-- 🔴 ADVANCED / OPERATOR LEVEL                                  -->
+<!-- ============================================================ -->
+
+    <section class="module-section" id="advanced-level">
+      <h2>4. Advanced / Operator Level</h2>
+      <p>
+        Mature reporting requires more than listing vulnerabilities. Operators must document methodology, preserve evidence integrity, protect sensitive data, and communicate risk in a way that supports decision-making.
+      </p>
+      
+      <h3>Operational Considerations</h3>
+      <ul>
+        <li><strong>Scope control:</strong> Clearly distinguish in-scope systems from out-of-scope observations.</li>
+        <li><strong>Evidence handling:</strong> Store screenshots, logs, and command output securely.</li>
+        <li><strong>Data minimization:</strong> Avoid including passwords, private keys, tokens, personal data, or customer records unless absolutely necessary.</li>
+        <li><strong>Timeline accuracy:</strong> Record dates, times, time zones, and major testing actions.</li>
+        <li><strong>Reproducibility:</strong> Include enough detail for the client to verify the issue without exposing exploit paths unnecessarily.</li>
+        <li><strong>Remediation quality:</strong> Recommend practical fixes, not vague advice.</li>
+        <li><strong>Executive clarity:</strong> Translate technical weaknesses into operational, financial, legal, or reputational risk.</li>
+      </ul>
+
+      <h3>Report Sections Used in Professional Engagements</h3>
+      <ul>
+        <li>Cover Page</li>
+        <li>Confidentiality Notice</li>
+        <li>Executive Summary</li>
+        <li>Scope and Rules of Engagement</li>
+        <li>Methodology</li>
+        <li>Summary of Findings</li>
+        <li>Detailed Technical Findings</li>
+        <li>Risk Rating Methodology</li>
+        <li>Remediation Roadmap</li>
+        <li>Appendices and Evidence</li>
+      </ul>
+
+      <div class="reminder">
+        <em>Operator Note:</em> A professional report should help the client fix risk, not impress them with jargon.
+      </div>
+    </section>
+
+<!-- ============================================================ -->
+<!-- ADVERSARIAL LEVEL                                             -->
+<!-- ============================================================ -->
+
+    <section class="module-section" id="adversarial-level">
+      <h2>5. Adversarial Level</h2>
+      <p>
+        Threat actors do not write client reports, but they do keep operational notes. They track targets, credentials, exposed services, exploitable weaknesses, and successful attack paths. Ethical hackers document similar observations, but with authorization, restraint, and the goal of improving security.
+      </p>
+      
+      <h3>Threat Actor Behavior</h3>
+      <p>
+        Attackers often maintain target profiles, infrastructure notes, access records, and privilege escalation paths. Ethical reports should help defenders understand how an attacker could move from initial discovery to real-world impact.
+      </p>
+
+      <h3>Defensive Translation</h3>
+      <p>
+        A good ethical hacking report converts attacker behavior into defensive action. For example, if an attacker could abuse exposed remote access, the report should explain how to restrict access, enforce strong authentication, monitor login attempts, and reduce external exposure.
+      </p>
+
+      <div class="reminder">
+        <em>Adversarial Mindset:</em> Document the path an attacker would take, then give defenders the information needed to break that path.
+      </div>
+    </section>
+
+<!-- ============================================================ -->
+<!-- ADVERSARIAL EXAMPLES - COMMANDS AND TOOLS                     -->
+<!-- ============================================================ -->
+
+    <section class="module-section" id="adversarial-examples">
+      <h2>6. Adversarial Examples — Commands and Tools</h2>
+      <p>
+        The following examples focus on safe documentation practices. They are intended for authorized labs and professional reporting workflows.
+      </p>
+      
+      <h3>Creating a Simple Engagement Notes Folder</h3>
+      <pre><code><span style="color:#4CAF50;"># Create a structured folder for authorized engagement notes</span>
+mkdir -p ethical-hacking-report/{scope,evidence,screenshots,notes,findings,appendix}
+
+<span style="color:#4CAF50;"># Create basic working files</span>
+touch ethical-hacking-report/scope/rules-of-engagement.md
+touch ethical-hacking-report/notes/activity-log.md
+touch ethical-hacking-report/findings/findings-register.md</code></pre>
+
+      <h3>Example Activity Log</h3>
+      <pre><code class="language-text">Date: 2026-06-28
+Tester: RT/Operator
+Environment: Authorized training lab
+Scope: 192.168.56.0/24
+
+09:00 - Confirmed scope and rules of engagement
+09:15 - Began passive reconnaissance
+09:45 - Recorded exposed services for lab host
+10:10 - Captured screenshot evidence
+10:30 - Drafted initial finding summary</code></pre>
+
+      <h3>Example Findings Register</h3>
+      <pre><code class="language-text">Finding ID: EH-001
+Title: Exposed Administrative Login Page
+Severity: Medium
+Affected Asset: lab-web-01
+Status: Validated
+Evidence Location: evidence/EH-001/
+Recommended Action: Restrict access, enforce MFA, monitor authentication attempts</code></pre>
+
+      <h3>Useful Documentation Tools</h3>
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table" aria-label="Documentation tools">
+          <thead>
+            <tr>
+              <th>Tool</th>
+              <th>Purpose</th>
+              <th>Relevant Use</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Markdown</td>
+              <td>Plain-text reporting</td>
+              <td><code>findings.md</code></td>
+            </tr>
+            <tr>
+              <td>Screenshots</td>
+              <td>Visual evidence</td>
+              <td>Capture proof without exposing sensitive data</td>
+            </tr>
+            <tr>
+              <td>Spreadsheets</td>
+              <td>Finding tracking</td>
+              <td>Severity, asset, owner, status</td>
+            </tr>
+            <tr>
+              <td>Ticketing Systems</td>
+              <td>Remediation tracking</td>
+              <td>Assign findings to responsible teams</td>
+            </tr>
+            <tr>
+              <td>Version Control</td>
+              <td>Change tracking</td>
+              <td>Track report edits and evidence references</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+<!-- ============================================================ -->
+<!-- REPORTING APPLICATIONS                                        -->
+<!-- ============================================================ -->
+
+    <section class="module-section" id="reporting-applications">
+      <h2>7. Reporting and Documentation Applications</h2>
+      <p>
+        Ethical hackers use documentation tools to organize notes, screenshots, commands, evidence, findings, and remediation steps. 
+        The best tool depends on the engagement type, team workflow, and reporting requirements.
+      </p>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table" aria-label="Reporting applications comparison">
+          <thead>
+            <tr>
+              <th>Application</th>
+              <th>Best For</th>
+              <th>Strengths</th>
+              <th>Typical Use</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>CherryTree</td>
+              <td>Structured pentest notes</td>
+              <td>Tree-style notes, code blocks, screenshots, local storage</td>
+              <td>Engagement notes, evidence organization, command history</td>
+            </tr>
+            <tr>
+              <td>Obsidian</td>
+              <td>Knowledge bases and linked notes</td>
+              <td>Markdown, backlinks, graph view, plugins</td>
+              <td>Methodology notes, reusable checklists, research vaults</td>
+            </tr>
+            <tr>
+              <td>Joplin</td>
+              <td>Encrypted note-taking</td>
+              <td>Markdown, sync support, encryption options</td>
+              <td>Secure notes, engagement journals, client-specific records</td>
+            </tr>
+            <tr>
+              <td>KeepNote</td>
+              <td>Legacy pentest note-taking</td>
+              <td>Simple notebook structure</td>
+              <td>Older lab environments and basic evidence notes</td>
+            </tr>
+            <tr>
+              <td>Dradis</td>
+              <td>Team-based reporting</td>
+              <td>Collaboration, templates, findings management</td>
+              <td>Professional pentest reports and multi-tester engagements</td>
+            </tr>
+            <tr>
+              <td>Serpico</td>
+              <td>Report generation</td>
+              <td>Finding templates, report automation</td>
+              <td>Generating repeatable assessment reports</td>
+            </tr>
+            <tr>
+              <td>Faraday</td>
+              <td>Collaborative vulnerability management</td>
+              <td>Imports tool output, manages findings, team workflow</td>
+              <td>Large assessments, vulnerability tracking, remediation status</td>
+            </tr>
+            <tr>
+              <td>Markdown Editors</td>
+              <td>Plain-text reporting</td>
+              <td>Portable, simple, version-control friendly</td>
+              <td>Reports, checklists, technical notes, Git-based workflows</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>CherryTree</h3>
+      <p>
+        CherryTree is a popular hierarchical note-taking application often used by ethical hackers because it allows testers to 
+        organize notes by phase, host, finding, evidence, and commands.
+      </p>
+
+      <h4>Install on Debian / Ubuntu / Kali</h4>
+      <pre><code class="language-bash">sudo apt update
+sudo apt install cherrytree -y</code></pre>
+
+      <h4>Basic Usage</h4>
+      <pre><code class="language-text">Example CherryTree Structure:
+
+Engagement Name
+├── 00 - Scope and Authorization
+├── 01 - Reconnaissance
+├── 02 - Scanning
+├── 03 - Enumeration
+├── 04 - Findings
+│   ├── EH-001 - Exposed Admin Login
+│   ├── EH-002 - Weak Password Policy
+│   └── EH-003 - Missing Security Headers
+├── 05 - Evidence
+└── 06 - Final Report Notes</code></pre>
+
+      <p>
+        CherryTree works well for local note-taking. It supports formatted text, code blocks, tables, images, and file attachments. Students should create one notebook per engagement and avoid mixing client data between projects.
+      </p>
+
+      <div class="reminder">
+        <em>CherryTree Tip:</em> Use a consistent folder structure for every engagement. Consistency makes reporting faster and reduces 
+        the chance of missing evidence.
+      </div>
+
+      <h3>Obsidian</h3>
+      <p>
+        Obsidian is a Markdown-based note-taking application. It is useful for building a long-term ethical hacking knowledge base 
+        because notes can be linked together.
+      </p>
+
+      <h4>Install on Linux using AppImage</h4>
+      <pre><code class="language-bash"># Download the Obsidian AppImage from the official website
+# Then make it executable:
+chmod +x Obsidian*.AppImage
+
+# Run it:
+./Obsidian*.AppImage</code></pre>
+
+      <h4>Basic Usage</h4>
+      <pre><code class="language-text">Example Obsidian Vault:
+
+Ethical-Hacking-Vault
+├── Methodology
+├── Checklists
+├── Reporting Templates
+├── Findings Library
+├── OSINT Notes
+├── Scanning Notes
+└── Remediation References</code></pre>
+
+      <p>
+        Obsidian is especially useful for reusable methodology notes, personal checklists, and linking related topics such as OSINT, 
+        scanning, enumeration, exploitation, and remediation.
+      </p>
+
+      <div class="reminder">
+        <em>Obsidian Tip:</em> Use Obsidian for your personal knowledge base, but be careful when storing sensitive client data in 
+        plugin-enabled or synced vaults.
+      </div>
+
+      <h3>Joplin</h3>
+      <p>
+        Joplin is a note-taking application that supports Markdown and encryption features. It can be useful for students and 
+        professionals who want organized notes with optional synchronization.
+      </p>
+
+      <h4>Install on Linux</h4>
+      <pre><code class="language-bash"># Install using the official install script
+wget -O - https://raw.githubusercontent.com/laurent22/joplin/dev/Joplin_install_and_update.sh | bash</code></pre>
+
+      <h4>Basic Usage</h4>
+      <pre><code class="language-text">Example Joplin Notebooks:
+
+Pentest Engagement
+├── Scope
+├── Daily Notes
+├── Evidence
+├── Findings
+├── Remediation
+└── Debrief Notes</code></pre>
+
+      <p>
+        Joplin is useful for maintaining Markdown notes and organizing them into notebooks. When using synchronization, testers should 
+        ensure storage locations are approved by the client or organization.
+      </p>
+
+      <div class="reminder">
+        <em>Joplin Tip:</em> Enable encryption when storing sensitive notes, and never sync client data to unapproved personal cloud 
+        accounts.
+      </div>
+
+      <h3>Dradis</h3>
+      <p>
+        Dradis is designed for professional security teams that need collaborative reporting. It helps testers manage findings, 
+        evidence, notes, and report templates in one place.
+      </p>
+
+      <h4>Install with Docker</h4>
+      <pre><code class="language-bash"># Example Docker-based setup
+docker pull dradis/dradis-ce
+docker run -it -p 3000:3000 dradis/dradis-ce</code></pre>
+
+      <h4>Basic Usage</h4>
+      <pre><code class="language-text">Typical Dradis Workflow:
+
+1. Create a project
+2. Add engagement scope
+3. Add hosts or affected assets
+4. Import notes or tool output
+5. Create findings
+6. Attach evidence
+7. Generate a report from a template</code></pre>
+
+      <p>
+        Dradis is better suited to team environments than solo note-taking. It is useful when multiple testers need to contribute to 
+        the same engagement report.
+      </p>
+
+      <div class="reminder">
+        <em>Dradis Tip:</em> Use standardized finding templates so every tester reports severity, impact, evidence, and remediation 
+        consistently.
+      </div>
+
+      <h3>Faraday</h3>
+      <p>
+        Faraday is a collaborative platform for managing security assessment data. It can help organize vulnerabilities, assets, tool 
+        outputs, and remediation status.
+      </p>
+
+      <h4>Install with Docker Compose</h4>
+      <pre><code class="language-bash"># Clone the Faraday Community repository
+git clone https://github.com/infobyte/faraday.git
+
+# Enter the directory
+cd faraday
+
+# Start using Docker Compose
+docker compose up</code></pre>
+
+      <h4>Basic Usage</h4>
+      <pre><code class="language-text">Typical Faraday Workflow:
+
+1. Create a workspace
+2. Add assets
+3. Import scan results
+4. Review discovered issues
+5. Validate findings
+6. Assign severity
+7. Track remediation progress</code></pre>
+
+      <p>
+        Faraday is useful for larger assessments where findings need to be tracked across many hosts, services, and testers.
+      </p>
+
+      <div class="reminder">
+        <em>Faraday Tip:</em> Imported scanner results should always be manually validated before being included in a final report.
+      </div>
+
+      <h3>Markdown and Git</h3>
+      <p>
+        Markdown files stored in Git repositories provide a simple, transparent, and version-controlled reporting workflow. This approach is especially useful for technical teams.
+      </p>
+
+      <h4>Install Git</h4>
+      <pre><code class="language-bash">sudo apt update
+sudo apt install git -y</code></pre>
+
+      <h4>Basic Usage</h4>
+      <pre><code class="language-bash">mkdir ethical-hacking-report
+cd ethical-hacking-report
+
+git init
+
+mkdir scope notes evidence findings report
+touch README.md
+touch findings/EH-001-example-finding.md
+
+git add .
+git commit -m "Initial report structure"</code></pre>
+
+      <h4>Example Markdown Finding</h4>
+      <pre><code class="language-markdown"># EH-001 - Exposed Administrative Login Page
+
+## Severity
+Medium
+
+## Affected Asset
+lab-web-01
+
+## Description
+An administrative login page was accessible from an untrusted network segment.
+
+## Evidence
+Screenshot stored in: evidence/EH-001/admin-login.png
+
+## Business Impact
+Exposed administrative interfaces increase the attack surface and may support brute-force or credential-stuffing attempts.
+
+## Recommendation
+Restrict access to trusted networks, enforce multi-factor authentication, and monitor failed login attempts.</code></pre>
+
+      <div class="reminder">
+        <em>Markdown Tip:</em> Markdown is simple, portable, and easy to review, but sensitive repositories must be stored securely.
+      </div>
+
+      <h3>Choosing the Right Reporting Tool</h3>
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table" aria-label="Choosing the right reporting tool">
+          <thead>
+            <tr>
+              <th>Scenario</th>
+              <th>Recommended Tool</th>
+              <th>Reason</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Beginner lab notes</td>
+              <td>CherryTree</td>
+              <td>Simple structure and easy evidence organization</td>
+            </tr>
+            <tr>
+              <td>Personal hacking knowledge base</td>
+              <td>Obsidian</td>
+              <td>Excellent for linked Markdown notes</td>
+            </tr>
+            <tr>
+              <td>Secure personal notes</td>
+              <td>Joplin</td>
+              <td>Supports organized notes and encryption options</td>
+            </tr>
+            <tr>
+              <td>Team-based reporting</td>
+              <td>Dradis</td>
+              <td>Designed for collaborative pentest reporting</td>
+            </tr>
+            <tr>
+              <td>Large vulnerability tracking</td>
+              <td>Faraday</td>
+              <td>Useful for assets, findings, and remediation workflows</td>
+            </tr>
+            <tr>
+              <td>Version-controlled reports</td>
+              <td>Markdown + Git</td>
+              <td>Simple, auditable, and developer-friendly</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="reminder">
+        <em>Reporting Tool Reminder:</em> Tools help organize evidence, but they do not replace judgment. A weak report in a powerful 
+        platform is still a weak report.
+      </div>
+    </section>
+
+<!-- ============================================================ -->
+<!-- KEY TAKEAWAYS                                                 -->
+<!-- ============================================================ -->
+
+    <section class="module-section" id="key-takeaways">
+      <h2>8. Key Takeaways</h2>
+      <ul class="takeaways-list">
+        <li><strong>Reporting is part of the mission:</strong> Ethical hacking is incomplete without clear, accurate documentation.</li>
+        <li><strong>Evidence must be handled carefully:</strong> Capture enough proof to validate risk, but avoid unnecessary exposure of sensitive data.</li>
+        <li><strong>Reports must drive action:</strong> Every finding should explain the issue, impact, severity, and remediation path.</li>
+        <li><strong>Different audiences need different detail:</strong> Executives need risk and impact; technical teams need evidence and remediation steps.</li>
+        <li><strong>Good notes create better reports:</strong> Document continuously throughout the engagement.</li>
+      </ul>
+
+      <div class="reminder">
+        <em>Reminder:</em> A vulnerability that is poorly explained is a vulnerability that may never get fixed.
+      </div>
+    </section>
+
+<!-- ============================================================ -->
+<!-- ASSESSMENT & NEXT STEPS                                       -->
+<!-- ============================================================ -->
+
+    <section class="module-section" id="assessment-next-steps">
+      <h2>9. Assessment &amp; Next Steps</h2>
+      
+      <h3>Knowledge Check</h3>
+      <ol>
+        <li>Why is reporting considered a core part of ethical hacking?</li>
+        <li>What is the difference between technical evidence and business impact?</li>
+        <li>Why should sensitive information be minimized in a report?</li>
+        <li>What information should be included in a finding?</li>
+        <li>Who are the main audiences for a penetration testing report?</li>
+      </ol>
+
+      <h3>Lab Exercises</h3>
+      <ul>
+        <li><strong>Lab 1:</strong> Create a mock engagement folder with sections for scope, evidence, notes, screenshots, and findings.</li>
+        <li><strong>Lab 2:</strong> Write a one-page finding using a fictional vulnerability from a training lab.</li>
+        <li><strong>Lab 3:</strong> Rewrite a technical finding for two audiences: an executive reader and a system administrator.</li>
+        <li><strong>Lab 4:</strong> Create a findings register with severity, affected asset, evidence location, remediation owner, and status.</li>
+      </ul>
+
+      <h3>Recommended Reading</h3>
+      <ul>
+        <li><a href="https://owasp.org/www-project-web-security-testing-guide/" target="_blank" rel="noopener">OWASP Web Security Testing Guide</a>: Useful for understanding structured web application testing and documentation.</li>
+        <li><a href="https://owasp.org/www-project-top-ten/" target="_blank" rel="noopener">OWASP Top 10</a>: Helps connect common vulnerabilities to business risk and remediation guidance.</li>
+        <li><a href="https://www.first.org/cvss/" target="_blank" rel="noopener">CVSS</a>: Common framework for understanding vulnerability severity scoring.</li>
+        <li><a href="https://attack.mitre.org/" target="_blank" rel="noopener">MITRE ATT&amp;CK</a>: Helps map attacker behavior to defensive controls and reporting language.</li>
+      </ul>
+
+    <div class="info-remember" style="margin: 15px 0;">
+      <em>Reporting Reminder:</em> A finding is only valuable if it can be understood, verified, and acted upon. Clear evidence, 
+      accurate documentation, and practical remediation are the hallmarks of a professional ethical hacker.
+    </div>
+	</section>
+	
+	<!-- ============================================================ -->
+<!-- FLOATING NAVIGATION -->
+<!-- ============================================================ -->
+<div class="lesson-nav-container">
+      <a href="https://iscsecurity.org/content/1-ethical-hacking/1-introduction-to-ethical-hacking/07-security-laws" class="nav-link-btn">👈 Back</a>
+      <a href="https://iscsecurity.org/content/1-ethical-hacking/1-introduction-to-ethical-hacking/09-cheat-sheet" class="nav-link-btn">Next 👉</a>
+    </div>
+
+    </article>
+  </main>
+</body>
+</html>

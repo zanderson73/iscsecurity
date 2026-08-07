@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Google Dorking Cheatsheet | ISCSECURITY Master Class Series</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="/css/styles.css?v=2026_PRODUCTION_FINAL" />
+  
+  <!-- MemberSpace -->
+  <script>
+    window.MemberSpace = window.MemberSpace || { subdomain: "iscsecurity" };
+    (function(d){
+      var s = d.createElement("script");
+      s.src = "https://cdn.memberspace.com/scripts/widgets.js";
+      s.async = true;
+      d.head.appendChild(s);
+    })(document);
+  </script>
+  
+</head>
+
+<body class="page-lesson">
+
+<div class="site-topbar" role="note" aria-label="Legal notice">
+  <small class="topbar-note">
+    © 2026 ISCSECURITY · Authorization-first training. All testing must be lawful, scoped, and approved in writing.
+  </small>
+	<nav class="topbar-links" aria-label="Topbar links">
+      <a href="https://iscsecurity.org/index">Home</a>
+      <a href="https://iscsecurity.org/content/index">Content</a>
+	  <a href="https://iscsecurity.org/content/1-ethical-hacking/2-open-source-intelligence/index">OSINT</a>
+      <a href="https://iscsecurity.org/contact">Contact</a>
+    </nav>
+</div>
+
+  <main class="page modules-page no-shift" id="ethical-hacking-training-content" data-ms-content="members-only">
+  <article class="lesson-content overlay" tabindex="0" aria-label="Lesson content: Google Dorking Cheatsheet">
+
+    <p class="breadcrumb">
+      <a href="https://iscsecurity.org/index">Home</a> →
+        <a href="https://iscsecurity.org/content/index">Content</a> →
+        <a href="https://iscsecurity.org/content/1-ethical-hacking/2-open-source-intelligence/index">OSINT</a> →
+      <span aria-current="page">Page 12</span>
+    </p>
+
+    <h1>Google Dorking Cheatsheet</h1>
+
+    <!-- ============================================================ -->
+    <!-- SECTION: AUTHORIZED USE BANNERS                               -->
+    <!-- ============================================================ -->
+
+    <div class="reminder-auth">
+      <strong>🚨 AUTHORIZED USE ONLY:</strong>
+      <span>
+        All content in this document is for educational and defensive training purposes only. 
+        The adversarial techniques described are derived from real-world tradecraft but 
+        are documented exclusively for <strong>defensive analysis, detection engineering, 
+        and authorized security testing</strong>. Unauthorized deployment of any technique 
+        described may constitute a criminal offense under applicable national and 
+        international cybercrime laws. Always obtain <strong>explicit written authorization</strong> 
+        from the system owner or authorized legal entity before testing, executing, or 
+        simulating any of the techniques outlined in this document.
+      </span>
+    </div>
+
+    <div class="reminder-comp">
+      <strong>🌍 INTERNATIONAL COMPLIANCE NOTICE:</strong>
+      <span>
+        Cybercrime laws vary significantly by jurisdiction. It is your sole responsibility 
+        to understand and comply with the laws applicable to your location, the location 
+        of any target systems, and your organization's policies. When in doubt, 
+        <strong>consult a qualified legal professional</strong> before testing, executing, 
+        or simulating any technique described in this document.
+      </span>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- SECTION: BASIC FTP DIRECTORY DISCOVERY                       -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="dorks-basic">
+      <h2 id="dorks-basic">1. Basic FTP Directory Discovery</h2>
+
+      <pre><code class="language-bash">inurl:ftp intitle:"index of"</code></pre>
+
+      <div class="reminder-lightblue">
+        <strong>Note:</strong><br>
+        Find open FTP directory listings indexed by search engines. These often contain unlisted files and archives.
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION: SPECIFIC FILETYPE DISCOVERY                         -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="dorks-filetype">
+      <h2 id="dorks-filetype">2. Specific Filetype Discovery</h2>
+
+      <p><strong>Examples:</strong></p>
+
+      <pre><code class="language-bash">inurl:ftp intitle:"index of" filetype:pdf
+inurl:ftp intitle:"index of" filetype:xls
+inurl:ftp intitle:"index of" filetype:doc
+inurl:ftp intitle:"index of" filetype:zip|rar</code></pre>
+
+      <div class="reminder">
+        <strong>Operator Note:</strong><br>
+        Locate manuals, reports, spreadsheets, and compressed backups. Always confirm scope before downloading.
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION: SENSITIVE INFORMATION DISCOVERY                     -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="dorks-sensitive">
+      <h2 id="dorks-sensitive">3. Sensitive Information Discovery</h2>
+
+      <pre><code class="language-bash">inurl:ftp intitle:"index of" intext:password
+inurl:ftp intitle:"index of" intext:confidential
+inurl:ftp intitle:"index of" intext:backup</code></pre>
+
+      <div class="reminder-lightblue">
+        <strong>Note:</strong><br>
+        These queries can reveal exposed credentials or backups. Treat any discovered secrets per your rules of engagement.
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION: MEDIA & DATA TYPES                                  -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="dorks-media">
+      <h2 id="dorks-media">4. Media &amp; Data Types</h2>
+
+<pre><code class="language-bash">inurl:ftp intitle:"index of" (mp3|wav|flac)
+inurl:ftp intitle:"index of" (jpg|png|gif|raw)
+inurl:ftp intitle:"index of" filetype:csv|txt
+</code></pre>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION: EXCLUDING & REFINING RESULTS                        -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="dorks-exclude">
+      <h2 id="dorks-exclude">5. Excluding &amp; Refining Results</h2>
+
+      <pre><code class="language-bash">inurl:ftp intitle:"index of" -inurl:(http|https)
+inurl:ftp intitle:"index of" -site:example.com</code></pre>
+
+      <div class="reminder">
+        <strong>Operator Note:</strong><br>
+        Use exclusions to avoid HTTP mirrors or domains outside your target scope.
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION: COMBINE FOR SMART OSINT TARGETS                     -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="dorks-combine">
+      <h2 id="dorks-combine">6. Combine for Smart OSINT Targets</h2>
+
+<pre><code class="language-bash">inurl:ftp intitle:"index of" intext:"2019" filetype:pdf
+inurl:ftp intitle:"index of" intext:salary filetype:xls
+inurl:ftp intitle:"index of" filetype:config
+</code></pre>
+
+      <div class="reminder-lightblue">
+        <strong>Note:</strong><br>
+        Narrow queries by year, product, department, or keyword to reduce noise and surface relevant leaks.
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION: ADVANCED / COMPOUND USAGE                           -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="dorks-advanced">
+      <h2 id="dorks-advanced">7. Advanced / Compound Usage</h2>
+
+      <pre><code class="language-bash">inurl:ftp intitle:"index of" ext:(doc|pdf|xls|txt|ps|rtf|odt|sxw|psw|ppt|pps|xml)</code></pre>
+
+      <div class="reminder">
+        <strong>Operator Note:</strong><br>
+        Use <code>ext:</code> or <code>filetype:</code> to target multiple extensions in a single pass.
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION: USAGE TIPS                                          -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="dorks-tips">
+      <h2 id="dorks-tips">8. Usage Tips</h2>
+
+      <ul>
+        <li>Always tailor <code>intext:</code> keywords to what you seek (software, licenses, email, passwords, keys).</li>
+        <li><code>filetype:</code> and <code>ext:</code> are interchangeable for extension targeting.</li>
+        <li>Combine with <code>site:</code> for institution-specific searches: <code>inurl:ftp intitle:"index of" site:.edu "exam results"</code>.</li>
+        <li>Use numeric/keyword filters to narrow to year, project name, or department.</li>
+      </ul>
+
+      <div class="reminder-lightblue">
+        <strong>Note:</strong><br>
+        Document every dork you run. Search results change quickly and must be reproducible for reporting and retests.
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION: UPDATES & CURRENT NOTES                             -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="dorks-updates">
+      <h2 id="dorks-updates">9. Updates &amp; Current Notes (2026)</h2>
+
+      <ul>
+        <li><strong>NAPALM/SearchFTPS:</strong> Remains an active, widely used FTP indexer. Useful for rapid discovery and bulk download of publicly available FTP artifacts.</li>
+        <li><strong>Mamont (MMNT):</strong> Is still available and commonly referenced as a large open FTP index/mirror. Use mirrored endpoints (when available) to improve coverage.</li>
+        <li><strong>Metagoofil:</strong> Remains part of Kali toolsets and community forks; it helps harvest metadata and document paths found via search. Check the Kali package page or GitHub for the latest install and usage notes.</li>
+        <li>Community-maintained lists, Reddit threads, and Medium writeups are still good signals for finding active mirrors and lesser-known catalogs — treat them as leads, not authoritative sources.</li>
+      </ul>
+
+      <div class="reminder">
+        <strong>Operator Note:</strong><br>
+        Tool availability and index freshness change; validate any critical lead directly on the indexer and record 
+		retrieval timestamps for reporting.
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION: SUPPORTING RESOURCES                                -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="dorks-resources">
+      <h2 id="dorks-resources">Supporting Resources &amp; Recommended Reading</h2>
+
+      <ul>
+        <li>
+          <a href="https://www.rfc-editor.org/rfc/rfc959" target="_blank" rel="noopener">
+            RFC 959: File Transfer Protocol (FTP)
+          </a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: Official FTP protocol specification; reference for commands, server behavior, and response codes.</small>
+        </li>
+        <li>
+          <a href="https://owasp.org/www-project-web-security-testing-guide/stable/5-Web_Application_Security_Testing/06-Vulnerability_Assessment/02-Testing_for_File_Enumeration.html" target="_blank" rel="noopener">
+            OWASP WSTG: File &amp; Directory Enumeration
+          </a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: Testing guidance for directory indexing, exposed files, and recursive discovery methods.</small>
+        </li>
+        <li>
+          <a href="https://www.searchftps.net/" target="_blank" rel="noopener">
+            SearchFTPs/NAPALM FTP Index
+          </a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: Public FTP index for discovering open FTP directories and file listings.</small>
+        </li>
+        <li>
+          <a href="http://www.mmnt.net/" target="_blank" rel="noopener">
+            Mamont (MMNT) FTP Index
+          </a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: Long-standing FTP indexing engine useful for historical and mirrored directory listings.</small>
+        </li>
+        <li>
+          <a href="https://github.com/laramies/metagoofil" target="_blank" rel="noopener">
+            Metagoofil: Metadata Extraction Tool
+          </a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: Extract usernames, paths, software versions, and metadata from documents found via FTP dorks.</small>
+        </li>
+        <li>
+          <a href="https://www.shodan.io/search?query=port%3A21" target="_blank" rel="noopener">
+            Shodan: Public FTP Services
+          </a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: Identify open FTP services, anonymous login configurations, and exposed directory structures.</small>
+        </li>
+        <li>
+          <a href="https://archive.org/web/" target="_blank" rel="noopener">
+            Internet Archive: Wayback Machine
+          </a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: Locate historical FTP pages, cached directory indexes, and removed files.</small>
+        </li>
+        <li>
+          <a href="https://www.cisa.gov/resources-tools/resources/tlp" target="_blank" rel="noopener">
+            CISA: Traffic Light Protocol (TLP)
+          </a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: Guidelines for handling and sharing sensitive data discovered during OSINT operations.</small>
+        </li>
+      </ul>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION: CHAPTER SUMMARY                                     -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="dorks-chapter-summary">
+      <h2 id="dorks-chapter-summary">10. Chapter Summary</h2>
+
+      <p>
+        By completing this chapter you should now be able to:
+      </p>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin: 20px 0;">
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Identify open FTP directories using Google Dorks.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;"><code>inurl:ftp intitle:"index of"</code> and variations.</span></span>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Target specific file types.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;">PDFs, spreadsheets, documents, and compressed archives.</span></span>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Discover sensitive information.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;">Credentials, confidential documents, and backup files.</span></span>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Refine and exclude results.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;">Using <code>-</code> and <code>-site:</code> to filter noise.</span></span>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Combine multiple operators for precision.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;">Target-specific searches by year, department, or project.</span></span>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Use compound queries for broad coverage.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;"><code>ext:(doc|pdf|xls|txt)</code> for multi-format discovery.</span></span>
+        </div>
+
+      </div>
+
+      <div class="info-remember">
+        <strong>Why This Matters:</strong><br>
+          Google Dorking remains one of the most effective passive reconnaissance techniques. By mastering these queries,
+          operators can uncover forgotten infrastructure, exposed documents, and configuration files that would otherwise
+          remain hidden. For defenders, understanding these dorks is essential for proactive exposure monitoring and
+          de-indexing sensitive content before adversaries discover it.
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION: KEY TAKEAWAYS                                       -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="dorks-takeaways">
+      <h2 id="dorks-takeaways">11. Key Takeaways</h2>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table" aria-label="Google Dorking key takeaways">
+          <thead>
+            <tr>
+              <th>Concept</th>
+              <th>Why It Matters</th>
+              <th>Security Impact</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Dorks Are Passive Reconnaissance</strong></td>
+              <td>Google Dorks allow discovery of exposed content without directly interacting with the target's infrastructure.</td>
+              <td>Enables low-risk enumeration of sensitive files and forgotten endpoints.</td>
+            </tr>
+            <tr>
+              <td><strong>Filetype Targeting Is Precise</strong></td>
+              <td>Using <code>filetype:</code> or <code>ext:</code> narrows results to specific document types, reducing false positives.</td>
+              <td>Accelerates discovery of leaks, configuration files, and backups.</td>
+            </tr>
+            <tr>
+              <td><strong>Combine Operators for Precision</strong></td>
+              <td>Layering <code>site:</code>, <code>inurl:</code>, <code>intitle:</code>, and <code>intext:</code> creates highly targeted queries.</td>
+              <td>Reduces noise and improves intelligence quality.</td>
+            </tr>
+            <tr>
+              <td><strong>Exclusions Prevent Scope Creep</strong></td>
+              <td>Using <code>-</code> and <code>-site:</code> removes unwanted domains and results from the query.</td>
+              <td>Keeps engagement data clean and relevant.</td>
+            </tr>
+            <tr>
+              <td><strong>Document Everything</strong></td>
+              <td>Search results change quickly; reproducible queries are essential for reporting and retests.</td>
+              <td>Auditability supports legal defensibility and peer review.</td>
+            </tr>
+            <tr>
+              <td><strong>Index Freshness Varies</strong></td>
+              <td>Google, Bing, Yandex, and specialized FTP indexes have different retention and refresh rates.</td>
+              <td>Cross-referencing multiple engines reduces blind spots.</td>
+            </tr>
+            <tr>
+              <td><strong>Metadata Extraction Adds Value</strong></td>
+              <td>Documents discovered via dorks can be analyzed with tools like Metagoofil to extract usernames and paths.</td>
+              <td>Provides additional intelligence for phishing and infrastructure mapping.</td>
+            </tr>
+            <tr>
+              <td><strong>Legal Boundaries Are Critical</strong></td>
+              <td>Dorking is passive reconnaissance — until it crosses into accessing unauthorized systems or data.</td>
+              <td>Always operate within signed rules of engagement and document authorization.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- REDOPS REMINDER                                               -->
+    <!-- ============================================================ -->
+
+    <div class="info-remember" style="margin: 15px 0;">
+      <em>RedOps Reminder:</em> Dorks are sensors — tune them carefully, document everything, and never exceed your 
+	  authorization. The difference between discovery and intrusion is permission; keep your queries auditable and 
+	  your findings ethical.
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- FLOATING NAVIGATION                                           -->
+    <!-- ============================================================ -->
+
+    <div class="lesson-nav-container">
+      <a href="https://iscsecurity.org/content/1-ethical-hacking/2-open-source-intelligence/11-ftp-search" class="nav-link-btn">👈 Back</a>
+      <a href="https://iscsecurity.org/content/1-ethical-hacking/2-open-source-intelligence/13-email-addresses-usernames-and-images" class="nav-link-btn">Next 👉</a>
+    </div>
+
+    </article>
+  </main>
+</body>
+</html>

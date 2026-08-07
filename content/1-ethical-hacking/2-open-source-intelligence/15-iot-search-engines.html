@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>OSINT &amp; IoT Engine Operations | ISCSECURITY Master Class Series</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="/css/styles.css?v=2026_PRODUCTION_FINAL" />
+  
+  <!-- MemberSpace -->
+  <script>
+    window.MemberSpace = window.MemberSpace || { subdomain: "iscsecurity" };
+    (function(d){
+      var s = d.createElement("script");
+      s.src = "https://cdn.memberspace.com/scripts/widgets.js";
+      s.async = true;
+      d.head.appendChild(s);
+    })(document);
+  </script>
+  
+</head>
+
+<body class="page-lesson">
+
+<div class="site-topbar" role="note" aria-label="Legal notice">
+  <small class="topbar-note">
+    © 2026 ISCSECURITY · Authorization-first training. All testing must be lawful, scoped, and approved in writing.
+  </small>
+	<nav class="topbar-links" aria-label="Topbar links">
+      <a href="https://iscsecurity.org/index">Home</a>
+      <a href="https://iscsecurity.org/content/index">Content</a>
+	  <a href="https://iscsecurity.org/content/1-ethical-hacking/2-open-source-intelligence/index">OSINT</a>
+      <a href="https://iscsecurity.org/contact">Contact</a>
+    </nav>
+</div>
+
+  <main class="page modules-page no-shift" id="ethical-hacking-training-content" data-ms-content="members-only">
+  <article class="lesson-content overlay" tabindex="0" aria-label="Lesson content: OSINT &amp; IoT Engine Operations">
+
+    <p class="breadcrumb">
+      <a href="https://iscsecurity.org/index">Home</a> →
+        <a href="https://iscsecurity.org/content/index">Content</a> →
+        <a href="https://iscsecurity.org/content/1-ethical-hacking/2-open-source-intelligence/index">OSINT</a> →
+      <span aria-current="page">Page 15</span>
+    </p>
+
+    <h1>OSINT &amp; IoT Engine Operations</h1>
+
+    <!-- ============================================================ -->
+    <!-- AUTHORIZED USE BANNERS                                        -->
+    <!-- ============================================================ -->
+
+    <div class="reminder-auth">
+      <strong>🚨 AUTHORIZED USE ONLY:</strong>
+      <span>
+        All content in this document is for educational and defensive training purposes only.
+        The adversarial techniques described are derived from real-world tradecraft but
+        are documented exclusively for <strong>defensive analysis, detection engineering,
+        and authorized security testing</strong>. Unauthorized deployment of any technique
+        described may constitute a criminal offense under applicable national and
+        international cybercrime laws. Always obtain <strong>explicit written authorization</strong>
+        from the system owner or authorized legal entity before testing, executing, or
+        simulating any of the techniques outlined in this document.
+      </span>
+    </div>
+
+    <div class="reminder-comp">
+      <strong>🌍 INTERNATIONAL COMPLIANCE NOTICE:</strong>
+      <span>
+        Cybercrime laws vary significantly by jurisdiction. It is your sole responsibility
+        to understand and comply with the laws applicable to your location, the location
+        of any target systems, and your organization's policies. When in doubt,
+        <strong>consult a qualified legal professional</strong> before testing, executing,
+        or simulating any technique described in this document.
+      </span>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 1: OPERATIONAL PRE-FLIGHT — MAPPING THE ATTACK SURFACE -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="preflight">
+      <h2 id="preflight">1. Operational Pre-Flight: Mapping the Attack Surface Before Querying</h2>
+
+      <p>
+        <strong>Adversary Goals:</strong> Before querying any IoT engine, the operator must possess a target dossier
+        containing quantifiable network boundaries and software signatures. Passive reconnaissance here prevents
+        engine query burn and reduces false positives.
+      </p>
+
+      <p>
+        IoT engines — Shodan, Censys, FOFA, ZoomEye, Criminal IP, BinaryEdge, and Onyphe — index billions of
+        internet-facing devices. For Red Teams and OSINT practitioners, they provide a <strong>passive, low-noise</strong>
+        method to discover exposed assets, misconfigurations, and vulnerable infrastructure without touching the target.
+      </p>
+
+      <h3>1.1 ASN &amp; IP Space Enumeration</h3>
+
+      <p>Extract the target's routing boundaries to scope engine queries by <code>net:</code> or <code>asn:</code> filters.</p>
+
+<pre><code class="language-bash"># Identify ASN via organization name
+whois -h whois.radb.net -- '-i origin *' | grep -E "AS[0-9]+"
+
+# BGP.HE.NET passive extraction
+curl -s "https://bgp.he.net/search?search%5Bsearch%5D=TARGET_NAME&commit=Search" | \
+  grep -oP 'AS\d+' | sort -u
+
+# Expand ASN to CIDR blocks via bgpq4 or WHOIS
+whois -h whois.radb.net "!gAS15169" | tr ' ' '\n' | grep -E "^[0-9]+\."
+
+# Validate and expand netblocks
+nmap --script targets-asn --script-args targets-asn.asn=15169
+</code></pre>
+
+      <h3>1.2 Fingerprint Extraction for IoT Engines</h3>
+
+      <p>IoT engines index by hash, header, and title. Pre-calculate signatures from target-owned infrastructure discovered in early-phase recon.</p>
+
+<pre><code class="language-bash"># Generate Shodan-compliant Favicon MurmurHash3
+python3 -c "import mmh3, codecs, requests; \
+  r = requests.get('https://target.com/favicon.ico', verify=False); \
+  print(mmh3.hash(codecs.encode(r.content, 'base64')))"
+
+# Extract default web server headers for filtering
+curl -s -I http://TARGET | grep -iE "server:|x-powered-by:"
+
+# Identify unique HTML title patterns
+curl -s http://TARGET | grep -oP "(?&lt;=&lt;title>).*?(?=&lt;/title>)"
+</code></pre>
+
+      <h3>1.3 Device &amp; Firmware Signature Intelligence</h3>
+
+      <p>Review procurement records, FCC IDs, job listings, and technical documentation to identify physical devices deployed on target networks.</p>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table">
+          <thead>
+            <tr>
+              <th>Target Sector</th>
+              <th>Likely Fingerprints</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Industrial</td>
+              <td>Schneider Electric, Modicon, Siemens S7, Ignition</td>
+            </tr>
+            <tr>
+              <td>Healthcare</td>
+              <td>DICOM, GE Healthcare, Philips IntelliVue</td>
+            </tr>
+            <tr>
+              <td>Transportation</td>
+              <td>Trapeze, Garmin Fleet, CalAmp</td>
+            </tr>
+            <tr>
+              <td>Corporate/Branch</td>
+              <td>MikroTik, Ubiquiti, Cisco Meraki, Hikvision</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div style="background-color: #e6f0fa; border-left: 5px solid #004085; color: #004085; padding: 15px; margin: 20px 0; border-radius: 4px; font-family: sans-serif; line-height: 1.5;">
+    <strong>Operational Note:</strong><br>
+    Cross-reference extracted headers against the
+    <a href="https://cirt.net" target="_blank" rel="noopener" style="color: #002752; text-decoration: underline; font-weight: bold;">Default Credentials Database</a>
+    to prioritize high-value targets during later exploitation phases.
+</div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 2: ENGINE SELECTION MATRIX                           -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="engine-matrix">
+      <h2 id="engine-matrix">2. Engine Selection Matrix</h2>
+
+      <p>
+        <strong>Adversary Goals:</strong> Select the right engine(s) for the target profile. Never rely on a single
+        engine, data inconsistency between Shodan and Censys often reveals shadow assets (devices indexed by one
+        engine but not the other due to scanning cadence differences).
+      </p>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table" style="width:100%; border-collapse:collapse; border:1px solid rgba(255,255,255,0.1); margin:1em 0; font-size:0.95rem;">
+          <thead>
+            <tr>
+              <th>Engine</th>
+              <th>Primary Strength</th>
+              <th>Adversarial Use Case</th>
+              <th>Query Language</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Shodan</strong></td>
+              <td>Banner grabbing, historical data, vuln tagging</td>
+              <td>Global device enumeration, CVE-to-Asset mapping</td>
+              <td><code>net:</code>, <code>port:</code>, <code>product:</code>, <code>vuln:</code></td>
+            </tr>
+            <tr>
+              <td><strong>Censys</strong></td>
+              <td>Certificate transparency, host-based pivots</td>
+              <td>Identifying shadow IT via cert CN/SAN, cloud asset leakage</td>
+              <td><code>services.tls.certificates.leaf_data.subject.common_name:</code></td>
+            </tr>
+            <tr>
+              <td><strong>Criminal IP</strong></td>
+              <td>Real-time risk scoring, proxy/VPN detection</td>
+              <td>Identifying target assets already compromised or acting as C2</td>
+              <td><code>scan_port:</code>, <code>ip_score:</code>, <code>tag:</code></td>
+            </tr>
+            <tr>
+              <td><strong>FOFA</strong></td>
+              <td>Chinese-manufactured firmware, web components</td>
+              <td>Hunt for obscure DVRs, NVRs, and exposed Chinese ICS</td>
+              <td><code>ip=</code>, <code>title=</code>, <code>header=</code>, <code>fid=</code></td>
+            </tr>
+            <tr>
+              <td><strong>ZoomEye</strong></td>
+              <td>Component version clustering, Asian footprint</td>
+              <td>Firmware version clustering, geographic isolation</td>
+              <td><code>site:</code>, <code>service:</code></td>
+            </tr>
+            <tr>
+              <td><strong>BinaryEdge</strong></td>
+              <td>Torrent/SCADA/sensor streams</td>
+              <td>Data leakage, exposed sensors, industrial telemetry</td>
+              <td><code>web.title:</code>, <code>remote.desktop:</code></td>
+            </tr>
+            <tr>
+              <td><strong>Onyphe</strong></td>
+              <td>Cyber-defense &amp; threat intelligence fusion</td>
+              <td>Correlating target IPs with known threat actor infrastructure</td>
+              <td><code>category:</code>, <code>protocol:</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="reminder">
+        <strong>Red Team Principle:</strong><br> 
+		Never rely on a single engine. Data inconsistency between Shodan and Censys
+        often reveals shadow assets (devices indexed by one engine but not the other due to scanning cadence differences).
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 3: MASTER ADVANCED QUERY SYNTAX                     -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="query-syntax">
+      <h2 id="query-syntax">3. Master Advanced Query Syntax</h2>
+
+      <p>
+        <strong>Adversary Goals:</strong> IoT search engines are noisy. Adversarial operators must use compound queries
+        to isolate target-owned infrastructure and exclude honeypots or research scanners.
+      </p>
+
+      <h3>3.1 Shodan Advanced Syntax</h3>
+
+<pre><code class="language-shodan"># Isolate target ASN with specific vulnerable IoT product
+asn:AS15169 product:"Apache Flink" vuln:CVE-2020-17519
+
+# Exposed management interfaces on target netblocks
+net:"198.51.100.0/24" http.title:"Management Console" -http.title:"404"
+
+# Industrial Control: Modbus/TCP on specific geography
+port:502 country:"DE" "Unit ID" " Schneider"
+
+# IP Cameras with default or no authentication
+net:"203.0.113.0/24" port:554 has_screenshot:true -ssh
+
+# Exclude known security vendor scanners (noise reduction)
+net:"TARGET_CIDR" -product:"Elastic" -product:"CensysInspect"
+</code></pre>
+
+      <h3>3.2 Censys Certificate Pivots</h3>
+
+<pre><code class="language-censys"># Find all certificates mentioning target, then resolve to hosts
+services.tls.certificates.leaf_data.subject.common_name: "*.target.com"
+services.tls.certificates.leaf_data.issuer.organization: "Let's Encrypt"
+
+# Locate exposed Kubernetes or Docker APIs via certificate CN
+services.port: 10250 and services.tls.certificates.leaf_data.subject.common_name: "system:node:*"
+
+# Hosts with expired certificates (indicates neglected infrastructure)
+services.tls.certificates.leaf_data.validity.end: [2023-01-01 TO *]
+</code></pre>
+
+      <h3>3.3 FOFA / ZoomEye Syntax (Asian/Firmware Heavy)</h3>
+
+<pre><code class="language-fofa"># Specific router firmware across target IP space
+ip="203.0.113.0/24" && title="RouterOS" && header="MikroTik"
+
+# Hunt for specific web framework versions prone to RCE
+app="Apache-Shiro" && country="US"
+
+# ZoomEye: Cluster by specific component hash
+site:target.com +service:"1.2.3.4" +after:2024-01-01
+</code></pre>
+
+      <h3>3.4 Criminal IP Risk Correlation</h3>
+
+<pre><code class="language-criminalip"># Target netblocks with medium-to-critical risk scores
+ip:203.0.113.0/24 and ip_score:>=70
+
+# Identify exposed databases already marked malicious
+scan_port:3306 and tag:database and current_score:>50
+</code></pre>
+</section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 4: MAP COMMON IoT VULNERABILITIES & MISCONFIGURATIONS -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="vuln-mapping">
+      <h2 id="vuln-mapping">4. Map Common IoT Vulnerabilities &amp; Misconfigurations</h2>
+
+      <p>
+        <strong>Adversary Goals:</strong> Prioritize devices with default credentials, unauthenticated administrative
+        interfaces, or known CVEs for initial access during the execution phase.
+      </p>
+
+      <h3>4.1 IP Cameras / DVR / NVR Systems</h3>
+
+<pre><code class="language-shodan"># Hikvision default/unauthenticated streams
+"Server: nginx/1.10.2" html:"Hikvision" port:81
+
+# Exposed RTSP streams (check for 401 vs 200 OK)
+port:554 rtsp "200 OK" "H.264"
+
+# Generic DVR login portals (often default creds admin/admin)
+html:"DVRWebClient" http.title:"DVR" port:8080
+
+# Unsecured WebcamXP feeds
+"webcam 7" inurl:'/mobile.html' port:8080
+</code></pre>
+
+      <h3>4.2 Network Infrastructure / Routers</h3>
+
+<pre><code class="language-shodan"># MikroTik Winbox exposed (potentially vulnerable to CVE-2018-14847)
+"RouterOS" "Winbox" port:8291
+
+# Ubiquiti AirOS / EdgeOS
+"Server: lighttpd/1.4.28" html:"ubnt"
+
+# Cisco Smart Install exposed
+"smart install client" port:4786
+
+# Exposed Fortinet SSL VPN (pre-auth RCE hunting)
+"Please Login" "Forti" port:443 -"X-Frame-Options: SAMEORIGIN"
+</code></pre>
+
+      <h3>4.3 Industrial Control Systems (ICS/SCADA)</h3>
+
+<pre><code class="language-shodan"># Modbus/TCP on Schneider Electric
+port:502 "Schneider Electric"
+
+# Siemens S7 Communication
+port:102 "Siemens" "SIMATIC"
+
+# BACnet exposed building controls
+port:47808 "BACnet" "Device"
+
+# GE Industrial devices
+"Server: GE-SYS" port:80
+</code></pre>
+
+      <h3>4.4 Medical &amp; Specialized IoT</h3>
+
+<pre><code class="language-shodan"># DICOM medical imaging servers
+"Server: Orthanc" port:8042
+"DICOM Server" port:11112
+
+# Exposed printer panels (potential document exfil)
+"hp LaserJet" http.title:"HP" port:80
+"Canon" http.title:"Network Configuration"
+</code></pre>
+
+      <div class="reminder">
+        <strong>Adversarial Workflow:</strong><br> 
+		Map retrieved results against NIST NVD and VulDB. If Shodan tags a device
+        <code>vuln:CVE-2021-XXXX</code>, prioritize it as an initial access vector during the execution phase.
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 5: AUTOMATE INGESTION VIA API PIPELINES             -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="api-pipeline">
+      <h2 id="api-pipeline">5. Automate Ingestion via API Pipelines</h2>
+
+      <p>
+        <strong>Adversary Goals:</strong> Manual browser-based reconnaissance is slow, non-repudiable (your browser
+        fingerprints, cookies, and IP are logged), and ephemeral (data changes between views). Automate for
+        wide-scope engagements.
+      </p>
+
+      <h3>5.1 Shodan Python SDK Wrapper</h3>
+
+      <p><em>Install: <code>pip install shodan</code></em></p>
+
+<pre><code class="language-python">#!/usr/bin/env python3
+# Conceptual adversary tool: Shodan API harvester with persistent storage
+import shodan
+import json
+import sqlite3
+import sys
+
+# Operational Configuration
+SHODAN_API_KEY = "YOUR_API_KEY"
+TARGET_ASN = "AS15169"
+DB_PATH = "iot_recon.db"
+
+api = shodan.Shodan(SHODAN_API_KEY)
+conn = sqlite3.connect(DB_PATH)
+c = conn.cursor()
+
+# Persistent storage for triage and reporting
+c.execute('''CREATE TABLE IF NOT EXISTS assets (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                ip TEXT, port INTEGER, org TEXT,
+                product TEXT, version TEXT, cves TEXT,
+                ssl_cn TEXT, timestamp TEXT, raw_banner TEXT)''')
+
+try:
+    # Compound query: ASN + exposed management + has screenshot evidence
+    query = f'asn:{TARGET_ASN} http.title:"login" has_screenshot:true'
+
+    for banner in api.search_cursor(query):
+        ip = banner.get('ip_str')
+        port = banner.get('port')
+        org = banner.get('org', 'N/A')
+        product = banner.get('product', 'N/A')
+        version = banner.get('version', 'N/A')
+        cves = json.dumps(banner.get('vulns', []))
+        ssl_cn = banner.get('ssl', {}).get('cert', {}).get('subject', {}).get('CN', 'N/A')
+        timestamp = banner.get('timestamp')
+        raw = json.dumps(banner)
+
+        c.execute("INSERT INTO assets VALUES (NULL,?,?,?,?,?,?,?,?,?)",
+                  (ip, port, org, product, version, cves, ssl_cn, timestamp, raw))
+
+        print(f"[+] {ip}:{port} | {product} | {ssl_cn}")
+
+except shodan.APIError as e:
+    print(f"[-] API Error: {e}")
+
+conn.commit()
+conn.close()
+</code></pre>
+
+      <h3>5.2 Censys CLI Bulk Export</h3>
+
+      <p><em>Install: <code>pip install censys</code></em></p>
+
+<pre><code class="language-bash"># Search and export to JSON Lines for downstream processing
+censys search "services.tls.certificates.leaf_data.subject.common_name: '*.target.com'" \
+  --index-type hosts \
+  -f "ip,services.port,services.service_name,services.tls.certificates.leaf_data.subject.common_name" \
+  -o target_certs.jsonl
+
+# Parse with jq for rapid pipeline integration
+cat target_certs.jsonl | jq -r '.[] | "\(.ip),\(.services[].port),\(.services[].service_name)"'
+</code></pre>
+
+      <h3>5.3 Pipeline Integration with Port Scanners</h3>
+
+      <p>Pipe engine output into localized verification tools without touching the target infrastructure directly until ready.</p>
+
+<pre><code class="language-bash"># Extract IPs from Shodan SQLite DB and pipe into naabu for active port correlation
+sqlite3 iot_recon.db "SELECT DISTINCT ip FROM assets;" | \
+  naabu -p - -o active_ports.txt
+
+# Masscan for large-scale CIDR verification (use ONLY on authorized ranges)
+masscan -iL target_cidrs.txt -p80,8080,8443,443,554,502 --rate 1000 -oJ masscan_out.json
+
+# Correlate with Nuclei for vulnerability triage
+nuclei -l active_ports.txt -t http/ -severity high,critical -json -o nuclei_findings.jsonl
+</code></pre>
+
+      <h3>5.4 Cron-Scheduled Monitoring</h3>
+
+      <p>For long-term engagements, schedule API queries to detect new target exposures in near-real-time.</p>
+
+<pre><code class="language-bash"># Cron: Every 6 hours, query for new devices in target ASN
+0 */6 * * * /usr/bin/python3 /opt/recon/shodan_hunter.py >> /var/log/recon/shodan.log 2>&1
+</code></pre>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 6: VERIFY AND TRIAGE SAFELY (OPSEC)                 -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="opsec-triage">
+      <h2 id="opsec-triage">6. Verify and Triage Safely (OPSEC)</h2>
+
+      <p>
+        <strong>Adversary Goals:</strong> IoT search engines index cached data. An exposed admin panel seen in Shodan
+        may have been remediated weeks ago. More critically, direct interaction with foreign or critical infrastructure
+        from your origin IP creates legal exposure and attribution risk.
+      </p>
+
+      <h3>6.1 Passive Verification First</h3>
+
+      <p>Always rely on historical engine metadata before sending a single packet.</p>
+
+      <ul>
+        <li><strong>Shodan:</strong> Inspect timestamp, <code>html_hash</code>, and screenshot evidence.</li>
+        <li><strong>Censys:</strong> Review certificate validity dates and last scan timestamps.</li>
+        <li><strong>BinaryEdge:</strong> View cached screenshots and <code>web.body</code> snippets.</li>
+      </ul>
+
+      <h3>6.2 Isolated Active Verification</h3>
+
+      <p>If active probing is authorized by your Rules of Engagement (RoE), route through ephemeral infrastructure.</p>
+
+      <div class="reminder-opsec">
+        <strong>OPSEC Chain Architecture:</strong><br>
+          [Operator Workstation] → [WireGuard/OpenVPN over Tor] → [Disposable VPS (non-KYC - Know Your Client)] → [Target Infrastructure]
+      </div>
+
+<pre><code class="language-bash"># Proxychains + Tor for tooling that lacks native proxy support
+proxychains4 nmap -sT -Pn -p80,8080 target_ip
+
+# SSH dynamic forwarding to a VPS jump host
+ssh -D 9050 -q -C -N user@disposable-vps.com
+
+# Validate VPS egress IP before scanning
+curl -s --socks5-hostname 127.0.0.1:9050 https://ipinfo.io
+</code></pre>
+
+      <h3>6.3 Cross-Check for Data Aging</h3>
+
+      <p>Engine indices lag reality. Use this triage hierarchy:</p>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table">
+          <thead>
+            <tr>
+              <th>Confidence</th>
+              <th>Method</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>High</td>
+              <td>Shodan screenshot shows your target's unique branding/logo</td>
+            </tr>
+            <tr>
+              <td>Medium</td>
+              <td>Certificate CN matches target domain; cert is unexpired</td>
+            </tr>
+            <tr>
+              <td>Low</td>
+              <td>Banner matches but timestamp &gt;30 days old; no screenshot</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>Command to check data freshness:</p>
+
+<pre><code class="language-bash"># If you must touch the target, verify timestamp correlation
+# Compare Shodan last_update vs. current certificate expiry
+openssl s_client -connect TARGET_IP:443 -servername target.com &lt;/dev/null 2>/dev/null | \
+  openssl x509 -noout -dates -subject
+</code></pre>
+
+      <h3>6.4 Honeypot Detection</h3>
+
+      <p>High-interaction honeypots pollute IoT engines. Filter these before reporting.</p>
+
+<pre><code class="language-bash"># Known honeypot markers: default banners that never change, unrealistic uptime
+# Shodan metadata: if 'tags' contains 'honeypot', discard or deprioritize
+
+# Masscan + Nmap OS detection to flag virtualized environments
+nmap -O -sV --version-intensity 2 target_ip | grep -iE "virtual|vmware|qemu"
+</code></pre>
+
+      <h3>6.5 Operational Security Checklist</h3>
+
+      <ul>
+        <li>✅ All API queries routed through engagement-specific API keys (not personal accounts)</li>
+        <li>✅ API keys rotated post-engagement</li>
+        <li>✅ No queries executed from corporate or home origin IP addresses</li>
+        <li>✅ All JSON outputs sanitized of operator metadata before archival</li>
+        <li>✅ Screenshots from IoT engines reviewed in isolated VMs (prevent tracking pixels/watermarks)</li>
+        <li>✅ Active scanning limited to authorized IP ranges; explicit RoE approval obtained</li>
+      </ul>
+
+      <div class="info-remember"><br>
+        <strong>Blue Team Note:</strong> IoT engine reconnaissance generates <em>zero server-side logs</em> on your
+        infrastructure. Detection must shift to: monitoring certificate transparency logs for unauthorized certs,
+        external attack-surface management platforms, and brand-protection services that scan Shodan/Censys for
+        your netblocks.
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 7: QUICK REFERENCE — ADVERSARIAL IoT DORK CHEAT SHEET -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="dork-cheatsheet">
+      <h2 id="dork-cheatsheet">7. Quick Reference: Adversarial IoT Dork Cheat Sheet</h2>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table" style="width:100%; border-collapse:collapse; border:1px solid rgba(255,255,255,0.1); margin:1em 0; font-size:0.95rem;">
+          <thead>
+            <tr>
+              <th>Category</th>
+              <th>Shodan Query</th>
+              <th>Expected Yield</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Exposed Cisco ASA</td>
+              <td><code>"Cisco ASA" ssl:"self signed"</code></td>
+              <td>VPN portals with weak auth</td>
+            </tr>
+            <tr>
+              <td>Jenkins RCE Prep</td>
+              <td><code>"X-Jenkins" "Set-Cookie: JSESSIONID"</code></td>
+              <td>Build servers often with script console</td>
+            </tr>
+            <tr>
+              <td>MongoDB Exposure</td>
+              <td><code>"MongoDB Server Information" port:27017</code></td>
+              <td>Unauthenticated databases</td>
+            </tr>
+            <tr>
+              <td>Elasticsearch</td>
+              <td><code>"You Know, for Search" port:9200</code></td>
+              <td>Internal data lakes</td>
+            </tr>
+            <tr>
+              <td>Kubernetes API</td>
+              <td><code>"API Priority and Fairness" port:6443</code></td>
+              <td>Cluster control planes</td>
+            </tr>
+            <tr>
+              <td>Docker Daemon</td>
+              <td><code>"Docker" port:2375</code></td>
+              <td>Remote container exploitation</td>
+            </tr>
+            <tr>
+              <td>Tesla Energy Gateway</td>
+              <td><code>"Tesla Energy Gateway"</code></td>
+              <td>Energy infrastructure</td>
+            </tr>
+            <tr>
+              <td>Exposed .env Files</td>
+              <td><code>"APP_ENV=local" "DB_PASSWORD="</code></td>
+              <td>Credential leakage</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 8: DEFENSIVE COUNTERMEASURES                        -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="iot-defense">
+      <h2 id="iot-defense">8. Defensive Countermeasures &amp; Threat Mapping</h2>
+
+      <p>
+        Translating adversarial IoT engine reconnaissance into defense requires
+        <strong>attack-surface reduction</strong>, <strong>continuous external monitoring</strong>, and
+        <strong>device hardening</strong>.
+      </p>
+
+      <h3>Defensive Best Practices</h3>
+
+      <ul>
+        <li><strong>Network Segmentation:</strong> Isolate IoT and ICS devices from corporate networks and the internet.</li>
+        <li><strong>Default Credential Elimination:</strong> Change all default passwords on IoT devices before deployment.</li>
+        <li><strong>Firmware Updates:</strong> Maintain a rigorous patch management schedule for all internet-facing devices.</li>
+        <li><strong>External Monitoring:</strong> Subscribe to Shodan/Censys alerts for your own netblocks; remediate exposures within 24 hours.</li>
+        <li><strong>Certificate Hygiene:</strong> Monitor Certificate Transparency logs for unauthorized certificates issued for your domains.</li>
+        <li><strong>Device Inventory:</strong> Maintain an accurate, up-to-date inventory of all internet-facing assets.</li>
+        <li><strong>Honeypot Placement:</strong> Deploy decoy devices to detect and track adversary reconnaissance patterns.</li>
+      </ul>
+
+      <h3>Consolidated Adversary TTP → Defensive Control Matrix</h3>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table">
+          <thead>
+            <tr>
+              <th>Adversary Technique</th>
+              <th>Observable Indicator</th>
+              <th>Defensive Action / Detection</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>ASN/WHOIS recon</td>
+              <td>None (purely passive OSINT)</td>
+              <td>Monitor for typo-squats; use brand-protection services</td>
+            </tr>
+            <tr>
+              <td>Shodan/Censys passive profiling</td>
+              <td>No direct packets; exposure visible in search engines</td>
+              <td>Weekly automated Shodan/Censys self-searches; remediate unauthorised exposures</td>
+            </tr>
+            <tr>
+              <td>IoT default credential scanning</td>
+              <td>Authentication attempts on common IoT ports</td>
+              <td>Disable default accounts; enforce strong password policies; MFA where possible</td>
+            </tr>
+            <tr>
+              <td>Vulnerability correlation (NVD/VulDB)</td>
+              <td>No direct network indicators</td>
+              <td>Patch known CVEs; subscribe to CVE feeds for your device inventory</td>
+            </tr>
+            <tr>
+              <td>Certificate transparency harvesting</td>
+              <td>Unauthorised certs in CT logs</td>
+              <td>Subscribe to CT log monitors (e.g., CertStream) for your domains</td>
+            </tr>
+            <tr>
+              <td>API pipeline automation</td>
+              <td>Unusual API key usage patterns</td>
+              <td>Rotate API keys; monitor for bulk export events</td>
+            </tr>
+            <tr>
+              <td>Active scanning via proxychains/Tor</td>
+              <td>SYN packets from Tor exit nodes or residential proxies</td>
+              <td>Network IDS (Suricata/Zeek); port-scan detection thresholds; cloud ACL hardening</td>
+            </tr>
+            <tr>
+              <td>Honeypot evasion</td>
+              <td>Banners that don't match known device fingerprints</td>
+              <td>Deploy realistic honeypots; monitor for TTP deviations</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 9: SUPPORTING RESOURCES                              -->
+    <!-- ============================================================ -->
+
+    <section class="resources" aria-label="Supporting resources">
+      <h2 id="resources">9. Supporting Resources &amp; Recommended Reading</h2>
+
+      <ul>
+        <li>
+          <a href="https://www.shodan.io/" target="_blank" rel="noopener">Shodan</a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: Global IoT and device search engine — banner grabbing, vulnerability tagging</small>
+        </li>
+        <li>
+          <a href="https://search.censys.io/" target="_blank" rel="noopener">Censys</a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: Certificate transparency and host-based pivoting engine</small>
+        </li>
+        <li>
+          <a href="https://www.criminalip.io/" target="_blank" rel="noopener">Criminal IP</a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: Real-time risk scoring and proxy/VPN detection</small>
+        </li>
+        <li>
+          <a href="https://fofa.info/" target="_blank" rel="noopener">FOFA</a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: Chinese-manufactured firmware and web component search</small>
+        </li>
+        <li>
+          <a href="https://www.zoomeye.org/" target="_blank" rel="noopener">ZoomEye</a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: Component version clustering and geographic footprint</small>
+        </li>
+        <li>
+          <a href="https://www.binaryedge.io/" target="_blank" rel="noopener">BinaryEdge</a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: Torrent/SCADA/sensor streams and data leakage</small>
+        </li>
+        <li>
+          <a href="https://www.onyphe.io/" target="_blank" rel="noopener">Onyphe</a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: Cyber-defense and threat intelligence fusion engine</small>
+        </li>
+        <li>
+          <a href="https://cirt.net/passwords" target="_blank" rel="noopener">CIRT Default Credentials Database</a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: Known default passwords for IoT and network devices</small>
+        </li>
+        <li>
+          <a href="https://github.com/projectdiscovery/nuclei" target="_blank" rel="noopener">Nuclei</a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: Vulnerability scanning engine for CVE correlation</small>
+        </li>
+        <li>
+          <a href="https://github.com/projectdiscovery/naabu" target="_blank" rel="noopener">Naabu</a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: Fast port scanner for active verification</small>
+        </li>
+        <li>
+          <a href="https://nvd.nist.gov/" target="_blank" rel="noopener">NIST NVD</a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: National Vulnerability Database — CVE reference</small>
+        </li>
+        <li>
+          <a href="https://vuldb.com/" target="_blank" rel="noopener">VulDB</a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: Exploit and vulnerability intelligence platform</small>
+        </li>
+      </ul>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 10: CHAPTER SUMMARY                                  -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="chapter-summary">
+      <h2 id="chapter-summary">10. Chapter Summary</h2>
+
+      <p>
+        By completing this chapter you should now be able to:
+      </p>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin: 20px 0;">
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Map target ASN and netblocks before engine queries.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;">WHOIS, RADB, bgpq4, and BGP.HE.NET enumeration.</span></span>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Select the right IoT engine for the target profile.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;">Shodan, Censys, Criminal IP, FOFA, ZoomEye, BinaryEdge, Onyphe.</span></span>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Master advanced query syntax for precision targeting.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;">Boolean logic, filters, and noise reduction techniques.</span></span>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Map IoT vulnerabilities by device category.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;">Cameras, routers, ICS/SCADA, medical devices, and printers.</span></span>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Automate ingestion via API pipelines.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;">Shodan SDK, Censys CLI, SQLite storage, and cron scheduling.</span></span>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Apply OPSEC to IoT reconnaissance.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;">Passive verification, isolated active probing, honeypot detection, and data aging checks.</span></span>
+        </div>
+
+      </div>
+
+      <div class="info-remember" style="margin: 15px 0;">
+        <strong>Why This Matters:</strong>
+        <span style="display: block; margin-top: 5px;">
+          IoT search engines see everything. Exposed cameras, routers, ICS devices, and medical equipment are the
+          overlooked entry points that adversaries exploit first. By mastering these techniques, Red Teams can
+          identify shadow IT and misconfigurations before attackers do. For defenders, proactive external monitoring
+          and device hardening are essential to prevent these discoveries from becoming breaches.
+        </span>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 11: KEY TAKEAWAYS                                    -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="iot-takeaways">
+      <h2 id="iot-takeaways">11. Key Takeaways</h2>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table" style="width:100%; border-collapse:collapse; border:1px solid rgba(255,255,255,0.1); margin:1em 0; font-size:0.95rem;">
+          <thead>
+            <tr>
+              <th>Concept</th>
+              <th>Why It Matters</th>
+              <th>Security Impact</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>IoT Engines Are Passive Reconnaissance Goldmines</strong></td>
+              <td>They provide visibility into exposed assets without touching target infrastructure.</td>
+              <td>Adversaries map your entire internet-facing footprint in minutes, not days.</td>
+            </tr>
+            <tr>
+              <td><strong>Engine Selection Must Match Target Profile</strong></td>
+              <td>Different engines index different data; FOFA excels at Chinese firmware, Censys at certificates.</td>
+              <td>Using the wrong engine misses critical assets; using multiple engines reveals shadow IT.</td>
+            </tr>
+            <tr>
+              <td><strong>Default Credentials Are the #1 IoT Vulnerability</strong></td>
+              <td>Manufacturers ship devices with known default credentials that are rarely changed.</td>
+              <td>A single exposed IoT device with default creds can become a beachhead into corporate networks.</td>
+            </tr>
+            <tr>
+              <td><strong>Certificate Transparency Logs Are Unavoidable Intelligence Sources</strong></td>
+              <td>Every SSL/TLS certificate issued for your domains is publicly logged.</td>
+              <td>Adversaries use CT logs to discover subdomains, shadow IT, and forgotten infrastructure.</td>
+            </tr>
+            <tr>
+              <td><strong>OPSEC Separates Professionals from Amateurs</strong></td>
+              <td>Direct scanning from origin IPs enables attribution and legal exposure.</td>
+              <td>Proxies, Tor, disposable VPS, and API key rotation are non-negotiable for operational security.</td>
+            </tr>
+            <tr>
+              <td><strong>Engine Data Ages Poorly</strong></td>
+              <td>Shodan screenshots and banners may be weeks or months old.</td>
+              <td>Passive verification through historical data prevents wasted effort on remediated assets.</td>
+            </tr>
+            <tr>
+              <td><strong>Honeypots Pollute IoT Engines</strong></td>
+              <td>Security researchers and defenders deploy high-interaction honeypots to trap scanners.</td>
+              <td>Adversaries filter honeypot markers to avoid wasting time on decoy infrastructure.</td>
+            </tr>
+            <tr>
+              <td><strong>Automation Enables Scale</strong></td>
+              <td>Manual browser-based reconnaissance is slow, non-repudiable, and ephemeral.</td>
+              <td>API pipelines with persistent storage provide audit trails and continuous monitoring.</td>
+            </tr>
+            <tr>
+              <td><strong>Defenders Must Monitor Their Own Exposure</strong></td>
+              <td>IoT engine reconnaissance generates zero server-side logs on target infrastructure.</td>
+              <td>External attack-surface management and brand-protection services are essential.</td>
+            </tr>
+            <tr>
+              <td><strong>ICS/SCADA and Medical Devices Are High-Value Targets</strong></td>
+              <td>These devices often have weak security, long patch cycles, and critical operational impact.</td>
+              <td>Compromise can lead to physical safety risks, regulatory fines, and reputational damage.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 12: KNOWLEDGE CHECK                                  -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="iot-knowledge-check">
+      <h2 id="iot-knowledge-check">12. Knowledge Check</h2>
+
+      <p>
+        Before moving on to the next module, take a moment to reflect on the key concepts
+        covered in this chapter.
+      </p>
+
+      <div class="card">
+        <h3>Reflection Questions</h3>
+        <ol>
+          <li>
+            <strong>Why should an operator enumerate ASN and netblocks before querying IoT engines?</strong>
+            <br>
+            <span style="color: #aaa; font-size: 0.9rem;">
+              Consider scope reduction, false positive elimination, and query efficiency.
+            </span>
+          </li>
+          <li>
+            <strong>What are the strengths and weaknesses of Shodan vs. Censys for IoT reconnaissance?</strong>
+            <br>
+            <span style="color: #aaa; font-size: 0.9rem;">
+              Think about banner grabbing, certificate data, scanning cadence, and historical data.
+            </span>
+          </li>
+          <li>
+            <strong>How can an adversary use certificate transparency logs to discover shadow IT?</strong>
+            <br>
+            <span style="color: #aaa; font-size: 0.9rem;">
+              Consider subject common names, SANs, and wildcard certificates.
+            </span>
+          </li>
+          <li>
+            <strong>What OPSEC measures are essential when performing active verification of IoT engine results?</strong>
+            <br>
+            <span style="color: #aaa; font-size: 0.9rem;">
+              Consider proxy chains, Tor, disposable VPS, and data aging checks.
+            </span>
+          </li>
+          <li>
+            <strong>Why are ICS/SCADA and medical devices considered high-value targets for adversaries?</strong>
+            <br>
+            <span style="color: #aaa; font-size: 0.9rem;">
+              Think about operational impact, patch cycles, and default credentials.
+            </span>
+          </li>
+        </ol>
+      </div>
+
+      <div class="card">
+        <h3>Scenario-Based Question</h3>
+        <p>
+          <strong>Scenario:</strong> You are a Red Team operator tasked with identifying all internet-facing
+          assets for a large healthcare provider. The organisation has recently acquired two smaller clinics
+          and has a mix of on-premise and cloud-hosted infrastructure. You have been authorized to perform
+          passive reconnaissance but must avoid touching the target infrastructure directly.
+        </p>
+        <p><strong>Task:</strong> Design a reconnaissance workflow that meets these requirements using
+        the principles covered in this chapter.</p>
+      </div>
+
+      <div class="info-remember" style="margin: 15px 0;">
+        <strong>Suggested Approach:</strong>
+        <ul>
+          <li><strong>Phase 1:</strong> ASN/WHOIS enumeration to identify all netblocks owned by the organisation and its subsidiaries.</li>
+          <li><strong>Phase 2:</strong> Shodan queries for each netblock with <code>has_screenshot:true</code> and <code>vuln:*</code> filters.</li>
+          <li><strong>Phase 3:</strong> Censys certificate queries for all domains and subdomains (<code>*.target.com</code>, <code>*.acquired-clinic.com</code>).</li>
+          <li><strong>Phase 4:</strong> FOFA/ZoomEye queries for specific medical device signatures (DICOM, Orthanc, Philips).</li>
+          <li><strong>Phase 5:</strong> Criminal IP risk scoring to identify devices already flagged as malicious or compromised.</li>
+          <li><strong>Phase 6:</strong> SQLite pipeline ingestion for persistent storage and correlation.</li>
+          <li><strong>Phase 7:</strong> Report findings to client with remediation recommendations.</li>
+        </ul>
+      </div>
+
+      <div class="reminder-lightblue">
+        <strong>Gateway Criteria:</strong><br>
+        <span>Proceed to the next module when you can confidently answer
+        all five reflection questions and explain your rationale for the scenario-based question.
+        If any concept is unclear, revisit the relevant sections above before moving on.</span>
+      </div>
+
+      <div class="info-remember" style="margin: 15px 0;">
+        <em>RedOps Reminder:</em> IoT search engines see everything; ensure your operational tradecraft is
+        equally comprehensive. Never exceed your Rules of Engagement, and always verify before you act.
+        The difference between reconnaissance and intrusion is permission.
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- FLOATING NAVIGATION                                           -->
+    <!-- ============================================================ -->
+
+    <div class="lesson-nav-container">
+      <a href="https://iscsecurity.org/?msopen=/content-library/node/14-ip-addresses-and-dns" class="nav-link-btn">👈 Back</a>
+      <a href="https://iscsecurity.org/?msopen=/content-library/node/16-reconnaissance-tools" class="nav-link-btn">Next 👉</a>
+    </div>
+
+    </article>
+  </main>
+</body>
+</html>

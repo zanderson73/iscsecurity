@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>OSINT Reconnaissance Tools | ISCSECURITY Master Class Series</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="/css/styles.css?v=2026_PRODUCTION_FINAL" />
+  
+  <!-- MemberSpace -->
+  <script>
+    window.MemberSpace = window.MemberSpace || { subdomain: "iscsecurity" };
+    (function(d){
+      var s = d.createElement("script");
+      s.src = "https://cdn.memberspace.com/scripts/widgets.js";
+      s.async = true;
+      d.head.appendChild(s);
+    })(document);
+  </script>
+  
+</head>
+
+<body class="page-lesson">
+
+<div class="site-topbar" role="note" aria-label="Legal notice">
+  <small class="topbar-note">
+    © 2026 ISCSECURITY · Authorization-first training. All testing must be lawful, scoped, and approved in writing.
+  </small>
+	<nav class="topbar-links" aria-label="Topbar links">
+      <a href="https://iscsecurity.org/index">Home</a>
+      <a href="https://iscsecurity.org/content/index">Content</a>
+	  <a href="https://iscsecurity.org/content/1-ethical-hacking/2-open-source-intelligence/index">OSINT</a>
+      <a href="https://iscsecurity.org/contact">Contact</a>
+    </nav>
+</div>
+
+  <main class="page modules-page no-shift" id="ethical-hacking-training-content" data-ms-content="members-only">
+  <article class="lesson-content overlay" tabindex="0" aria-label="Lesson content: OSINT Reconnaissance Tools">
+
+    <p class="breadcrumb">
+      <a href="https://iscsecurity.org/index">Home</a> →
+        <a href="https://iscsecurity.org/content/index">Content</a> →
+        <a href="https://iscsecurity.org/content/1-ethical-hacking/2-open-source-intelligence/index">OSINT</a> →
+      <span aria-current="page">Page 16</span>
+    </p>
+
+    <h1>OSINT Reconnaissance Tools</h1>
+
+    <!-- ============================================================ -->
+    <!-- AUTHORIZED USE BANNERS                                        -->
+    <!-- ============================================================ -->
+
+    <div class="reminder-auth">
+      <strong>🚨 AUTHORIZED USE ONLY:</strong>
+      <span>
+        All content in this document is for educational and defensive training purposes only.
+        The adversarial techniques described are derived from real-world tradecraft but
+        are documented exclusively for <strong>defensive analysis, detection engineering,
+        and authorized security testing</strong>. Unauthorized deployment of any technique
+        described may constitute a criminal offense under applicable national and
+        international cybercrime laws. Always obtain <strong>explicit written authorization</strong>
+        from the system owner or authorized legal entity before testing, executing, or
+        simulating any of the techniques outlined in this document.
+      </span>
+    </div>
+
+    <div class="reminder-comp">
+      <strong>🌍 INTERNATIONAL COMPLIANCE NOTICE:</strong>
+      <span>
+        Cybercrime laws vary significantly by jurisdiction. It is your sole responsibility
+        to understand and comply with the laws applicable to your location, the location
+        of any target systems, and your organization's policies. When in doubt,
+        <strong>consult a qualified legal professional</strong> before testing, executing,
+        or simulating any technique described in this document.
+      </span>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 1: DOSSIER CONSTRUCTION — TARGET FOOTPRINT           -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="dossier">
+      <h2 id="dossier">1. Dossier Construction: Target Footprint Before Tool Execution</h2>
+
+      <p>
+        <strong>Adversary Goals:</strong> OSINT reconnaissance is only as effective as the target dossier
+        that precedes it. Unlike IoT scanning, OSINT targets <strong>identities, relationships, and
+        organizational leakage</strong> rather than open ports. Your initial footprint must define the
+        exact personas, assets, and data classes to hunt.
+      </p>
+
+      <p>
+        OSINT reconnaissance tools cover the <strong>human, infrastructure, and metadata</strong> layers
+        of a target's attack surface. This chapter provides a direct continuation of the red team
+        operational framework, engineered for external reconnaissance, identity correlation, and
+        exposure mapping.
+      </p>
+
+      <h3>1.1 Target Dossier Elements</h3>
+
+      <p>Create a structured target file before launching tools:</p>
+
+<pre><code class="language-json">// target_dossier.json (template)
+{
+  "organization": "Target Corp",
+  "root_domains": ["target.com", "target.io"],
+  "asn_cidr": ["AS15169", "192.0.2.0/24"],
+  "key_personnel": ["ceo@target.com", "ciso@target.com"],
+  "naming_convention": "{first}.{last}@target.com",
+  "aliases": ["targetdev", "targetsec"],
+  "phone_prefixes": ["+1-512"],
+  "tech_stack": ["Salesforce", "Okta", "Confluence", "AWS"],
+  "third_parties": ["vendor-x.com", "consulting-y.com"]
+}
+</code></pre>
+
+      <h3>1.2 Identity Pivot Points</h3>
+
+      <p>Map every pivot that links a human to infrastructure:</p>
+
+      <ul>
+        <li><strong>Email → Username → Social Account → Geolocation</strong></li>
+        <li><strong>Image EXIF → Physical Location → Facility Perimeter</strong></li>
+        <li><strong>Certificate Transparency → Subdomain → Technology Stack</strong></li>
+        <li><strong>Code Repository → Hardcoded Secret → Internal Subdomain</strong></li>
+      </ul>
+
+      <div class="reminder">
+        <strong>Red Team Principle:</strong><br> 
+		If you cannot draw a line from your target to a piece of data,
+        you are not hunting, you're guessing.
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 2: TOOL SELECTION MATRIX — THE OSINT LAYER MODEL    -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="tool-matrix">
+      <h2 id="tool-matrix">2. Tool Selection Matrix: The OSINT Layer Model</h2>
+
+      <p>
+        <strong>Adversary Goals:</strong> Select the right tool for each recon layer. Use passive tools
+        first to avoid tripping rate limits or attribution sensors. Only escalate to active validation
+        once the passive map is complete.
+      </p>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table">
+          <thead>
+            <tr>
+              <th>Recon Layer</th>
+              <th>Tool Category</th>
+              <th>Adversarial Use Case</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Infrastructure (Passive)</td>
+              <td><code>subfinder</code>, <code>amass</code>, <code>assetfinder</code>, <code>crt.sh</code></td>
+              <td>Discover shadow IT, orphaned subdomains, dev/staging environments</td>
+            </tr>
+            <tr>
+              <td>Infrastructure (Active)</td>
+              <td><code>nmap</code>, <code>masscan</code>, <code>httpx</code>, <code>naabu</code></td>
+              <td>Validate live hosts, capture banners, screenshot portals</td>
+            </tr>
+            <tr>
+              <td>Human Identity</td>
+              <td><code>sherlock</code>, <code>holehe</code>, <code>SocialScan</code></td>
+              <td>Correlate usernames across 400+ platforms; validate email registrations</td>
+            </tr>
+            <tr>
+              <td>Credential Exposure</td>
+              <td><code>leaks_search</code>, <code>emailbook</code>, <code>truffleHog</code>, <code>gitleaks</code></td>
+              <td>Harvest breached passwords, API keys, internal credentials</td>
+            </tr>
+            <tr>
+              <td>Code &amp; Secrets</td>
+              <td>GitHub Search API, <code>grep.app</code>, <code>GitDorker</code></td>
+              <td>Find exposed <code>.env</code>, <code>.pem</code>, deployment scripts</td>
+            </tr>
+            <tr>
+              <td>Web Archives</td>
+              <td><code>gau</code>, <code>waybackurls</code>, Wayback Machine</td>
+              <td>Recover deleted files, old API docs, historical misconfigurations</td>
+            </tr>
+            <tr>
+              <td>Document Metadata</td>
+              <td><code>exiftool</code>, <code>strings</code>, <code>pdfinfo</code></td>
+              <td>Extract usernames, software versions, GPS coordinates from files</td>
+            </tr>
+            <tr>
+              <td>Social Media</td>
+              <td><code>instagram_user_info</code>, <code>instagram_profile_pic</code>, <code>facesearch</code></td>
+              <td>Map employee networks, identify physical facilities, facial recognition</td>
+            </tr>
+            <tr>
+              <td>Geolocation</td>
+              <td><code>get_ip_geolocation</code>, <code>image_exif</code></td>
+              <td>Map IP blocks to offices; extract GPS from field operative photos</td>
+            </tr>
+            <tr>
+              <td>Corporate Intel</td>
+              <td>LinkedIn (manual + tools), SEC EDGAR, job boards</td>
+              <td>Identify tech stack, reporting structures, upcoming projects</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="reminder-lightblue">
+        <strong>Tool Selection Logic:</strong><br>
+		Use passive tools first to avoid tripping rate limits or
+        attribution sensors. Only escalate to active validation once the passive map is complete.
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 3: MASTER THE ADVANCED TOOL SYNTAX                   -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="tool-syntax">
+      <h2 id="tool-syntax">3. Master the Advanced Tool Syntax</h2>
+
+      <p>
+        <strong>Adversary Goals:</strong> Precision commands for operator efficiency across all recon layers.
+      </p>
+
+      <h3>3.1 Subdomain Enumeration &amp; Infrastructure Pivoting</h3>
+
+<pre><code class="language-bash"># subfinder: Rapid passive discovery (use -all for maximum sources)
+subfinder -d target.com -all -recursive -o subs.txt
+
+# amass: Deep dive with active certificate fetching (louder but comprehensive)
+amass enum -active -d target.com -o amass_target.txt
+
+# assetfinder: Find related domains via certificate transparency
+assetfinder --subs-only target.com | tee assetfinder_out.txt
+
+# httpx: Live validation + tech fingerprinting with screenshot capability
+cat subs.txt | httpx -tech-detect -status-code -title -screenshot -o live_hosts.csv
+
+# gau (GetAllUrls): Historical URL extraction from archives
+echo "target.com" | gau --threads 5 | tee historical_urls.txt
+
+# waybackurls: Alternative for Wayback Machine + Common Crawl
+cat subs.txt | waybackurls | grep -E "\.json|\.env|\.yml|\.config|\.sql" > interesting_urls.txt
+</code></pre>
+
+      <h3>3.2 Email &amp; Identity Enumeration</h3>
+
+<pre><code class="language-bash"># theHarvester: Multi-source email harvesting
+theHarvester -d target.com -b all -f target_results.html
+
+# holehe: Verify if email is registered on 120+ platforms (passive, no notification)
+holehe email@target.com
+
+# SocialScan: Fast username availability checking across platforms
+socialscan username1 username2 username3
+
+# Sherlock: Hunt username across 400+ social sites
+sherlock targetceo targetdev targetsec --timeout 10
+
+# emailbook: Discover valid corporate emails from domain (via native tool)
+emailbook --domain target.com --max-results 200
+
+# leaks_search: Query breach databases for credential exposure (via native tool)
+leaks_search --query target.com
+leaks_search --query admin@target.com
+</code></pre>
+
+      <h3>3.3 GitHub &amp; Code Repository Recon</h3>
+
+<pre><code class="language-bash"># GitHub Dorking for exposed secrets
+"org:target-com extension:json \"api_key\""
+"org:target-com \"AWS_ACCESS_KEY_ID\" \"AWS_SECRET_ACCESS_KEY\""
+"org:target-com \"BEGIN RSA PRIVATE KEY\""
+"org:target-com \"password\" \"jdbc:mysql\""
+
+# TruffleHog: Scan Git history for high-entropy secrets
+truffleHog git https://github.com/target-org/repo.git --only-verified
+
+# Gitleaks: Fast repository scan for secrets
+gitleaks detect --source /path/to/repo --report-format json --report-path leaks.json
+</code></pre>
+
+      <h3>3.4 Search Engine Dorking (Google / Bing / DuckDuckGo)</h3>
+
+<pre><code class="language-bash"># Exposed directories and files
+site:target.com ext:log | ext:bak | ext:old | ext:swp
+site:target.com intitle:"index of" "parent directory"
+site:target.com intitle:"Apache2 Ubuntu Default Page"
+
+# Sensitive documents leaking metadata
+site:target.com ext:pdf "Author: Target Employee"
+site:target.com ext:xlsx | ext:csv "email" "phone"
+
+# Third-party exposure (employees leaking data on non-target domains)
+site:pastebin.com "target.com" "password"
+site:trello.com "target.com"
+</code></pre>
+
+      <h3>3.5 Document &amp; Image Metadata Extraction</h3>
+
+<pre><code class="language-bash"># exiftool: Bulk metadata extraction from documents/images
+exiftool -r -csv /path/to/documents/ > metadata_report.csv
+
+# Target GPS extraction specifically
+exiftool -gpslatitude -gpslongitude -gpsposition -imagesize image.jpg
+
+# PDF author/username extraction (common in RFPs and datasheets)
+pdfinfo document.pdf | grep -i "author\|creator\|producer"
+
+# strings: Find embedded URLs, IPs, or hardcoded paths in binaries/docs
+strings document.docx | grep -iE "http|\\\\[a-z]|internal\.target\.com"
+
+# image_exif: Remote image metadata extraction via URL (via native tool)
+image_exif --url "https://target.com/images/team/ceo.jpg"
+
+# facesearch: Reverse facial recognition from Instagram/profile pictures (via native tool)
+# (Chain after instagram_profile_pic extraction)
+</code></pre>
+
+      <h3>3.6 Phone &amp; Geolocation Intelligence</h3>
+
+<pre><code class="language-bash"># phone_basic_info: Validate and fingerprint phone numbers (via native tool)
+phone_basic_info --phone_number "+1-512-555-0199"
+
+# IP geolocation for infrastructure mapping (via native tool)
+get_ip_geolocation --ip_address "203.0.113.45"
+</code></pre>
+</section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 4: MAP COMMON OSINT EXPOSURES & MISCONFIGURATIONS    -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="exposures">
+      <h2 id="exposures">4. Map Common OSINT Exposures &amp; Misconfigurations</h2>
+
+      <p>
+        <strong>Adversary Goals:</strong> High-value intelligence targets by category.
+      </p>
+
+      <h3>4.1 Credential &amp; Identity Leakage</h3>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table">
+          <thead>
+            <tr>
+              <th>Exposure Type</th>
+              <th>Detection Method</th>
+              <th>Adversarial Value</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Breached Corporate Emails</td>
+              <td><code>leaks_search</code> + DeHashed queries</td>
+              <td>Password spray, initial access</td>
+            </tr>
+            <tr>
+              <td>Exposed API Keys</td>
+              <td>GitHub dorks + <code>truffleHog</code></td>
+              <td>Cloud pivot, data exfil</td>
+            </tr>
+            <tr>
+              <td>Internal Username Patterns</td>
+              <td><code>emailbook</code> + PDF metadata</td>
+              <td>Username enumeration, social engineering</td>
+            </tr>
+            <tr>
+              <td>Employee Password Reuse</td>
+              <td><code>leaks_search</code> on personal emails</td>
+              <td>Work account compromise</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>Adversarial Command Chain:</p>
+
+<pre><code class="language-bash"># Step 1: Harvest emails
+emailbook --domain target.com -o emails.txt
+
+# Step 2: Check for breaches
+for email in $(cat emails.txt); do
+  leaks_search --query "$email" >> breach_report.txt
+done
+
+# Step 3: Identify password patterns for spray logic
+cat breach_report.txt | grep -oP "password\":\"[^\"]+" | sort | uniq -c | sort -rn
+</code></pre>
+
+      <h3>4.2 Infrastructure Exposure via Archives</h3>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table">
+          <thead>
+            <tr>
+              <th>Artifact</th>
+              <th>Query</th>
+              <th>Risk</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Old API Documentation</td>
+              <td><code>gau</code> + filter <code>api.target.com/docs</code></td>
+              <td>Reveals deprecated but active endpoints</td>
+            </tr>
+            <tr>
+              <td>Backup Files</td>
+              <td><code>site:target.com ext:bak</code></td>
+              <td>Source code, database schemas</td>
+            </tr>
+            <tr>
+              <td>Environment Configs</td>
+              <td><code>site:target.com .env</code></td>
+              <td>Database passwords, cloud credentials</td>
+            </tr>
+            <tr>
+              <td>Deleted Employee Portal</td>
+              <td>Wayback Machine <code>/employee/login</code></td>
+              <td>Historical authentication mechanisms</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+<pre><code class="language-bash"># Automated sensitive file extraction from archives
+cat historical_urls.txt | grep -iE "\.env|\.sql|\.bak|\.config|\.pem|\.key|\.zip|\.tar\.gz" \
+  | sort -u > potential_exposures.txt
+</code></pre>
+
+      <h3>4.3 Metadata &amp; Human Intelligence (HUMINT)</h3>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table">
+          <thead>
+            <tr>
+              <th>Source</th>
+              <th>Extraction</th>
+              <th>Adversarial Use</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Corporate PDFs</td>
+              <td><code>exiftool</code> Author field</td>
+              <td>Internal username format, software versions</td>
+            </tr>
+            <tr>
+              <td>Field Photography</td>
+              <td><code>image_exif</code> GPS tags</td>
+              <td>Facility location, patrol routes, guard shifts</td>
+            </tr>
+            <tr>
+              <td>Social Media Posts</td>
+              <td>Instagram geotags, stories</td>
+              <td>Physical security bypass, travel pattern analysis</td>
+            </tr>
+            <tr>
+              <td>Conference Presentations</td>
+              <td>Slide metadata</td>
+              <td>Internal project names, architecture diagrams</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>Adversarial Workflow:</p>
+
+<pre><code class="language-bash"># Download all images from careers/team page, then extract EXIF
+wget -r -l1 -A.jpg -A.jpeg -A.png https://target.com/careers/
+find target.com -type f \( -iname "*.jpg" -o -iname "*.png" \) -exec exiftool {} \; | grep -i gps
+
+# Instagram chain for facial recognition and photo sources
+instagram_user_info --username "target_employee"
+instagram_profile_pic --username "target_employee"
+# -> Pipe image_url to facesearch for alternate platform discovery
+</code></pre>
+
+      <h3>4.4 Third-Party &amp; Supply Chain Exposure</h3>
+
+      <p>Employees and vendors leak information about the target on their own infrastructure.</p>
+
+<pre><code class="language-bash"># Find target employees on vendor sites (case studies, testimonials)
+"Target Corp" site:vendor-x.com
+"implemented for target" site:consulting-y.com
+
+# Job postings reveal internal tech stack and pain points
+"site:linkedin.com/jobs Target Corp \"AWS\" \"Kubernetes\""
+"site:indeed.com Target Corp \"Okta\" \"SAML\""
+</code></pre>
+</section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 5: AUTOMATE INGESTION VIA PIPELINES                  -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="pipeline">
+      <h2 id="pipeline">5. Automate Ingestion via Pipelines</h2>
+
+      <p>
+        <strong>Adversary Goals:</strong> From raw noise to structured target intelligence. Manual OSINT
+        produces fragmented, unverified data. Red teams must normalize outputs into a queryable graph or
+        database for operational use.
+      </p>
+
+      <h3>5.1 The Recon Pipeline Architecture</h3>
+
+<pre><code class="language-bash"># Phase 1: Subdomain acquisition
+subfinder -d target.com -all | tee subs.txt
+amass enum -passive -d target.com | tee -a subs.txt
+
+# Phase 2: Live host validation + tech detection
+cat subs.txt | sort -u | httpx -tech-detect -status-code -title -o live.csv
+
+# Phase 3: Historical endpoint recovery
+cat subs.txt | gau | tee urls.txt
+
+# Phase 4: Sensitive file filtering
+cat urls.txt | grep -iE "\.git|\.env|\.sql|\.backup|\.config|api|swagger|graphql" > urls_sensitive.txt
+
+# Phase 5: Metadata & document extraction
+# (wget sensitive directories, then exiftool bulk extraction)
+
+# Phase 6: Credential leak correlation
+for domain in $(cat subs.txt); do
+  leaks_search --query "$domain" >> leaks_aggregate.txt
+done
+</code></pre>
+
+      <h3>5.2 Python Automation Wrapper</h3>
+
+<pre><code class="language-python">#!/usr/bin/env python3
+# Conceptual adversary tool: OSINT pipeline automation
+import subprocess
+import sqlite3
+import json
+
+DB = "osint_recon.db"
+conn = sqlite3.connect(DB)
+c = conn.cursor()
+
+# OSINT operational database schema
+c.execute('''CREATE TABLE IF NOT EXISTS infrastructure (
+                id INTEGER PRIMARY KEY, host TEXT, port INTEGER,
+                tech TEXT, title TEXT, source TEXT, date TEXT)''')
+
+c.execute('''CREATE TABLE IF NOT EXISTS identities (
+                id INTEGER PRIMARY KEY, email TEXT, username TEXT,
+                platform TEXT, breach_source TEXT, password_hint TEXT)''')
+
+c.execute('''CREATE TABLE IF NOT EXISTS documents (
+                id INTEGER PRIMARY KEY, url TEXT, author TEXT,
+                creator_tool TEXT, gps TEXT, download_date TEXT)''')
+
+def ingest_subfinder(domain):
+    result = subprocess.run(["subfinder", "-d", domain, "-silent"],
+                          capture_output=True, text=True)
+    for host in result.stdout.strip().split("\n"):
+        if host:
+            c.execute("INSERT INTO infrastructure (host, source, date) VALUES (?,?,datetime('now'))",
+                      (host, "subfinder"))
+    conn.commit()
+
+def ingest_leaks(email):
+    # Conceptual wrapper for leaks_search integration
+    # In practice, call API or subprocess to leaks_search
+    print(f"[+] Querying breach databases for: {email}")
+    # Parse JSON output and insert into identities table
+
+# Operational loop
+target_domains = ["target.com", "target.io"]
+for domain in target_domains:
+    ingest_subfinder(domain)
+
+conn.close()
+</code></pre>
+
+      <h3>5.3 Continuous Monitoring via Cron</h3>
+
+<pre><code class="language-bash"># Weekly: Monitor for new subdomains and certificate transparency logs
+0 2 * * 1 /usr/bin/amass enum -passive -d target.com -o /var/recon/amass_new.txt && \
+  /usr/bin/diff /var/recon/amass_old.txt /var/recon/amass_new.txt > /var/recon/amass_delta.txt && \
+  mv /var/recon/amass_new.txt /var/recon/amass_old.txt
+</code></pre>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 6: VERIFY AND TRIAGE SAFELY (OPSEC)                 -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="opsec">
+      <h2 id="opsec">6. Verify and Triage Safely (OPSEC)</h2>
+
+      <p>
+        <strong>Adversary Goals:</strong> OSINT is inherently noisy and attribution-risky. Social media
+        platforms, code repositories, and search engines log every query. Your sock puppet infrastructure
+        must be as robust as your technical tooling.
+      </p>
+
+      <h3>6.1 Sock Puppet &amp; Persona Management</h3>
+
+      <p>Before touching social media or professional networks:</p>
+
+      <ul>
+        <li><strong>Isolation:</strong> Each target platform gets a dedicated browser profile (Firefox Containers / VM).</li>
+        <li><strong>Authenticity:</strong> Age accounts for 2+ weeks; post benign content; acquire connections gradually.</li>
+        <li><strong>Geolocation:</strong> Match your exit IP to your persona's claimed location.</li>
+      </ul>
+
+<pre><code class="language-bash"># Verify your egress IP before OSINT queries
+curl -s https://ipinfo.io
+
+# Rotate exit nodes between queries to avoid rate limiting
+# (Use residential proxy pools or commercial rotating proxy services)
+</code></pre>
+
+      <h3>6.2 Platform-Specific OPSEC</h3>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table" style="width:100%; border-collapse:collapse; border:1px solid rgba(255,255,255,0.1); margin:1em 0; font-size:0.95rem;">
+          <thead>
+            <tr>
+              <th>Platform</th>
+              <th>Risk</th>
+              <th>Mitigation</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>LinkedIn</td>
+              <td>Profile view notifications</td>
+              <td>Premium "Private Mode" or use scraped data only</td>
+            </tr>
+            <tr>
+              <td>Instagram</td>
+              <td>Story screenshots, view alerts</td>
+              <td>Burner accounts; use <code>instagram_user_info</code> before browsing</td>
+            </tr>
+            <tr>
+              <td>GitHub</td>
+              <td>Clone logs, API rate limits</td>
+              <td>Use authenticated tokens on throwaway accounts; avoid cloning if possible</td>
+            </tr>
+            <tr>
+              <td>Search Engines</td>
+              <td>CAPTCHA, IP blacklists</td>
+              <td>Rotate User-Agent strings; use proxychains or SERP APIs</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>6.3 Passive vs. Active Verification</h3>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table" style="width:100%; border-collapse:collapse; border:1px solid rgba(255,255,255,0.1); margin:1em 0; font-size:0.95rem;">
+          <thead>
+            <tr>
+              <th>Data Class</th>
+              <th>Verification Method</th>
+              <th>Active?</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Historical URLs</td>
+              <td><code>gau</code>, Wayback Machine</td>
+              <td>Passive</td>
+            </tr>
+            <tr>
+              <td>Live Subdomains</td>
+              <td><code>httpx</code>, <code>curl -I</code></td>
+              <td>Active</td>
+            </tr>
+            <tr>
+              <td>Social Profile</td>
+              <td><code>instagram_user_info</code> (API)</td>
+              <td>Passive</td>
+            </tr>
+            <tr>
+              <td>Breached Password</td>
+              <td><code>leaks_search</code></td>
+              <td>Passive</td>
+            </tr>
+            <tr>
+              <td>Email Deliverability</td>
+              <td><code>holehe</code></td>
+              <td>Passive</td>
+            </tr>
+            <tr>
+              <td>Direct Employee Contact</td>
+              <td>Manual message / call</td>
+              <td>Active (High Risk)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="reminder-opsec">
+        <strong>Opsec Principle:</strong><br>
+		If active interaction is required (e.g., sending a connection request),
+        perform it from a disposable VPS through a dedicated persona with no link to your operational infrastructure.
+      </div>
+
+      <h3>6.4 Data Sanitization</h3>
+
+      <p>Before archiving or reporting:</p>
+
+      <ul>
+        <li>Strip your own IP addresses, API keys, and tool user-agents from JSON/CSV exports.</li>
+        <li>Remove third-party personal data not explicitly authorized by your RoE (GDPR/CCPA exposure).</li>
+        <li>Verify image provenance: A <code>facesearch</code> result may match your target but could be a lookalike; confidence scores must be documented.</li>
+      </ul>
+
+      <pre><code class="language-bash"># Sanitize metadata from your own reports before exfil
+exiftool -all= report.pdf
+strings report.pdf | grep -i "author\|creator"  # Verify removal</code></pre>
+
+      <h3>6.5 OPSEC Checklist for OSINT Operations</h3>
+
+      <ul>
+        <li>✅ Dedicated browser profiles/VMs per target platform</li>
+        <li>✅ API keys for search engines are registered to burner accounts</li>
+        <li>✅ <code>leaks_search</code> and <code>emailbook</code> queries routed through engagement proxies</li>
+        <li>✅ No corporate or personal IP addresses used for direct social media interaction</li>
+        <li>✅ Image analysis (<code>image_exif</code>) conducted in isolated VMs to prevent rendering-based tracking</li>
+        <li>✅ All screenshots sanitized of operator desktop artifacts</li>
+        <li>✅ Employee personal data triaged separately from corporate infrastructure data</li>
+      </ul>
+
+      <div class="info-remember">
+        <strong>Blue Team Note:</strong><br>
+		OSINT reconnaissance often generates no server-side
+        log footprint on the defender's infrastructure. Detection must shift to user awareness,
+        external brand monitoring, and metadata-scrubbing policies rather than traditional network alerts.
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 7: QUICK REFERENCE — ADVERSARIAL OSINT DORK SHEET    -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="quickref">
+      <h2 id="quickref">7. Quick Reference: Adversarial OSINT Quick Sheet</h2>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table">
+          <thead>
+            <tr>
+              <th>Objective</th>
+              <th>Tool / Command</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Find all live subdomains</td>
+              <td><code>subfinder -d target.com | httpx</code></td>
+            </tr>
+            <tr>
+              <td>Harvest all emails</td>
+              <td><code>emailbook --domain target.com</code></td>
+            </tr>
+            <tr>
+              <td>Check breach exposure</td>
+              <td><code>leaks_search --query target.com</code></td>
+            </tr>
+            <tr>
+              <td>Extract metadata from doc</td>
+              <td><code>exiftool -a document.pdf</code></td>
+            </tr>
+            <tr>
+              <td>Find exposed git repos</td>
+              <td><code>site:target.com inurl:.git</code></td>
+            </tr>
+            <tr>
+              <td>Reverse face search</td>
+              <td><code>instagram_profile_pic</code> → <code>facesearch</code></td>
+            </tr>
+            <tr>
+              <td>Validate phone number</td>
+              <td><code>phone_basic_info --phone_number "+1..."</code></td>
+            </tr>
+            <tr>
+              <td>Historical URL recovery</td>
+              <td><code>echo target.com | gau</code></td>
+            </tr>
+            <tr>
+              <td>Username cross-platform</td>
+              <td><code>sherlock username</code></td>
+            </tr>
+            <tr>
+              <td>Technology detection</td>
+              <td><code>httpx -tech-detect</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 8: DEFENSIVE COUNTERMEASURES                        -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="defense">
+      <h2 id="defense">8. Defensive Countermeasures &amp; Threat Mapping</h2>
+
+      <p>
+        Translating adversarial OSINT reconnaissance into defense requires
+        <strong>attack-surface reduction</strong>, <strong>continuous external monitoring</strong>, and
+        <strong>user awareness</strong>.
+      </p>
+
+      <h3>Defensive Best Practices</h3>
+
+      <ul>
+        <li><strong>Subdomain Hygiene:</strong> Decommission forgotten dev/staging hosts; they are often the entry point OSINT tools find first.</li>
+        <li><strong>Metadata Scrubbing:</strong> Strip EXIF, author, and creator metadata from all public-facing documents and images.</li>
+        <li><strong>Credential Monitoring:</strong> Subscribe to HIBP for corporate domains; enforce MFA and password rotation on breach notification.</li>
+        <li><strong>GitHub Monitoring:</strong> Use GitHub's secret scanning and pre-commit hooks to prevent credential exposure.</li>
+        <li><strong>Social Media Policy:</strong> Educate employees on safe posting; restrict geotagging and facility photos.</li>
+        <li><strong>Archive Awareness:</strong> Regularly audit Wayback Machine and <code>gau</code> results for your own domains to identify historical leaks.</li>
+        <li><strong>Third-Party Risk:</strong> Contractually require vendors to scrub your data from their case studies and marketing materials.</li>
+      </ul>
+
+      <h3>Consolidated Adversary TTP → Defensive Control Matrix</h3>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table" style="width:100%; border-collapse:collapse; border:1px solid rgba(255,255,255,0.1); margin:1em 0; font-size:0.95rem;">
+          <thead>
+            <tr>
+              <th>Adversary Technique</th>
+              <th>Observable Indicator</th>
+              <th>Defensive Action / Detection</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Subdomain enumeration (<code>subfinder</code>/<code>amass</code>)</td>
+              <td>High volume of DNS queries to your authoritative NS</td>
+              <td>Rate-limit DNS queries; monitor for NXDOMAIN spikes</td>
+            </tr>
+            <tr>
+              <td>Email harvesting (<code>theHarvester</code>/<code>emailbook</code>)</td>
+              <td>No direct server-side logs (uses third-party APIs)</td>
+              <td>Educate staff on email exposure; monitor external brand mentions</td>
+            </tr>
+            <tr>
+              <td>Breach database queries (<code>leaks_search</code>)</td>
+              <td>No direct logs (uses third-party breach data)</td>
+              <td>Enforce MFA; breach notification; password rotation policies</td>
+            </tr>
+            <tr>
+              <td>GitHub secret harvesting (<code>truffleHog</code>/<code>gitleaks</code>)</td>
+              <td>No direct logs (public repos only)</td>
+              <td>Pre-commit scanning; GitHub secret alerts; rotate exposed keys</td>
+            </tr>
+            <tr>
+              <td>Metadata extraction (<code>exiftool</code>)</td>
+              <td>No direct logs (uses public files only)</td>
+              <td>Strip metadata from all public-facing documents and images</td>
+            </tr>
+            <tr>
+              <td>Social media profiling (<code>sherlock</code>/<code>holehe</code>)</td>
+              <td>Platform-specific API rate limits and CAPTCHA</td>
+              <td>Implement privacy policies; monitor for impersonation</td>
+            </tr>
+            <tr>
+              <td>Historical URL recovery (<code>gau</code>/Wayback Machine)</td>
+              <td>No direct logs (uses third-party archives)</td>
+              <td>Regularly audit archived content; remove sensitive historical data</td>
+            </tr>
+            <tr>
+              <td>Phone number validation (<code>phone_basic_info</code>)</td>
+              <td>No direct logs (uses third-party API)</td>
+              <td>Minimize public phone number exposure; use PBX auto-attendants</td>
+            </tr>
+            <tr>
+              <td>Third-party leakage (vendors/employees)</td>
+              <td>Search engine results outside your domain</td>
+              <td>Vendor contracts require data scrubbing; employee social media policy</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 9: SUPPORTING RESOURCES                              -->
+    <!-- ============================================================ -->
+
+    <section class="resources" aria-label="Supporting resources">
+      <h2 id="resources">9. Supporting Resources &amp; Recommended Reading</h2>
+
+      <ul>
+        <li>
+          <a href="https://github.com/projectdiscovery/subfinder" target="_blank" rel="noopener">subfinder</a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: Passive subdomain enumeration via multiple sources</small>
+        </li>
+        <li>
+          <a href="https://github.com/OWASP/Amass" target="_blank" rel="noopener">Amass</a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: Deep subdomain enumeration with active certificate fetching</small>
+        </li>
+        <li>
+          <a href="https://github.com/projectdiscovery/httpx" target="_blank" rel="noopener">httpx</a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: Live host validation, tech detection, and screenshot capability</small>
+        </li>
+        <li>
+          <a href="https://github.com/laramies/theHarvester" target="_blank" rel="noopener">theHarvester</a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: Multi-source email and subdomain harvesting</small>
+        </li>
+        <li>
+          <a href="https://github.com/sherlock-project/sherlock" target="_blank" rel="noopener">Sherlock</a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: Hunt usernames across 400+ social platforms</small>
+        </li>
+        <li>
+          <a href="https://github.com/megadose/holehe" target="_blank" rel="noopener">holehe</a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: Passive email registration verification across 120+ platforms</small>
+        </li>
+        <li>
+          <a href="https://github.com/trufflesecurity/truffleHog" target="_blank" rel="noopener">truffleHog</a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: Git history scanning for high-entropy secrets</small>
+        </li>
+        <li>
+          <a href="https://github.com/zricethezav/gitleaks" target="_blank" rel="noopener">gitleaks</a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: Fast repository secret scanning</small>
+        </li>
+        <li>
+          <a href="https://github.com/lc/gau" target="_blank" rel="noopener">gau (GetAllUrls)</a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: Historical URL extraction from web archives</small>
+        </li>
+        <li>
+          <a href="https://exiftool.org/" target="_blank" rel="noopener">ExifTool</a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: Bulk metadata extraction from documents and images</small>
+        </li>
+        <li>
+          <a href="https://github.com/p1ngul1n0/blackbird" target="_blank" rel="noopener">Blackbird</a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: AI-powered account enumeration and profiling</small>
+        </li>
+        <li>
+          <a href="https://haveibeenpwned.com/" target="_blank" rel="noopener">Have I Been Pwned</a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: Breach database for corporate email monitoring</small>
+        </li>
+      </ul>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 10: CHAPTER SUMMARY                                  -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="chapter-summary">
+      <h2 id="chapter-summary">10. Chapter Summary</h2>
+
+      <p>
+        By completing this chapter you should now be able to:
+      </p>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin: 20px 0;">
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Construct a target dossier before tool execution.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;">Domains, ASN, personnel, naming conventions, and third-parties.</span></span>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Select the right tool for each OSINT layer.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;">Infrastructure, identity, credentials, archives, metadata, and social media.</span></span>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Execute advanced OSINT tool syntax.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;">subfinder, amass, httpx, theHarvester, sherlock, holehe, truffleHog, gau, exiftool.</span></span>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Map common OSINT exposures.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;">Credentials, archive artifacts, metadata, third-party leakage.</span></span>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Automate ingestion via pipelines.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;">SQLite databases, Python wrappers, and cron-scheduled monitoring.</span></span>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Apply OPSEC to OSINT operations.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;">Sock puppet management, platform-specific mitigation, data sanitization.</span></span>
+        </div>
+
+      </div>
+
+      <div class="info-remember" style="margin: 15px 0;">
+        <strong>Why This Matters:</strong>
+        <span style="display: block; margin-top: 5px;">
+          OSINT tools provide the human and organizational map that network scanning cannot. You learn who
+          works there, what they use, and where they leak data. Metadata from <code>exiftool</code> and
+          credentials from <code>leaks_search</code> provide spear-phishing ammunition and password spray lists.
+          Usernames from <code>emailbook</code> and GitHub dorks translate directly into valid login attempts
+          against SSO portals (Okta, Azure AD).
+        </span>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 11: KEY TAKEAWAYS                                    -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="takeaways">
+      <h2 id="takeaways">11. Key Takeaways</h2>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table" style="width:100%; border-collapse:collapse; border:1px solid rgba(255,255,255,0.1); margin:1em 0; font-size:0.95rem;">
+          <thead>
+            <tr>
+              <th>Concept</th>
+              <th>Why It Matters</th>
+              <th>Security Impact</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Passive-First Workflow Is Non-Negotiable</strong></td>
+              <td>Passive OSINT leaves no server-side logs; active verification creates attribution risk.</td>
+              <td>Adversaries exhaust all passive sources before sending a single packet to your infrastructure.</td>
+            </tr>
+            <tr>
+              <td><strong>Subdomains Reveal Shadow IT</strong></td>
+              <td><code>subfinder</code> and <code>amass</code> discover dev/staging environments often forgotten by defenders.</td>
+              <td>Forgotten subdomains are frequently unpatched and vulnerable to initial access.</td>
+            </tr>
+            <tr>
+              <td><strong>Email Formats Enable Phishing</strong></td>
+              <td><code>emailbook</code> and <code>theHarvester</code> reveal naming conventions for targeted spear-phishing.</td>
+              <td>A single valid email format unlocks every employee's corporate address.</td>
+            </tr>
+            <tr>
+              <td><strong>Breach Data Fuels Credential Attacks</strong></td>
+              <td><code>leaks_search</code> exposes passwords reused across personal and corporate accounts.</td>
+              <td>Password spraying and credential stuffing success rates increase dramatically with breach data.</td>
+            </tr>
+            <tr>
+              <td><strong>GitHub Is a High-Value Intelligence Source</strong></td>
+              <td>Developers accidentally commit secrets, internal endpoints, and architecture details.</td>
+              <td>Exposed API keys and <code>.env</code> files can lead to cloud account compromise within minutes.</td>
+            </tr>
+            <tr>
+              <td><strong>Metadata Reveals Operational Patterns</strong></td>
+              <td><code>exiftool</code> extracts GPS, author names, and software versions from public documents.</td>
+              <td>GPS tags reveal facility locations; author fields confirm internal username formats.</td>
+            </tr>
+            <tr>
+              <td><strong>Social Media Links People to Infrastructure</strong></td>
+              <td>Sherlock and <code>holehe</code> correlate usernames across platforms.</td>
+              <td>Personal accounts often use the same username as corporate logins, enabling credential reuse.</td>
+            </tr>
+            <tr>
+              <td><strong>Archives Never Forget</strong></td>
+              <td>Wayback Machine and <code>gau</code> recover deleted files and old API documentation.</td>
+              <td>Decommissioned endpoints often remain active and vulnerable.</td>
+            </tr>
+            <tr>
+              <td><strong>Third-Parties Leak Your Data</strong></td>
+              <td>Vendors and employees post case studies, testimonials, and job descriptions.</td>
+              <td>Supply chain exposure reveals tech stack, org structure, and upcoming projects.</td>
+            </tr>
+            <tr>
+              <td><strong>Sock Puppets Are Essential OPSEC</strong></td>
+              <td>Social media platforms log every query; burner accounts prevent attribution.</td>
+              <td>Dedicated personas with aged accounts and consistent geolocation prevent platform bans.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 12: KNOWLEDGE CHECK                                  -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="knowledge-check">
+      <h2 id="knowledge-check">12. Knowledge Check</h2>
+
+      <p>
+        Before moving on to the next section, take a moment to reflect on the key concepts
+        covered in this chapter.
+      </p>
+
+      <div class="card">
+        <h3>Reflection Questions</h3>
+        <ol>
+          <li>
+            <strong>Why is a target dossier essential before launching OSINT tools?</strong>
+            <br>
+            <span style="color: #aaa; font-size: 0.9rem;">
+              Consider scope reduction, query efficiency, and the difference between hunting and guessing.
+            </span>
+          </li>
+          <li>
+            <strong>What is the difference between passive and active OSINT tools, and when should each be used?</strong>
+            <br>
+            <span style="color: #aaa; font-size: 0.9rem;">
+              Think about server-side logging, attribution risk, and reconnaissance noise.
+            </span>
+          </li>
+          <li>
+            <strong>How can an adversary use <code>exiftool</code> to extract intelligence from public documents?</strong>
+            <br>
+            <span style="color: #aaa; font-size: 0.9rem;">
+              Consider GPS coordinates, author fields, creator tools, and software versions.
+            </span>
+          </li>
+          <li>
+            <strong>Why is GitHub considered a high-value intelligence source for OSINT?</strong>
+            <br>
+            <span style="color: #aaa; font-size: 0.9rem;">
+              Think about hardcoded secrets, internal endpoints, and developer behaviour.
+            </span>
+          </li>
+          <li>
+            <strong>What OPSEC measures are essential when conducting social media OSINT?</strong>
+            <br>
+            <span style="color: #aaa; font-size: 0.9rem;">
+              Consider sock puppets, geolocation matching, browser isolation, and platform-specific mitigations.
+            </span>
+          </li>
+        </ol>
+      </div>
+
+      <div class="card">
+        <h3>Scenario-Based Question</h3>
+        <p>
+          <strong>Scenario:</strong> You are a Red Team operator tasked with building a complete profile
+          of a mid-sized SaaS company's external attack surface. You have been authorized to perform
+          passive OSINT only, no active scanning or social engineering and must deliver a report
+          containing subdomains, exposed credentials, and employee metadata.
+        </p>
+        <p><strong>Task:</strong> Design a complete OSINT reconnaissance workflow using the tools
+        and techniques covered in this chapter.</p>
+      </div>
+
+      <div class="info-remember" style="margin: 15px 0;">
+        <strong>Suggested Approach:</strong>
+        <ul>
+          <li><strong>Phase 1:</strong> Build target dossier with domains, ASN, and key personnel names.</li>
+          <li><strong>Phase 2:</strong> Passive subdomain enumeration via <code>subfinder</code>, <code>amass</code>, and <code>assetfinder</code>.</li>
+          <li><strong>Phase 3:</strong> Email harvesting via <code>theHarvester</code> and <code>emailbook</code>.</li>
+          <li><strong>Phase 4:</strong> Breach correlation via <code>leaks_search</code> for all discovered emails.</li>
+          <li><strong>Phase 5:</strong> Historical URL recovery via <code>gau</code> and Wayback Machine, filtered for sensitive files.</li>
+          <li><strong>Phase 6:</strong> Metadata extraction from public documents and images via <code>exiftool</code>.</li>
+          <li><strong>Phase 7:</strong> Social media correlation via <code>sherlock</code> for discovered usernames.</li>
+          <li><strong>Phase 8:</strong> Ingest all findings into a SQLite database for reporting and cross-correlation.</li>
+        </ul>
+      </div>
+
+      <div class="reminder-lightblue">
+        <strong>Gateway Criteria:</strong><br>
+        <span>Move on to the next module when you can confidently answer
+        all five reflection questions and explain your rationale for the scenario-based question.
+        If any concept is unclear, revisit the relevant sections above before moving on.</span>
+      </div>
+
+      <div class="info-remember" style="margin: 15px 0;">
+        <em>RedOps Reminder:</em> OSINT frequently touches personal data and civilian infrastructure;
+        operational discipline separates legitimate red team activity from unauthorized surveillance.
+        Execute with strict adherence to your Rules of Engagement — the difference between reconnaissance
+        and intrusion is permission.
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- FLOATING NAVIGATION                                           -->
+    <!-- ============================================================ -->
+
+    <div class="lesson-nav-container">
+      <a href="https://iscsecurity.org/content/1-ethical-hacking/2-open-source-intelligence/15-iot-search-engines" class="nav-link-btn">👈 Back</a>
+      <a href="https://iscsecurity.org/content/1-ethical-hacking/2-open-source-intelligence/17-internet-structure" class="nav-link-btn">Next 👉</a>
+    </div>
+
+    </article>
+  </main>
+
+  <!-- Shared redirect script -->
+  <script src="/js/ms-redirect.js"></script>
+
+</body>
+</html>

