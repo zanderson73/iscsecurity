@@ -43,6 +43,65 @@
 /content/1-ethical-hacking/3-footprinting-and-recon/11-footprinting-countermeasures.html  /content/1-ethical-hacking/3-footprinting-and-recon/11-footprinting-countermeasures  301!
 /content/1-ethical-hacking/3-footprinting-and-recon/12-footprinting-recon-cheat-sheet.html  /content/1-ethical-hacking/3-footprinting-and-recon/12-footprinting-recon-cheat-sheet  301!
 
+# --- Module 4: Scanning Networks ---
+/content/1-ethical-hacking/4-scanning-networks/01-intro-network-scanning.html /content/1-ethical-hacking/4-scanning-networks/01-intro-network-scanning 301!
+/content/1-ethical-hacking/4-scanning-networks/02-network-scanning-concepts.html /content/1-ethical-hacking/4-scanning-networks/02-network-scanning-concepts 301!
+/content/1-ethical-hacking/4-scanning-networks/03-host-discovery.html /content/1-ethical-hacking/4-scanning-networks/03-host-discovery 301!
+/content/1-ethical-hacking/4-scanning-networks/04-port-and-service-discovery.html /content/1-ethical-hacking/4-scanning-networks/04-port-and-service-discovery 301!
+/content/1-ethical-hacking/4-scanning-networks/05-os-discovery-banner-grabbing.html /content/1-ethical-hacking/4-scanning-networks/05-os-discovery-banner-grabbing 301!
+/content/1-ethical-hacking/4-scanning-networks/06-scanning-beyond-ids-and-firewalls.html /content/1-ethical-hacking/4-scanning-networks/06-scanning-beyond-ids-and-firewalls 301!
+/content/1-ethical-hacking/4-scanning-networks/07-network-scanning-countermeasures.html /content/1-ethical-hacking/4-scanning-networks/07-network-scanning-countermeasures 301!
+/content/1-ethical-hacking/4-scanning-networks/08-network-scanning-cheat-sheet.html /content/1-ethical-hacking/4-scanning-networks/08-network-scanning-cheat-sheet 301!
+
+# --- Module 5: Enumeration ---
+/content/1-ethical-hacking/5-enumeration/01-intro-to-enumeration.html /content/1-ethical-hacking/5-enumeration/01-intro-to-enumeration 301!
+/content/1-ethical-hacking/5-enumeration/02-enumeration-concepts.html /content/1-ethical-hacking/5-enumeration/02-enumeration-concepts 301!
+/content/1-ethical-hacking/5-enumeration/03-netbios-enumeration.html /content/1-ethical-hacking/5-enumeration/03-netbios-enumeration 301!
+/content/1-ethical-hacking/5-enumeration/04-snmp-ldap-enumeration.html /content/1-ethical-hacking/5-enumeration/04-snmp-ldap-enumeration 301!
+/content/1-ethical-hacking/5-enumeration/05-ntp-nfs-enumeration.html /content/1-ethical-hacking/5-enumeration/05-ntp-nfs-enumeration 301!
+/content/1-ethical-hacking/5-enumeration/06-smtp-dns-enumeration.html /content/1-ethical-hacking/5-enumeration/06-smtp-dns-enumeration 301!
+/content/1-ethical-hacking/5-enumeration/07-other-enumeration-techniques.html /content/1-ethical-hacking/5-enumeration/07-other-enumeration-techniques 301!
+/content/1-ethical-hacking/5-enumeration/08-enumeration-countermeasures.html /content/1-ethical-hacking/5-enumeration/08-enumeration-countermeasures 301!
+/content/1-ethical-hacking/5-enumeration/09-enumeration-cheat-sheet.html /content/1-ethical-hacking/5-enumeration/09-enumeration-cheat-sheet 301!
+
+# --- Module 6: Vulnerability Analysis ---
+/content/1-ethical-hacking/6-vulnerability-analysis/01-introduction-to-vulnerability-analysis.html /content/1-ethical-hacking/6-vulnerability-analysis/01-introduction-to-vulnerability-analysis 301!
+/content/1-ethical-hacking/6-vulnerability-analysis/02-vulnerability-analysis-concepts.html /content/1-ethical-hacking/6-vulnerability-analysis/02-vulnerability-analysis-concepts 301!
+/content/1-ethical-hacking/6-vulnerability-analysis/03-vulnerability-analysis-tools.html /content/1-ethical-hacking/6-vulnerability-analysis/03-vulnerability-analysis-tools 301!
+/content/1-ethical-hacking/6-vulnerability-analysis/04-vulnerability-analysis-reports.html /content/1-ethical-hacking/6-vulnerability-analysis/04-vulnerability-analysis-reports 301!
+/content/1-ethical-hacking/6-vulnerability-analysis/05-module-summary.html /content/1-ethical-hacking/6-vulnerability-analysis/05-module-summary 301!
+/content/1-ethical-hacking/6-vulnerability-analysis/06-vulnerability-analysis-cheat-sheet.html /content/1-ethical-hacking/6-vulnerability-analysis/06-vulnerability-analysis-cheat-sheet 301!
+
+# --- Module 7: System Hacking ---
+/content/1-ethical-hacking/7-system-hacking/01-introduction-to-system-hacking.html /content/1-ethical-hacking/7-system-hacking/01-introduction-to-system-hacking 301!
+/content/1-ethical-hacking/7-system-hacking/02-gaining-access.html /content/1-ethical-hacking/7-system-hacking/02-gaining-access 301!
+/content/1-ethical-hacking/7-system-hacking/03-vulnerability-exploitation.html /content/1-ethical-hacking/7-system-hacking/03-vulnerability-exploitation 301!
+/content/1-ethical-hacking/7-system-hacking/04-vulnerability-exploitation-page2.html /content/1-ethical-hacking/7-system-hacking/04-vulnerability-exploitation-page2 301!
+/content/1-ethical-hacking/7-system-hacking/05-escalating-privileges.html /content/1-ethical-hacking/7-system-hacking/05-escalating-privileges 301!
+/content/1-ethical-hacking/7-system-hacking/06-malicious-applications.html /content/1-ethical-hacking/7-system-hacking/06-malicious-applications 301!
+/content/1-ethical-hacking/7-system-hacking/07-covert-storage-and-steganography.html /content/1-ethical-hacking/7-system-hacking/07-covert-storage-and-steganography 301!
+/content/1-ethical-hacking/7-system-hacking/08-post-exploitation-operations.html /content/1-ethical-hacking/7-system-hacking/08-post-exploitation-operations 301!
+/content/1-ethical-hacking/7-system-hacking/09-domain-dominance.html /content/1-ethical-hacking/7-system-hacking/09-domain-dominance 301!
+/content/1-ethical-hacking/7-system-hacking/10-advanced-persistance-kerberos.html /content/1-ethical-hacking/7-system-hacking/10-advanced-persistance-kerberos 301!
+/content/1-ethical-hacking/7-system-hacking/11-clearing-logs-covering-tracks.html /content/1-ethical-hacking/7-system-hacking/11-clearing-logs-covering-tracks 301!
+/content/1-ethical-hacking/7-system-hacking/12-advanced-persistence-deep-dive.html /content/1-ethical-hacking/7-system-hacking/12-advanced-persistence-deep-dive 301!
+/content/1-ethical-hacking/7-system-hacking/13-module-summary.html /content/1-ethical-hacking/7-system-hacking/13-module-summary 301!
+/content/1-ethical-hacking/7-system-hacking/14-system-hacking-cheat-sheet.html /content/1-ethical-hacking/7-system-hacking/14-system-hacking-cheat-sheet 301!
+
+# --- Module 8: Malware Threats ---
+/content/1-ethical-hacking/8-malware-threats/01-introduction-to-malware-threats.html /content/1-ethical-hacking/8-malware-threats/01-introduction-to-malware-threats 301!
+/content/1-ethical-hacking/8-malware-threats/02-malware-fundamentals.html /content/1-ethical-hacking/8-malware-threats/02-malware-fundamentals 301!
+/content/1-ethical-hacking/8-malware-threats/03-apt-concepts.html /content/1-ethical-hacking/8-malware-threats/03-apt-concepts 301!
+/content/1-ethical-hacking/8-malware-threats/04-trojan-concepts.html /content/1-ethical-hacking/8-malware-threats/04-trojan-concepts 301!
+/content/1-ethical-hacking/8-malware-threats/05-virus-worm-concepts-part1.html /content/1-ethical-hacking/8-malware-threats/05-virus-worm-concepts-part1 301!
+/content/1-ethical-hacking/8-malware-threats/06-virus-worm-concepts-part2.html /content/1-ethical-hacking/8-malware-threats/06-virus-worm-concepts-part2 301!
+/content/1-ethical-hacking/8-malware-threats/07-fileless-malware-concepts.html /content/1-ethical-hacking/8-malware-threats/07-fileless-malware-concepts 301!
+/content/1-ethical-hacking/8-malware-threats/08-ai-based-malware-concepts.html /content/1-ethical-hacking/8-malware-threats/08-ai-based-malware-concepts 301!
+/content/1-ethical-hacking/8-malware-threats/09-malware-analysis.html /content/1-ethical-hacking/8-malware-threats/09-malware-analysis 301!
+/content/1-ethical-hacking/8-malware-threats/10-malware-countermeasures.html /content/1-ethical-hacking/8-malware-threats/10-malware-countermeasures 301!
+/content/1-ethical-hacking/8-malware-threats/11-module-summary.html /content/1-ethical-hacking/8-malware-threats/11-module-summary 301!
+/content/1-ethical-hacking/8-malware-threats/12-malware-threats-cheat-sheet.html /content/1-ethical-hacking/8-malware-threats/12-malware-threats-cheat-sheet 301!
+
 
 # Redirect UK, Australia, and Canada visitors to your contact/info page
 /*  Country=gb,au,ca  /contact.html  302
