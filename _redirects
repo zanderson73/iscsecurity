@@ -102,12 +102,9 @@
 /content/1-ethical-hacking/8-malware-threats/11-module-summary.html /content/1-ethical-hacking/8-malware-threats/11-module-summary 301!
 /content/1-ethical-hacking/8-malware-threats/12-malware-threats-cheat-sheet.html /content/1-ethical-hacking/8-malware-threats/12-malware-threats-cheat-sheet 301!
 
-
-# Redirect UK, Australia, and Canada visitors to your contact/info page
+# 1. Geographic & Conditional Rules always go at the absolute TOP
 /*  Country=gb,au,ca  /contact.html  302
 
-# Redirect Spanish language browser settings to a Spanish landing page if created later
-# /*  Language=es  /es/index.html  302
+# 2. Custom 404 Fallback Layer (Points directly to your custom page)
+/*  /404.html  404
 
-# Catch-all: Route any unmapped subpaths gracefully to your main homepage
-/*  /index.html  404
