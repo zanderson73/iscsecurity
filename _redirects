@@ -110,4 +110,4 @@
 # /*  Language=es  /es/index.html  302
 
 # Catch-all: Route any unmapped subpaths gracefully to your main homepage
-/*  /index.html  200
+/*  /index.html  404
