@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Emails, Usernames &amp; Images in OSINT and Cybersecurity | ISCSECURITY Master Class Series</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="/css/styles.css?v=2026_PRODUCTION_FINAL" />
+  
+  <!-- MemberSpace -->
+  <script>
+    window.MemberSpace = window.MemberSpace || { subdomain: "iscsecurity" };
+    (function(d){
+      var s = d.createElement("script");
+      s.src = "https://cdn.memberspace.com/scripts/widgets.js";
+      s.async = true;
+      d.head.appendChild(s);
+    })(document);
+  </script>
+  
+</head>
+
+<body class="page-lesson">
+
+<div class="site-topbar" role="note" aria-label="Legal notice">
+  <small class="topbar-note">
+    © 2026 ISCSECURITY · Authorization-first training. All testing must be lawful, scoped, and approved in writing.
+  </small>
+	<nav class="topbar-links" aria-label="Topbar links">
+      <a href="https://iscsecurity.org/index">Home</a>
+      <a href="https://iscsecurity.org/content/index">Content</a>
+	  <a href="https://iscsecurity.org/content/1-ethical-hacking/2-open-source-intelligence/index">OSINT</a>
+      <a href="https://iscsecurity.org/contact">Contact</a>
+    </nav>
+</div>
+
+  <main class="page modules-page no-shift" id="ethical-hacking-training-content" data-ms-content="members-only">
+  <article class="lesson-content overlay" tabindex="0" aria-label="Lesson content: Emails, Usernames &amp; Images in OSINT and Cybersecurity">
+
+    <p class="breadcrumb">
+      <a href="https://iscsecurity.org/index">Home</a> →
+        <a href="https://iscsecurity.org/content/index">Content</a> →
+        <a href="https://iscsecurity.org/content/1-ethical-hacking/2-open-source-intelligence/index">OSINT</a> →
+      <span aria-current="page">Page 13</span>
+    </p>
+
+    <h1>Emails, Usernames &amp; Images in OSINT and Cybersecurity</h1>
+
+    <!-- ============================================================ -->
+    <!-- AUTHORIZED USE BANNERS                                        -->
+    <!-- ============================================================ -->
+
+    <div class="reminder-auth">
+      <strong>🚨 AUTHORIZED USE ONLY:</strong>
+      <span>
+        All content in this document is for educational and defensive training purposes only.
+        The adversarial techniques described are derived from real-world tradecraft but
+        are documented exclusively for <strong>defensive analysis, detection engineering,
+        and authorized security testing</strong>. Unauthorized deployment of any technique
+        described may constitute a criminal offense under applicable national and
+        international cybercrime laws. Always obtain <strong>explicit written authorization</strong>
+        from the system owner or authorized legal entity before testing, executing, or
+        simulating any of the techniques outlined in this document.
+      </span>
+    </div>
+
+    <div class="reminder-comp">
+      <strong>🌍 INTERNATIONAL COMPLIANCE NOTICE:</strong>
+      <span>
+        Cybercrime laws vary significantly by jurisdiction. It is your sole responsibility
+        to understand and comply with the laws applicable to your location, the location
+        of any target systems, and your organization's policies. When in doubt,
+        <strong>consult a qualified legal professional</strong> before testing, executing,
+        or simulating any technique described in this document.
+      </span>
+    </div>
+	
+	<!-- ============================================================ -->
+    <!-- LAB ENVIRONMENT DISCLAIMER & SETUP GUIDANCE                  -->
+    <!-- ============================================================ -->
+
+    <div class="reminder-lab">
+      <strong>🧪 LAB ENVIRONMENT NOTICE:</strong>
+      <span>
+        All practical examples, command-line executions, and scenario-based exercises in this document are demonstrated within the <strong>ISCSEC internal training laboratory</strong>. 
+        This is a controlled, isolated environment that exists solely for educational and defensive training purposes.
+      </span>
+      <br><br>
+      <span>
+        <strong>You do not have access to the ISCSEC lab.</strong> As a learner, you are expected to build and maintain your own isolated lab environment, 
+        replicating the documented topology, IP schemes, and hostname conventions. The ISCSEC lab serves as a <strong>canonical reference topology</strong> 
+        for this training, not a shared or remotely accessible resource.
+      </span>
+      <br><br>
+      <span>
+        <strong>Lab requirements:</strong>
+        <ul>
+          <li>Isolated virtualised environment (e.g., VMware Workstation, VirtualBox, or Hyper-V)</li>
+          <li>Attacker operator platform (e.g., Kali Linux or equivalent)</li>
+          <li>Target Windows host (e.g., CLIENT01 at 172.16.5.60)</li>
+          <li>Internal network with domain controller (DC01 at 172.16.5.25), SQL server (SQL01 at 172.16.5.20), web server (WEB01 at 172.16.5.30), and application server (APP01 at 172.16.5.40)</li>
+          <li>All testing must be conducted within your own isolated network with <strong>explicit written authorization</strong> for any systems involved</li>
+        </ul>
+      </span>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 1: RECONNAISSANCE — IDENTITY SURFACE MAPPING         -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="identity-recon">
+      <h2 id="identity-recon">1. Reconnaissance: Mapping the Identity Surface</h2>
+
+      <p>
+        <strong>Adversary Goals:</strong> Enumerate valid organisational emails, derive username
+        permutations, and discover active platforms <em>before</em> any direct engagement.
+        Email, username, and image intelligence form the backbone of modern OSINT, they enable
+        identity graphs, believable pretexts, and high-value target prioritisation.
+      </p>
+
+      <h3>Organisational Email Enumeration</h3>
+
+<pre><code class="language-bash"># theHarvester passive domain collection
+theHarvester -d target.com -b all -f th_target.xml
+
+# Hunter.io API: extract verified emails and format patterns
+curl -s "https://api.hunter.io/v2/domain-search?domain=target.com&amp;api_key=$HUNTER_KEY" \
+  | jq -r '.data.emails[] | .value' > verified_emails.txt
+
+# Generate common corporate formats from seed names
+while read first last; do
+  echo "${first}.${last}@target.com"
+  echo "${first:0:1}${last}@target.com"
+  echo "${first}_${last}@target.com"
+done &lt; names.txt > email_candidates.txt
+</code></pre>
+
+      <h3>Username Discovery &amp; Platform Enumeration</h3>
+
+<pre><code class="language-bash"># Sherlock single-target sweep against high-value platforms
+python3 sherlock.py johndoe --site twitter instagram linkedin github --csv
+
+# Derive usernames from email prefixes for cross-platform pivoting
+awk -F'@' '{print $1}' email_candidates.txt | sort -u > usernames.txt
+
+# Automated platform correlation (conceptual Blackbird-style loop)
+while read user; do
+  echo "[*] Checking: $user"
+  python3 blackbird.py -u "$user" --csv -o "bb_${user}.csv"
+  sleep $((RANDOM % 5 + 3))  # Jitter to evade rate-limiting
+done &lt; usernames.txt
+</code></pre>
+
+      <div class="reminder-lightblue">
+        <strong>Note:</strong><br>
+		These commands are intended for <strong>authorized Red Team OSINT</strong>.
+        Querying third-party APIs or scraping social platforms without explicit written permission
+        violates most platforms' ToS and may breach local laws.
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 2: EMAIL ENUMERATION & OSINT                         -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="email-enum">
+      <h2 id="email-enum">2. Email Enumeration: Harvesting, Validation &amp; Breach Pivoting</h2>
+
+      <p>
+        <strong>Adversary Goals:</strong> Confirm email validity, extract leaked credentials, and
+        link identifiers across services via Gravatar hashes and breach dumps.
+      </p>
+
+      <h3>Email OSINT Tools &amp; Methods (2026)</h3>
+
+      <ul>
+        <li><strong>Epieos:</strong> Reverse-lookup for email/phone, finds related Google reviews, accounts and other identifiers.</li>
+        <li><strong>OSINT Industries:</strong> Runs emails through breach databases, WHOIS, social, Gravatar, forums and more for profiling.</li>
+        <li><strong>theHarvester:</strong> Open-source collector for emails and subdomains from public sources.</li>
+        <li><strong>Hunter.io / Email-Format.com:</strong> Guess/craft organisational email formats for targeted investigations.</li>
+        <li><strong>Have I Been Pwned, Dehashed:</strong> Check breached/compromised emails and associated dumps.</li>
+        <li><strong>Trumail.io, Verify-Email.org:</strong> Single or bulk email verification services.</li>
+      </ul>
+
+      <h3>Automated Breach &amp; Validation Checks</h3>
+
+<pre><code class="language-bash"># Bulk HIBP breach check with jitter to avoid rate-limit blocks
+while read email; do
+  sleep $((RANDOM % 5 + 2))
+  resp=$(curl -s -H "hibp-api-key: $HIBP_KEY" \
+    "https://haveibeenpwned.com/api/v3/breachedaccount/${email}?truncateResponse=false")
+  [ -z "$resp" ] &amp;&amp; echo "[-] ${email}: Clean" &amp;&amp; continue
+  echo "[!] ${email}: Breached ($(echo "$resp" | jq -r '.[] | .Name' | tr '\n' ' '))"
+done &lt; email_candidates.txt
+
+# Dehashed domain pivot for recovered credentials and associated usernames
+curl -s "https://api.dehashed.com/search?query=email:@target.com" \
+  -u "${DEHASHED_EMAIL}:${DEHASHED_KEY}" \
+  | jq '.entries[] | {email, username, password, breached_site}'
+</code></pre>
+
+      <h3>Gravatar &amp; Global Identifier Pivoting</h3>
+
+<pre><code class="language-python">#!/usr/bin/env python3
+# Conceptual adversary tool: Gravatar existence probe and avatar harvester
+import hashlib, requests, sys
+
+def gravatar_url(email):
+    md5 = hashlib.md5(email.lower().strip().encode()).hexdigest()
+    return f"https://www.gravatar.com/avatar/{md5}?d=404"
+
+for line in sys.stdin:
+    email = line.strip()
+    r = requests.get(gravatar_url(email), timeout=10)
+    if r.status_code == 200:
+        print(f"[HIT] {email} -> active Gravatar")
+        # Adversaries would download and feed into face-matching pipelines:
+        # open(f"{md5}.jpg","wb").write(r.content)
+</code></pre>
+
+      <h3>Google Dorks for Exposed Identity Data</h3>
+
+<pre><code class="language-bash">intext:"@target.com" filetype:pdf | filetype:xls | filetype:docx
+site:linkedin.com "target.com" ("contact" | "staff" | "team")
+"username" site:pastebin.com | site:github.com | site:gitlab.com
+intitle:"index of" "parent directory" "@target.com"
+</code></pre>
+
+      <h3>Email Master Table</h3>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table" aria-label="Email OSINT Master Table">
+          <thead>
+            <tr>
+              <th>Category</th>
+              <th>What to Look For</th>
+              <th>Tools / Methods</th>
+              <th>Red Team Use-Cases</th>
+              <th>Blue Team Concerns / Detection</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Email Patterns</td>
+              <td>Corporate format, aliases, shared inboxes</td>
+              <td>Email-Format, Hunter.io, LinkedIn scraping</td>
+              <td>Craft realistic phishing pretexts and identity mimics</td>
+              <td>Monitor abnormal login attempts following pattern discovery</td>
+            </tr>
+            <tr>
+              <td>Alias Mapping</td>
+              <td>Common usernames reused across platforms</td>
+              <td>Blackbird, Sherlock, WhatsMyName</td>
+              <td>Account takeover or persona framing</td>
+              <td>Detect credential reuse across enterprise services</td>
+            </tr>
+            <tr>
+              <td>Image-Based OSINT</td>
+              <td>EXIF metadata, timestamps, device info, GPS data</td>
+              <td>ExifTool, Jeffrey's EXIF Viewer, Forensically</td>
+              <td>Location profiling, timestamp validation, device matching</td>
+              <td>Scrub metadata from public-facing uploads</td>
+            </tr>
+            <tr>
+              <td>Gravatar Enumeration</td>
+              <td>Email–MD5 link to platforms using Gravatar</td>
+              <td>Gravatar lookup, OSINT Industries</td>
+              <td>Identity linking, cross-service activity discovery</td>
+              <td>Audit external Gravatar use for corporate emails</td>
+            </tr>
+            <tr>
+              <td>Breach &amp; Leak Pivoting</td>
+              <td>Password reuse, breach frequency, exposed credentials</td>
+              <td>HIBP, Dehashed, LeakIX, Scylla</td>
+              <td>Password spraying, account takeover, shadow IT discovery</td>
+              <td>Force password rotations, implement breach monitoring</td>
+            </tr>
+            <tr>
+              <td>Profile Behaviour Analysis</td>
+              <td>Posting frequency, job roles, updates, tech stack reveals</td>
+              <td>LinkedIn scraping (manual or tooling), Epieos</td>
+              <td>Target high-value personnel, tailor spear-phishing</td>
+              <td>Harden public-facing profiles, provide employee guidance</td>
+            </tr>
+            <tr>
+              <td>Avatar &amp; Face Matching</td>
+              <td>Cross-platform image reuse</td>
+              <td>PimEyes, FaceCheck.ID, Bing Reverse Image Search</td>
+              <td>Identify linked accounts not tied to email reuse</td>
+              <td>Educate staff on avatar reuse risks</td>
+            </tr>
+            <tr>
+              <td>Username Age Verification</td>
+              <td>Creation dates, username history across platforms</td>
+              <td>Reddit Age Checker, Twitter analytics, web archive</td>
+              <td>Determine profile legitimacy, identify sockpuppets</td>
+              <td>Detect impersonation attempts and fraudulent accounts</td>
+            </tr>
+            <tr>
+              <td>Email Infrastructure Mapping</td>
+              <td>MX records, SPF, DKIM, DMARC</td>
+              <td>Dig, MXToolbox, DNSDumpster</td>
+              <td>Clone mail delivery behaviour for phishing realism</td>
+              <td>Strengthen mail authentication policies</td>
+            </tr>
+            <tr>
+              <td>Disposable Email Detection</td>
+              <td>Burner or temporary inboxes used for registrations</td>
+              <td>Validator APIs, TempMail checkers</td>
+              <td>Track malicious signup or adversary activity</td>
+              <td>Block disposable domains in production systems</td>
+            </tr>
+            <tr>
+              <td>Cross-Service Metadata</td>
+              <td>Timezone, posting times, writing style</td>
+              <td>LLM analysis, clustering tools</td>
+              <td>Identify pattern overlaps or shared operators</td>
+              <td>Detect compromised or automated accounts</td>
+            </tr>
+            <tr>
+              <td>Human-to-Device Linkage</td>
+              <td>Phone → email → accounts → social → token leaks</td>
+              <td>Epieos, Intelligence X, skiptracing tools</td>
+              <td>High-value phishing and impersonation mapping</td>
+              <td>Privacy exposure reduction &amp; public data minimisation</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 3: USERNAME DISCOVERY & PLATFORM ENUMERATION         -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="username-enum">
+      <h2 id="username-enum">3. Username Discovery: Correlation, Sock Puppet Detection &amp; Platform Mapping</h2>
+
+      <p>
+        <strong>Adversary Goals:</strong> Correlate aliases/handles, map a user's footprint, detect
+        sock puppets <strong>"fake online identity"</strong> and breaches.
+      </p>
+
+      <h3>Username Lookup Tools &amp; Best Practices (2026)</h3>
+
+      <ul>
+        <li><strong>Blackbird:</strong> Search across hundreds of sites, auto-profile identities and spot patterns.</li>
+        <li><strong>Knowem, Namevine, CheckUsernames, Usersearch.org:</strong> Batch username checking and monitoring.</li>
+        <li><strong>Social Searcher:</strong> Real-time social/news feed scanning for usernames/keywords.</li>
+        <li><strong>WhatsMyName:</strong> Open database of sites for username checking.</li>
+        <li><strong>theHarvester, Dehashed, Have I Been Pwned:</strong> Find leaked usernames or related breaches.</li>
+      </ul>
+
+      <h3>AI &amp; Analytical Techniques</h3>
+
+      <ul>
+        <li>Natural Language Processing (NLP)/pattern matching to group related usernames by style or topic.</li>
+        <li>Clustering algorithms to spot botnets, coordinated actors or sock-puppet networks.</li>
+        <li><strong>Maltego</strong> (with plugins) for visual connection mapping and AI-assisted correlation.</li>
+      </ul>
+
+      <h3>Username Master Table</h3>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table" aria-label="Username OSINT Master Table">
+          <thead>
+            <tr>
+              <th>Category</th>
+              <th>What to Look For</th>
+              <th>Tools / Methods</th>
+              <th>Red Team Use-Cases</th>
+              <th>Blue Team Concerns / Detection</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Username Reuse</td>
+              <td>Same alias across multiple platforms</td>
+              <td>Blackbird, WhatsMyName, Sherlock</td>
+              <td>Build identity graph, pivot to forgotten accounts</td>
+              <td>Detect users reusing aliases tied to corporate accounts</td>
+            </tr>
+            <tr>
+              <td>Account Age Mapping</td>
+              <td>Creation time, last activity, platform history</td>
+              <td>Archive.org, platform-specific analytics</td>
+              <td>Identify long-standing profiles vs new sock-puppets</td>
+              <td>Find impersonation or newly created fake identities</td>
+            </tr>
+            <tr>
+              <td>Cross-Platform Behaviour</td>
+              <td>Posting times, topics, writing style</td>
+              <td>LLM analysis, NLP clustering</td>
+              <td>Correlate identities across forums/social media</td>
+              <td>Spot compromised accounts based on changed behaviour</td>
+            </tr>
+            <tr>
+              <td>Username → Email Pivoting</td>
+              <td>Handles tied to email naming conventions</td>
+              <td>Dehashed, HIBP, forum scrapes</td>
+              <td>Recover leaked credentials for password spraying</td>
+              <td>Detect credential reuse risks &amp; enforce MFA</td>
+            </tr>
+            <tr>
+              <td>Avatar Reuse</td>
+              <td>Same profile image on multiple platforms</td>
+              <td>PimEyes, Bing Reverse Image Search</td>
+              <td>Link anonymous accounts together</td>
+              <td>Educate users about cross-platform avatar reuse</td>
+            </tr>
+            <tr>
+              <td>Username Theme Analysis</td>
+              <td>Patterns (sports, hobbies, dates, handles)</td>
+              <td>NLP, regex heuristics, clustering</td>
+              <td>Find secondary accounts or burner identities</td>
+              <td>Spot fake accounts using generated naming patterns</td>
+            </tr>
+            <tr>
+              <td>Bot/Automated Pattern Detection</td>
+              <td>Simultaneous creation, identical naming structures</td>
+              <td>Maltego (entity correlation), clustering</td>
+              <td>Identify botnets, coordinated influence networks</td>
+              <td>Detect malicious automation interacting with services</td>
+            </tr>
+            <tr>
+              <td>Forum &amp; Dark-Web Correlation</td>
+              <td>Usernames reused in breach forums or dumps</td>
+              <td>Dehashed, Intelligence X</td>
+              <td>Map threat actors or compromised insiders</td>
+              <td>Identify employee exposure in criminal marketplaces</td>
+            </tr>
+            <tr>
+              <td>Language &amp; Tone Fingerprinting</td>
+              <td>Consistent tone, grammar markers, slang</td>
+              <td>LLM linguistic fingerprinting, stylometry tools</td>
+              <td>Match anonymous posts to known identities</td>
+              <td>Detect impersonations or artificially generated personas</td>
+            </tr>
+            <tr>
+              <td>Geo &amp; Timezone Cues</td>
+              <td>Posting windows, language region</td>
+              <td>Posting timestamp analysis, metadata inference</td>
+              <td>Determine operator location or shift patterns</td>
+              <td>Identify suspicious access patterns in corporate accounts</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 4: IMAGE HARVESTING, EXIF EXTRACTION & VISUAL PIVOTING -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="image-tradecraft">
+      <h2 id="image-tradecraft">4. Image Harvesting: Acquisition, Metadata Extraction &amp; Visual Pivoting</h2>
+
+      <p>
+        <strong>Adversary Goals:</strong> Acquire public imagery, extract metadata for
+        geolocation and device intelligence, and correlate faces across platforms.
+      </p>
+
+      <h3>Bulk Image Acquisition &amp; Metadata Extraction</h3>
+
+<pre><code class="language-bash"># Mirror publicly indexed image directories (exposed indexes, buckets, etc.)
+wget --mirror --accept="jpg,jpeg,png,tiff" --no-parent \
+  https://target.com/media/ -P ./staging_images/
+
+# Recursive EXIF extraction focused on GPS and device fingerprints
+exiftool -r -csv -gpslatitude -gpslongitude -createdate -model -serialnumber \
+  ./staging_images/ > exif_gold.csv
+
+# Quick GPS coordinate extraction for offline mapping
+exiftool -gpsposition -n -s3 ./staging_images/ | grep "GPS Position"
+</code></pre>
+
+      <h3>Python Metadata Harvester</h3>
+
+<pre><code class="language-python">#!/usr/bin/env python3
+# Conceptual adversary tool: image metadata and GPS harvester
+import os
+from PIL import Image
+from PIL.ExifTags import TAGS
+
+def get_exif(path):
+    try:
+        img = Image.open(path)
+        exif = img._getexif()
+        if not exif:
+            return {}
+        return {TAGS.get(k, k): v for k, v in exif.items()}
+    except Exception:
+        return {}
+
+for root, _, files in os.walk("./staging_images"):
+    for f in files:
+        if f.lower().endswith((".jpg", ".jpeg")):
+            full = os.path.join(root, f)
+            data = get_exif(full)
+            if "GPSInfo" in data:
+                print(f"[!] GPS HIT: {f}")
+            if "Make" in data:
+                print(f"    Device: {data.get('Make')} {data.get('Model')}")
+                # Adversaries would correlate device models with other leaks
+</code></pre>
+
+      <h3>Face Correlation Pipeline</h3>
+
+<pre><code class="language-bash"># Local face similarity correlation (requires face_recognition Python library)
+python3 -c "
+import face_recognition, os, sys
+known = face_recognition.load_image_file('target_face.jpg')
+encs = face_recognition.face_encodings(known)
+if not encs: sys.exit('No face found in reference image')
+known_enc = encs[0]
+for img in os.listdir('suspected_profiles'):
+    if not img.lower().endswith(('.jpg','.png')): continue
+    try:
+        cand = face_recognition.load_image_file(f'suspected_profiles/{img}')
+        cencs = face_recognition.face_encodings(cand)
+        if cencs and face_recognition.compare_faces([known_enc], cencs[0])[0]:
+            print(f'MATCH: {img}')
+    except Exception: pass
+"</code></pre>
+
+      <h3>OSINT Image Techniques</h3>
+
+      <ul>
+        <li>Reverse image search: Google Images, Bing, TinEye, Yandex to trace origins and reposts.</li>
+        <li>Forensic analysis: <strong>Forensically</strong>, <strong>29a.ch</strong> for ELA, clone detection and artifact spotting.</li>
+        <li>Metadata extraction: <strong>ExifTool</strong> and online EXIF viewers to pull device, timestamp and possible GPS (if present).</li>
+        <li>Advanced matching: <strong>PimEyes</strong>, Azure AI, <strong>Face++</strong> and OpenCV pipelines for similarity matching and large-scale image correlation.</li>
+        <li>Video/image verification: <strong>InVID</strong>, <strong>FotoForensics</strong> to analyse video stills, context and temporal markers.</li>
+        <li>Satellite/geolocation: SunCalc, Google Earth, Sentinel Hub for place and time verification via visual cues.</li>
+      </ul>
+
+      <h3>AI Integration</h3>
+
+      <ul>
+        <li>AI-powered fake detection to flag GAN artifacts, synthesized faces and composited backgrounds.</li>
+        <li>Cluster matching that correlates faces, clothing, objects across datasets to identify networks or staged imagery.</li>
+        <li>Automatic geolocation: use scene analysis (sky, shadows, terrain) combined with map imagery to propose locations.</li>
+      </ul>
+
+      <div class="reminder-lightblue">
+        <strong>Note:</strong><br>
+		EXIF GPS coordinates can reveal home addresses, hotels, and meeting
+        locations. Face-matching across platforms links anonymous accounts to real identities. Both
+        techniques are powerful but must remain within strict legal scope.
+      </div>
+
+      <h3>Image Master Table</h3>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table" aria-label="Image OSINT Master Table">
+          <thead>
+            <tr>
+              <th>Category</th>
+              <th>What to Look For</th>
+              <th>Tools / Methods</th>
+              <th>Red Team Use-Cases</th>
+              <th>Blue Team Concerns / Detection</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Reverse Image Pivoting</td>
+              <td>Original source, reposts, prior appearances</td>
+              <td>Google Images, Bing, TinEye, Yandex</td>
+              <td>Verify identity, track persona reuse, locate earlier leaks</td>
+              <td>Monitor for unauthorized brand or employee image reuse</td>
+            </tr>
+            <tr>
+              <td>EXIF Metadata</td>
+              <td>GPS, device model, firmware, timestamp</td>
+              <td>ExifTool, Jeffrey's Image Metadata Viewer</td>
+              <td>Determine location, timeline, and device ownership</td>
+              <td>Strip metadata before publishing images</td>
+            </tr>
+            <tr>
+              <td>Image Manipulation Checks</td>
+              <td>Clone patterns, shadow inconsistencies, artifacts</td>
+              <td>Forensically, 29a.ch, FotoForensics</td>
+              <td>Distinguish real vs staged images; detect tampering</td>
+              <td>Spot doctored images used in phishing or misinformation</td>
+            </tr>
+            <tr>
+              <td>Face Similarity Matching</td>
+              <td>Cross-platform identity linking</td>
+              <td>PimEyes, Face++, Azure Vision API</td>
+              <td>Identify hidden/secondary accounts, pivot to social footprints</td>
+              <td>Detect impersonation and unauthorized use of staff photos</td>
+            </tr>
+            <tr>
+              <td>Video Still Analysis</td>
+              <td>Key frames, contextual objects, timestamps</td>
+              <td>InVID, FFmpeg, Forensically</td>
+              <td>Find where/when footage was taken; identify reused scenes</td>
+              <td>Verify legitimacy of content used against an organization</td>
+            </tr>
+            <tr>
+              <td>Geolocation Indicators</td>
+              <td>Landmarks, skyline, terrain, vegetation</td>
+              <td>Google Earth, Sentinel Hub, SunCalc</td>
+              <td>Determine operational areas of targets</td>
+              <td>Identify photos revealing sensitive facility information</td>
+            </tr>
+            <tr>
+              <td>Shadow &amp; Sun Position Analysis</td>
+              <td>Shadow length, sun angle, time of day</td>
+              <td>SunCalc, shadow calculators</td>
+              <td>Validate timestamps or detect falsified timelines</td>
+              <td>Check if images contain time-revealing cues</td>
+            </tr>
+            <tr>
+              <td>AI Deepfake Detection</td>
+              <td>GAN artifacts, abnormal textures, blending</td>
+              <td>AI detector APIs, forensics models</td>
+              <td>Spot synthetic personas or staged propaganda</td>
+              <td>Flag manipulated images circulating internally or externally</td>
+            </tr>
+            <tr>
+              <td>Clothing &amp; Object Matching</td>
+              <td>Recurring outfits, props, logos</td>
+              <td>LLM similarity search, clustering algorithms</td>
+              <td>Link individuals across separate photo sets</td>
+              <td>Check for brand misuse or cloning attacks</td>
+            </tr>
+            <tr>
+              <td>Environmental Audio/Visual Cues</td>
+              <td>Street noise, accents, signage, typography</td>
+              <td>Spectrograph tools, enhanced visual examination</td>
+              <td>Infer city, region, or linguistic background</td>
+              <td>Assess risk of sensitive location disclosure</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 5: CROSS-PIVOTING & PERSONA CONSTRUCTION             -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="cross-pivot">
+      <h2 id="cross-pivot">5. Cross-Pivoting, Persona Analysis, and Target Prioritisation</h2>
+
+      <p>
+        Sophisticated adversaries do not treat email, username, and image intelligence as silos.
+        They fuse them into a <strong>target graph</strong> for spear-phishing, social engineering, or BEC.
+      </p>
+
+      <ul>
+        <li><strong>Email → Username → Platform:</strong> A corporate email prefix (e.g., <code>jdoe</code>)
+        reused as a GitHub or Reddit handle creates an instant bridge between professional and personal identity.</li>
+        <li><strong>Gravatar → Face → Account:</strong> The same avatar hash appearing on a corporate blog
+        comment and a hobbyist forum confirms alias linkage.</li>
+        <li><strong>Writing Stylometry:</strong> Scrape public README files, forum posts, or LinkedIn articles;
+        feed them into an LLM to fingerprint tone, regional spelling, and technical vocabulary.</li>
+        <li><strong>Timezone Fingerprinting:</strong> Correlate commit timestamps, post hours, and EXIF
+        <code>DateTimeOriginal</code> to infer target sleep/work patterns and geographic region.</li>
+        <li><strong>Asset Prioritisation:</strong> Users with administrative titles, recent breach exposure,
+        and reused aliases across critical platforms become the highest-value targets for credential
+        stuffing or spear-phishing.</li>
+      </ul>
+
+      <h3>Automated Pretext Generation</h3>
+
+<pre><code class="language-python">#!/usr/bin/env python3
+# Conceptual adversary tool: LLM-powered phishing pretext generator
+# In practice, an adversary feeds scraped bio, recent posts, and breach data
+# into a local LLM API to produce believable lures.
+
+profile = {
+    "name": "John Doe",
+    "role": "Senior DevOps Engineer",
+    "interests": ["Kubernetes", "AWS", "home-lab"],
+    "recent_post": "Just migrated our legacy FTP to S3..."
+}
+prompt = (
+    f"Write a short, believable LinkedIn connection request to {profile['name']} "
+    f"referencing {profile['recent_post']}"
+)
+print(f"[PROMPT] {prompt}")
+# Adversaries would POST this to a local LLM endpoint and refine the output.
+</code></pre>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 6: ADVERSARY OPSEC & EVASION                         -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="identity-opsec">
+      <h2 id="identity-opsec">6. Adversary OPSEC &amp; Evasion Techniques</h2>
+
+      <p>
+        Operational security separates amateur OSINT from professional adversarial tradecraft:
+      </p>
+
+      <ul>
+        <li><strong>Burner infrastructure:</strong> Querying LinkedIn, HIBP, or Hunter from a known VPS
+        range invites blacklisting and attribution. Adversaries route through residential proxies or
+        compromised residential hosts.</li>
+        <li><strong>API key hygiene:</strong> Disposable API keys purchased with cryptocurrency prevent
+        subscription linkage to real identity.</li>
+        <li><strong>Temporal jitter:</strong> Automated scripts sleep random intervals between queries
+        to avoid triggering rate-limit alerts or SIEM correlation rules.</li>
+        <li><strong>Persona consistency:</strong> Sock-puppet accounts maintain isolated browser profiles,
+        distinct timezones, and consistent writing styles to prevent cross-contamination.</li>
+        <li><strong>Metadata laundering:</strong> Before uploading bait images or avatars, adversaries
+        strip EXIF, resize, and re-encode to prevent hash-matching against known corporate assets.</li>
+        <li><strong>Temporal alignment:</strong> Phishing pretexts are timed to coincide with publicised
+        events (conferences, product launches) harvested from image timestamps and social posts.</li>
+      </ul>
+
+      <div class="info-remember">
+        <strong>Blue Team Note:</strong><br> 
+		OSINT reconnaissance often generates no server-side
+        log footprint on the defender's infrastructure. Detection must shift to user awareness, external
+        brand monitoring, and metadata-scrubbing policies rather than traditional network alerts.
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 7: DEFENSIVE COUNTERMEASURES                         -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="identity-defense">
+      <h2 id="identity-defense">7. Defensive Countermeasures &amp; Threat Mapping</h2>
+
+      <p>
+        Translating adversarial identity reconnaissance into defense requires
+        <strong>attack-surface reduction</strong>, <strong>continuous external monitoring</strong>, and
+        <strong>user awareness</strong>.
+      </p>
+
+      <h3>Potential Victims &amp; Defensive Insights</h3>
+
+      <ul>
+        <li><strong>Individuals:</strong> phishing, reputation risk, doxxing from correlated emails/usernames/images.</li>
+        <li><strong>Businesses/Executives:</strong> CEO fraud, BEC, insider risk from scraped employee info.</li>
+        <li><strong>Public figures / journalists:</strong> targeted campaigns using cross-platform correlation.</li>
+        <li><strong>Vulnerable groups:</strong> harassment, stalking or doxxing resulting from OSINT-extracted footprints.</li>
+      </ul>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table" aria-label="Victim mapping and defensive countermeasures">
+          <thead>
+            <tr>
+              <th>Category</th>
+              <th>Primary Risks</th>
+              <th>OSINT Indicators</th>
+              <th>Red Team Use-Cases</th>
+              <th>Blue Team Countermeasures</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Individuals</td>
+              <td>Phishing, identity theft, doxxing</td>
+              <td>Emails, avatars, usernames, leaked credentials</td>
+              <td>Craft personalised pretexts using social media and breach data</td>
+              <td>Unique usernames, MFA, breach monitoring, privacy hygiene</td>
+            </tr>
+            <tr>
+              <td>Executives / VIPs</td>
+              <td>CEO fraud, Business Email Compromise (BEC)</td>
+              <td>Press releases, LinkedIn roles, travel schedules</td>
+              <td>Spoofed executive email chains, invoice fraud scenarios</td>
+              <td>VIP monitoring, DMARC enforcement, executive-target protection</td>
+            </tr>
+            <tr>
+              <td>Journalists / Activists</td>
+              <td>Harassment, targeted misinformation, stalking</td>
+              <td>Public posts, image metadata, alias reuse</td>
+              <td>Persona correlation, location inference via posted media</td>
+              <td>Metadata stripping, safe posting guidance, anonymity support tools</td>
+            </tr>
+            <tr>
+              <td>Employees</td>
+              <td>Credential reuse, impersonation, insider risk</td>
+              <td>Resume details, GitHub activity, leaked workplace photos</td>
+              <td>Imitate employee communication styles for phishing</td>
+              <td>Internal awareness, controlled social exposure, access minimisation</td>
+            </tr>
+            <tr>
+              <td>Vulnerable Groups</td>
+              <td>Doxxing, targeted harassment, stalking</td>
+              <td>Shared usernames, public images, location tags</td>
+              <td>Misuse images or profile footprints to track online behaviour</td>
+              <td>Privacy education, safe-posting defaults, proactive takedown requests</td>
+            </tr>
+            <tr>
+              <td>Small Businesses</td>
+              <td>Fake invoices, domain spoofing, credential stuffing</td>
+              <td>Staff listings, forgotten subdomains, exposed FTP/SMB</td>
+              <td>Identify weak assets to simulate real-world attacker workflows</td>
+              <td>Asset inventory, basic cyber hygiene, email hardening</td>
+            </tr>
+            <tr>
+              <td>Large Enterprises</td>
+              <td>Targeted phishing, social engineering pathways</td>
+              <td>Employee org charts, cloud buckets, metadata leaks</td>
+              <td>Build hierarchical phishing campaigns across departments</td>
+              <td>Attack surface monitoring, CTI feeds, OSINT footprint control</td>
+            </tr>
+            <tr>
+              <td>Developers / IT Staff</td>
+              <td>Secret leaks, key exposures, credential reuse</td>
+              <td>GitHub commits, code comments, package metadata</td>
+              <td>Harvest exposed keys for direct system access</td>
+              <td>Pre-commit scanning, secret rotation, Git hygiene training</td>
+            </tr>
+            <tr>
+              <td>Brand / Public-Facing Teams</td>
+              <td>Impersonation, misinformation, deepfake misuse</td>
+              <td>Public photos, videos, interviews, press kits</td>
+              <td>Create high-believability spoof profiles or fake endorsements</td>
+              <td>Brand monitoring, deepfake detection tools, PR incident playbooks</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Defensive Best Practices</h3>
+
+      <ul>
+        <li>Use unique emails/usernames per service and minimise public profile exposure.</li>
+        <li>Monitor breaches and mentions (Google Alerts, Epieos, HaveIBeenPwned).</li>
+        <li>Strip EXIF and sensitive metadata from imagery before public uploads; be aware of reverse-image discoverability.</li>
+        <li>Adopt modern AI-driven monitoring &amp; email protection solutions (e.g., Darktrace, Abnormal Security) to reduce targeted AI-enabled phishing risks.</li>
+      </ul>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 8: SUPPORTING RESOURCES                              -->
+    <!-- ============================================================ -->
+
+    <section class="resources" aria-label="Supporting resources">
+      <h2 id="resources">8. Supporting Resources &amp; Recommended Reading</h2>
+
+      <ul>
+        <li>
+          <a href="https://github.com/p1ngul1n0/blackbird" target="_blank" rel="noopener">
+            Blackbird: GitHub
+          </a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: AI-powered account enumeration &amp; profiling (repo + usage)</small>
+        </li>
+        <li>
+          <a href="https://epieos.com" target="_blank" rel="noopener">
+            Epieos
+          </a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: Email/phone reverse lookup and cross-profile discovery</small>
+        </li>
+        <li>
+          <a href="https://www.osint.industries/" target="_blank" rel="noopener">
+            OSINT Industries
+          </a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: Aggregated breach &amp; profiling intelligence services</small>
+        </li>
+        <li>
+          <a href="https://github.com/laramies/theHarvester" target="_blank" rel="noopener">
+            theHarvester: GitHub
+          </a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: Open-source email and subdomain collection</small>
+        </li>
+        <li>
+          <a href="https://tineye.com/" target="_blank" rel="noopener">
+            TinEye
+          </a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: Reverse image search and provenance tracking</small>
+        </li>
+        <li>
+          <a href="https://29a.ch/photo-forensics/" target="_blank" rel="noopener">
+            Forensically/29a.ch
+          </a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: Photo-forensics tools (ELA, clone detection, metadata)</small>
+        </li>
+        <li>
+          <a href="https://www.invid-project.eu/tools-and-services/" target="_blank" rel="noopener">
+            InVID
+          </a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: Video/image verification toolkit and workflows</small>
+        </li>
+        <li>
+          <a href="https://whatsmyname.app/" target="_blank" rel="noopener">
+            WhatsMyName
+          </a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: Username availability and site index for cross-platform checks</small>
+        </li>
+        <li>
+          <a href="https://www.darktrace.com" target="_blank" rel="noopener">
+            Darktrace
+          </a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: Example vendor AI-defense platform (monitoring &amp; threat detection)</small>
+        </li>
+        <li>
+          <a href="https://abnormalsecurity.com" target="_blank" rel="noopener">
+            Abnormal Security
+          </a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: AI-driven email protection &amp; account takeover prevention</small>
+        </li>
+        <li>
+          <span>Community &amp; Tutorials</span>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: zsecurity.org, osintteam.blog — practical guides and community writeups</small>
+        </li>
+      </ul>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 9: CHAPTER SUMMARY                                   -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="identity-chapter-summary">
+      <h2 id="identity-chapter-summary">9. Chapter Summary</h2>
+
+      <p>
+        By completing this chapter you should now be able to:
+      </p>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin: 20px 0;">
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Enumerate organisational email formats.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;">theHarvester, Hunter.io, and format permutation techniques.</span></span>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Perform username discovery across platforms.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;">Blackbird, Sherlock, and platform enumeration techniques.</span></span>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Extract and analyse EXIF metadata from images.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;">ExifTool, Python metadata harvesters, and GPS extraction.</span></span>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Correlate identities across platforms.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;">Gravatar hashing, face matching, and avatar reuse detection.</span></span>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Pivot from breach data to credential attacks.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;">HIBP, Dehashed, and password spraying preparation.</span></span>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Apply adversary OPSEC to identity collection.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;">Burner infrastructure, proxy rotation, and temporal jitter.</span></span>
+        </div>
+
+      </div>
+
+      <div class="info-remember" style="margin: 15px 0;">
+        <strong>Why This Matters:</strong>
+        <span style="display: block; margin-top: 5px;">
+          Email, username, and image intelligence form the backbone of modern OSINT. By mastering these
+          techniques, operators can build comprehensive identity graphs, craft believable pretexts, and
+          prioritize high-value targets. For defenders, understanding these tradecraft patterns is essential
+          for reducing organizational exposure and detecting reconnaissance before it escalates.
+        </span>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 10: KEY TAKEAWAYS                                    -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="identity-takeaways">
+      <h2 id="identity-takeaways">10. Key Takeaways</h2>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table" aria-label="Identity OSINT key takeaways">
+          <thead>
+            <tr>
+              <th>Concept</th>
+              <th>Why It Matters</th>
+              <th>Security Impact</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Emails Are the Primary Identity Anchor</strong></td>
+              <td>Corporate email formats reveal naming conventions and enable targeted phishing.</td>
+              <td>Monitor for email pattern discovery and enforce unique username practices.</td>
+            </tr>
+            <tr>
+              <td><strong>Username Reuse Enables Cross-Platform Correlation</strong></td>
+              <td>Same handles across platforms link professional and personal identities.</td>
+              <td>Educate staff on alias reuse risks and conduct regular exposure sweeps.</td>
+            </tr>
+            <tr>
+              <td><strong>EXIF Data Reveals Location and Device Intelligence</strong></td>
+              <td>GPS coordinates, timestamps, and device models provide operational context.</td>
+              <td>Strip metadata from all public-facing images before upload.</td>
+            </tr>
+            <tr>
+              <td><strong>Gravatar Hashes Link Profiles</strong></td>
+              <td>Email MD5 hashes reveal where a user has avatars or accounts.</td>
+              <td>Audit corporate email Gravatar usage and disable where possible.</td>
+            </tr>
+            <tr>
+              <td><strong>Breach Data Enables Credential Attacks</strong></td>
+              <td>Exposed passwords fuel credential stuffing and password spraying.</td>
+              <td>Enforce MFA, monitor HIBP, and rotate exposed credentials immediately.</td>
+            </tr>
+            <tr>
+              <td><strong>Face Matching Crosses Anonymity Boundaries</strong></td>
+              <td>Avatars and profile photos link anonymous accounts to real identities.</td>
+              <td>Encourage unique avatars per platform and scrub facial data from public profiles.</td>
+            </tr>
+            <tr>
+              <td><strong>Writing Stylometry Fingerprints Individuals</strong></td>
+              <td>Tone, vocabulary, and grammar patterns persist across accounts.</td>
+              <td>Detect impersonation and synthetic personas via behavioural analytics.</td>
+            </tr>
+            <tr>
+              <td><strong>Proxies and Burner Infrastructure Are Non-Negotiable</strong></td>
+              <td>Direct querying from fixed IPs enables attribution and blacklisting.</td>
+              <td>Detect reconnaissance by monitoring for unusual API access patterns.</td>
+            </tr>
+            <tr>
+              <td><strong>Adversaries Exploit Temporal Cues</strong></td>
+              <td>Post timestamps and EXIF dates reveal timezone and operational patterns.</td>
+              <td>Enforce timezone obfuscation policies and monitor for off-hours activity.</td>
+            </tr>
+            <tr>
+              <td><strong>Metadata Laundering Defeats Hash Correlation</strong></td>
+              <td>Resizing and re-encoding images breaks hash-based cross-platform linking.</td>
+              <td>Implement metadata stripping and image normalization policies.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 11: KNOWLEDGE CHECK                                  -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="identity-knowledge-check">
+      <h2 id="identity-knowledge-check">11. Knowledge Check</h2>
+
+      <p>
+        Before moving on to the next module, take a moment to reflect on the key concepts
+        covered in this chapter.
+      </p>
+
+      <div class="card">
+        <h3>Reflection Questions</h3>
+        <ol>
+          <li>
+            <strong>Why are email formats considered a high-value intelligence target for adversaries?</strong>
+            <br>
+            <span style="color: #aaa; font-size: 0.9rem;">
+              Consider phishing pretexts, credential stuffing, and business email compromise.
+            </span>
+          </li>
+          <li>
+            <strong>How can Gravatar hashes be used to link a single email across multiple platforms?</strong>
+            <br>
+            <span style="color: #aaa; font-size: 0.9rem;">
+              Think about the MD5 hash relationship and how platforms use Gravatar for avatars.
+            </span>
+          </li>
+          <li>
+            <strong>What EXIF metadata fields are most valuable to an adversary, and why?</strong>
+            <br>
+            <span style="color: #aaa; font-size: 0.9rem;">
+              Consider GPS coordinates, device model, timestamp, and serial number.
+            </span>
+          </li>
+          <li>
+            <strong>How can an adversary use face-matching to identify a target's secondary or anonymous accounts?</strong>
+            <br>
+            <span style="color: #aaa; font-size: 0.9rem;">
+              Think about avatar reuse across platforms and facial recognition pipelines.
+            </span>
+          </li>
+          <li>
+            <strong>What OPSEC measures should an adversary take when conducting identity reconnaissance?</strong>
+            <br>
+            <span style="color: #aaa; font-size: 0.9rem;">
+              Consider proxy rotation, API key hygiene, temporal jitter, and metadata laundering.
+            </span>
+          </li>
+        </ol>
+      </div>
+
+      <div class="card">
+        <h3>Scenario-Based Question</h3>
+        <p>
+          <strong>Scenario:</strong> You are a Red Team operator tasked with building a target profile
+          for a senior executive at a financial services firm. You have their corporate email address
+          (<code>jsmith@target.com</code>) and a photo from the company website.
+        </p>
+        <p><strong>Question:</strong> Design a workflow to discover their personal accounts, identify
+        breach exposure, and correlate their online presence using the principles covered in this chapter.</p>
+      </div>
+
+      <div class="info-remember" style="margin: 15px 0;">
+        <strong>Suggested Approach:</strong>
+        <ul>
+          <li><strong>Phase 1:</strong> Use <strong>Hunter.io</strong> to verify the email format and find other employees.</li>
+          <li><strong>Phase 2:</strong> Run the email through <strong>HIBP</strong> and <strong>Dehashed</strong> to check for breaches.</li>
+          <li><strong>Phase 3:</strong> Use <strong>Gravatar</strong> hash to see if the email is linked to any avatar.</li>
+          <li><strong>Phase 4:</strong> Run the email prefix (<code>jsmith</code>) through <strong>Blackbird</strong> or <strong>Sherlock</strong> to find platform accounts.</li>
+          <li><strong>Phase 5:</strong> Reverse image search the executive's photo using <strong>Google Images</strong>, <strong>TinEye</strong>, and <strong>PimEyes</strong>.</li>
+          <li><strong>Phase 6:</strong> Extract EXIF metadata from any public photos found (if available).</li>
+          <li><strong>Phase 7:</strong> Cross-correlate findings to build a comprehensive identity graph.</li>
+        </ul>
+      </div>
+
+      <div class="reminder-lightblue">
+        <strong>Gateway Criteria:</strong><br>
+        <span>You are cleared to proceed to the next module when you can confidently answer
+        all five reflection questions and explain your rationale for the scenario-based question.
+        If any concept is unclear, revisit the relevant sections above before moving on.</span>
+      </div>
+
+      <div class="info-remember" style="margin: 15px 0;">
+        <em>RedOps Reminder:</em> Use unique identifiers, scrub metadata, verify before you act — and never exceed written
+        authorization. The difference between OSINT and intrusion is permission; keep your queries auditable, your findings
+        ethical, and your engagement scope clear.
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- FLOATING NAVIGATION                                           -->
+    <!-- ============================================================ -->
+
+    <div class="lesson-nav-container">
+      <a href="https://iscsecurity.org/content/1-ethical-hacking/2-open-source-intelligence/12-google-dorking-cheat-sheet" class="nav-link-btn">👈 Back</a>
+      <a href="https://iscsecurity.org/content/1-ethical-hacking/2-open-source-intelligence/14-ip-addresses-and-dns" class="nav-link-btn">Next 👉</a>
+    </div>
+
+    </article>
+  </main>
+</body>
+</html>

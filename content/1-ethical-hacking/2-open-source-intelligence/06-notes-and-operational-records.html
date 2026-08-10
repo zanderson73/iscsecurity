@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Notes &amp; Operational Records | ISCSECURITY Master Class Series</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="/css/styles.css?v=2026_PRODUCTION_FINAL" />
+  
+  <!-- MemberSpace -->
+  <script>
+    window.MemberSpace = window.MemberSpace || { subdomain: "iscsecurity" };
+    (function(d){
+      var s = d.createElement("script");
+      s.src = "https://cdn.memberspace.com/scripts/widgets.js";
+      s.async = true;
+      d.head.appendChild(s);
+    })(document);
+  </script>
+  
+</head>
+
+<body class="page-lesson">
+
+<div class="site-topbar" role="note" aria-label="Legal notice">
+  <small class="topbar-note">
+    © 2026 ISCSECURITY · Authorization-first training. All testing must be lawful, scoped, and approved in writing.
+  </small>
+	<nav class="topbar-links" aria-label="Topbar links">
+      <a href="https://iscsecurity.org/index">Home</a>
+      <a href="https://iscsecurity.org/content/index">Content</a>
+	  <a href="https://iscsecurity.org/content/1-ethical-hacking/2-open-source-intelligence/index">OSINT</a>
+      <a href="https://iscsecurity.org/contact">Contact</a>
+    </nav>
+</div>
+
+  <main class="page modules-page no-shift" id="ethical-hacking-training-content" data-ms-content="members-only">
+  <article class="lesson-content overlay" tabindex="0" aria-label="Lesson content: Notes &amp; Operational Records">
+
+    <p class="breadcrumb">
+      <a href="https://iscsecurity.org/index">Home</a> →
+        <a href="https://iscsecurity.org/content/index">Content</a> →
+        <a href="https://iscsecurity.org/content/1-ethical-hacking/2-open-source-intelligence/index">OSINT</a> →
+      <span aria-current="page">Page 6</span>
+    </p>
+
+    <h1>Notes &amp; Operational Records</h1>
+
+    <!-- ============================================================ -->
+    <!-- SECTION: AUTHORIZED USE BANNERS                               -->
+    <!-- ============================================================ -->
+
+    <div class="reminder-auth">
+      <strong>🚨 AUTHORIZED USE ONLY:</strong>
+      <span>
+        All content in this document is for educational and defensive training purposes only. 
+        The adversarial techniques described are derived from real-world tradecraft but 
+        are documented exclusively for <strong>defensive analysis, detection engineering, 
+        and authorized security testing</strong>. Unauthorized deployment of any technique 
+        described may constitute a criminal offense under applicable national and 
+        international cybercrime laws. Always obtain <strong>explicit written authorization</strong> 
+        from the system owner or authorized legal entity before testing, executing, or 
+        simulating any of the techniques outlined in this document.
+      </span>
+    </div>
+
+    <div class="reminder-comp">
+      <strong>🌍 INTERNATIONAL COMPLIANCE NOTICE:</strong>
+      <span>
+        Cybercrime laws vary significantly by jurisdiction. It is your sole responsibility 
+        to understand and comply with the laws applicable to your location, the location 
+        of any target systems, and your organization's policies. When in doubt, 
+        <strong>consult a qualified legal professional</strong> before testing, executing, 
+        or simulating any technique described in this document.
+      </span>
+    </div>
+	
+	<!-- ============================================================ -->
+    <!-- LAB ENVIRONMENT DISCLAIMER & SETUP GUIDANCE                  -->
+    <!-- ============================================================ -->
+
+    <div class="reminder-lab">
+      <strong>🧪 LAB ENVIRONMENT NOTICE:</strong>
+      <span>
+        All practical examples, command-line executions, and scenario-based exercises in this document are demonstrated within the <strong>ISCSEC internal training laboratory</strong>. 
+        This is a controlled, isolated environment that exists solely for educational and defensive training purposes.
+      </span>
+      <br><br>
+      <span>
+        <strong>You do not have access to the ISCSEC lab.</strong> As a learner, you are expected to build and maintain your own isolated lab environment, 
+        replicating the documented topology, IP schemes, and hostname conventions. The ISCSEC lab serves as a <strong>canonical reference topology</strong> 
+        for this training, not a shared or remotely accessible resource.
+      </span>
+      <br><br>
+      <span>
+        <strong>Lab requirements:</strong>
+        <ul>
+          <li>Isolated virtualised environment (e.g., VMware Workstation, VirtualBox, or Hyper-V)</li>
+          <li>Attacker operator platform (e.g., Kali Linux or equivalent)</li>
+          <li>Target Windows host (e.g., CLIENT01 at 172.16.5.60)</li>
+          <li>Internal network with domain controller (DC01 at 172.16.5.25), SQL server (SQL01 at 172.16.5.20), web server (WEB01 at 172.16.5.30), and application server (APP01 at 172.16.5.40)</li>
+          <li>All testing must be conducted within your own isolated network with <strong>explicit written authorization</strong> for any systems involved</li>
+        </ul>
+      </span>
+    </div>
+	
+	<!-- ============================================================ -->
+    <!-- LAB ENVIRONMENT DISCLAIMER & SETUP GUIDANCE                  -->
+    <!-- ============================================================ -->
+
+    <div class="reminder-lab">
+      <strong>🧪 LAB ENVIRONMENT NOTICE:</strong>
+      <span>
+        All practical examples, command-line executions, and scenario-based exercises in this document are demonstrated within the <strong>ISCSEC internal training laboratory</strong>. 
+        This is a controlled, isolated environment that exists solely for educational and defensive training purposes.
+      </span>
+      <br><br>
+      <span>
+        <strong>You do not have access to the ISCSEC lab.</strong> As a learner, you are expected to build and maintain your own isolated lab environment, 
+        replicating the documented topology, IP schemes, and hostname conventions. The ISCSEC lab serves as a <strong>canonical reference topology</strong> 
+        for this training, not a shared or remotely accessible resource.
+      </span>
+      <br><br>
+      <span>
+        <strong>Lab requirements:</strong>
+        <ul>
+          <li>Isolated virtualised environment (e.g., VMware Workstation, VirtualBox, or Hyper-V)</li>
+          <li>Attacker operator platform (e.g., Kali Linux or equivalent)</li>
+          <li>Target Windows host (e.g., CLIENT01 at 172.16.5.60)</li>
+          <li>Internal network with domain controller (DC01 at 172.16.5.25), SQL server (SQL01 at 172.16.5.20), web server (WEB01 at 172.16.5.30), and application server (APP01 at 172.16.5.40)</li>
+          <li>All testing must be conducted within your own isolated network with <strong>explicit written authorization</strong> for any systems involved</li>
+        </ul>
+      </span>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- SECTION: WHY NOTE-TAKING MATTERS                             -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="notes-purpose">
+      <h2 id="notes-purpose">1. Why Note-Taking Is a Core Operational Discipline</h2>
+
+      <p>
+        In <strong>Open Source Intelligence (OSINT)</strong> and <strong>cybersecurity operations</strong>,
+        note-taking is not an optional habit, it's a foundational discipline.
+      </p>
+
+      <p>
+        Analysts, penetration testers, and incident responders all depend on accurate,
+        structured documentation to reproduce findings, defend conclusions, and build
+        repeatable workflows.
+      </p>
+
+      <p>
+        Notes are how you <strong>connect intelligence to action</strong>. From a domain
+        uncovered during reconnaissance to the exploit path that led to privilege escalation,
+        or from a single log entry to a fully developed incident timeline, your notes
+        are the thread that ties it all together.
+      </p>
+
+      <div class="reminder-lightblue">
+        <strong>Operational Principle:</strong>
+        <span><em>If it is not written down, it never happened. If it is not organized, it never mattered.</em></span>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION: BEST PRACTICES                                      -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="notes-best-practices">
+      <h2 id="notes-best-practices">2. Best Practices for Operational Note-Taking</h2>
+
+      <ul>
+        <li><strong>Structure early:</strong> Use consistent headings and sections; Objective, Method, Findings, Evidence, Next Steps.</li>
+        <li><strong>Include metadata:</strong> Date, tools used, command syntax, version numbers, target context, and environment details.</li>
+        <li><strong>Separate raw from interpreted data:</strong> Keep raw tool output in one section and your analysis in another for clarity and reproducibility.</li>
+        <li><strong>Preserve evidence links:</strong> Screenshots, file hashes, URLs, filenames, and timestamps should be embedded alongside findings.</li>
+        <li><strong>Use code blocks:</strong> Wrap commands and terminal output in <code>&lt;pre&gt;&lt;code&gt;</code> tags for readability and copy-paste accuracy.</li>
+        <li><strong>Write for your future self:</strong> Another analyst; or you six months from now, should be able to reproduce your work without asking questions.</li>
+      </ul>
+
+      <div class="reminder-lightblue">
+        <strong>Note:</strong>
+        <span><em>Good notes eliminate the need to rethink. They let you resume, report, and defend with confidence.</em></span>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION: NOTE-TAKING TOOLS                                   -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="notes-tools">
+      <h2 id="notes-tools">3. Note-Taking Tools for Cybersecurity &amp; OSINT</h2>
+
+      <p>
+        The right tool depends on your workflow; field investigation, penetration testing,
+        malware analysis, or threat intelligence. Below are commonly adopted options and
+        their best-fit scenarios.
+      </p>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table" aria-label="Note-taking tools comparison">
+          <thead>
+            <tr>
+              <th>Tool / Platform</th>
+              <th>Strengths</th>
+              <th>Best For</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>CherryTree</strong></td>
+              <td>Hierarchical tree notes, syntax highlighting, strong offline privacy, encrypted storage.</td>
+              <td>Penetration testers and OSINT analysts needing structured local notebooks.</td>
+            </tr>
+            <tr>
+              <td><strong>Obsidian / Logseq / Joplin</strong></td>
+              <td>Markdown-based, backlinking, graph view, plugin ecosystem, local-first with optional sync.</td>
+              <td>Threat intelligence teams and knowledge graph builders.</td>
+            </tr>
+            <tr>
+              <td><strong>OneNote / Notion</strong></td>
+              <td>Rich formatting, tagging, collaboration features, shared workspaces.</td>
+              <td>SOC and Blue Teams maintaining internal knowledge bases.</td>
+            </tr>
+            <tr>
+              <td><strong>Simplenote / Standard Notes</strong></td>
+              <td>Lightweight, encrypted sync, distraction-free editing, cross-platform.</td>
+              <td>Field OSINT gathering and mobile incident response.</td>
+            </tr>
+            <tr>
+              <td><strong>Trilium Notes</strong></td>
+              <td>Advanced hierarchical notes, built-in scripting, encryption, self-hosted.</td>
+              <td>Advanced users needing customizable offline systems.</td>
+            </tr>
+            <tr>
+              <td><strong>Typora / VS Code + Markdown</strong></td>
+              <td>Developer-friendly editing, Git version control, plain text portability.</td>
+              <td>Exploit developers and Red Teams tracking code, payloads, and research logs.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="reminder-opsec">
+        <strong>OPSEC Principle:</strong>
+        <span>For classified or sensitive OSINT work, use local encrypted storage. Cloud sync convenience rarely outweighs operational risk.</span>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION: INTEGRATING NOTES INTO WORKFLOW                     -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="notes-workflow">
+      <h2 id="notes-workflow">4. Integrating Notes Into Your Operational Workflow</h2>
+
+      <p>
+        Note-taking should mirror your investigative or testing phases. A well-structured
+        system allows for rapid retrieval of intelligence and clean reporting.
+      </p>
+
+      <ul>
+        <li><strong>OSINT:</strong> Log search queries, source reliability ratings, collection timestamps, and evidentiary screenshots.</li>
+        <li><strong>Penetration Testing:</strong> Record commands, payloads, file hashes, and privilege escalation paths with timestamps.</li>
+        <li><strong>Incident Response:</strong> Capture alerts, containment actions, and correlation between affected systems.</li>
+        <li><strong>Threat Intelligence:</strong> Track actor infrastructure, Indicators of Compromise (IOCs), and contextual notes.</li>
+      </ul>
+
+      <div class="reminder-lightblue">
+        <strong>Note:</strong>
+        <span><em>Always think in terms of chain of custody, your notes may become evidence in legal or compliance proceedings.</em></span>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION: SECURING YOUR NOTES                                 -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="notes-security">
+      <h2 id="notes-security">5. Securing Your Notes</h2>
+
+      <p>
+        Your notes may contain sensitive credentials, infrastructure details, target profiles,
+        or classified intelligence. Protecting them is as critical as protecting the data itself.
+      </p>
+
+      <ul>
+        <li>Use <strong>encryption at rest</strong>: VeraCrypt, LUKS, or built-in encryption in Standard Notes.</li>
+        <li>Store local backups inside <strong>encrypted containers</strong>, never in open directories.</li>
+        <li>Regularly <strong>sanitize exported files</strong> before sharing; strip metadata, redact sensitive fields.</li>
+        <li>Version control internal notes via <strong>private Git repositories</strong> with strict access controls.</li>
+        <li>Separate operational notebooks from personal ones, use dedicated VMs or user profiles.</li>
+      </ul>
+
+      <div class="reminder-opsec">
+        <strong>OPSEC Principle:</strong>
+        <span><em>A leaked notebook can expose your entire engagement history. Treat it as a live operational asset.</em></span>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION: INSIDE THE ADVERSARY MINDSET                        -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="notes-adversary-mindset">
+      <h2 id="notes-adversary-mindset">6. Inside the Adversary Mindset</h2>
+
+      <p>
+        Professional adversaries treat their notes as an operational weapon. They document
+        target weaknesses, map defensive gaps, and track which techniques succeeded or failed
+        across campaigns. Their notebooks are structured for continuity, if one operator is
+        compromised or rotated out, another picks up the same playbook without missing a step.
+      </p>
+
+      <p>
+        Defenders who adopt the same discipline gain a significant advantage. A well-maintained
+        incident notebook shortens response times, preserves forensic evidence, and builds
+        institutional memory that survives staff turnover.
+      </p>
+
+      <div class="reminder">
+        <strong>Operational Principle:</strong><br>
+        <em>Operational excellence is not about having the best tools. It is about knowing exactly what you did, why 
+		you did it, and what happened next.</em>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION: ADVERSARY TRADECRAFT OVERVIEW                       -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="adversary-tradecraft-intro">
+      <h2 id="adversary-tradecraft-intro">7. Adversary Tradecraft: Architecting the Operational Notebook</h2>
+
+      <p>
+        Here are three practical, step-by-step examples of how operators architect their
+        note-taking and operational record systems to function as secure, attribution-resistant
+        intelligence databases, while ensuring that the act of writing notes itself does not
+        become a forensic liability or a correlation vector.
+      </p>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION: EXAMPLE 1 - KEEPASSXC OPERATIONAL VAULT             -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="example-1-vault">
+      <h3 id="example-1-vault">7.1 The KeePassXC Operational Vault</h3>
+
+      <div class="reminder">
+        <strong>Operational Parameters:</strong>
+        <ul>
+          <li><strong>Goal:</strong> Centralize all intelligence; credentials, persona backstories, screenshots, session notes, and source URLs into a single offline, encrypted, and structured database that resists forensic carving, cloud subpoenas, and linguistic correlation.</li>
+          <li><strong>OS:</strong> Qubes OS offline vault (<code>osint-vault</code>) or Tails with encrypted persistent storage.</li>
+          <li><strong>Tool:</strong> KeePassXC (offline KDBX 4 database).</li>
+          <li><strong>Policy:</strong> One database per operation or per target; never recycled across investigations. Attachments are sanitized before import. The database is protected by a strong passphrase + YubiKey Challenge-Response or a keyfile stored on a separate LUKS-encrypted USB.</li>
+        </ul>
+      </div>
+
+      <p><strong>The Setup:</strong></p>
+      <p>Inside the offline vault, the operator creates a sterile directory structure and installs sanitization tools:</p>
+
+<pre><code class="language-bash">sudo apt update && sudo apt install -y mat2 exiftool python3-pip
+pip3 install pykeepass  # For programmatic vault manipulation
+mkdir -p ~/vaults/osint-ops/staging
+</code></pre>
+
+      <p>
+	  <strong>The Payload:</strong>
+	  </p>
+      
+	  <p>A Python payload that creates a standardized target intelligence database, imports sanitized evidence, and 
+	  generates burner credentials for synthetic personas:
+	  </p>
+
+<pre><code class="language-python">#!/usr/bin/env python3
+# init_target_vault.py
+# Usage: python3 init_target_vault.py --target "ACME Corp" --db ~/vaults/acme.kdbx
+
+from pykeepass import PyKeePass
+from pykeepass.entry import Entry
+import argparse, os, subprocess, secrets, string
+
+def sanitize_attachment(filepath):
+    # Strip metadata before it ever enters the vault
+    subprocess.run(["mat2", "--inplace", filepath], check=False)
+    subprocess.run(["exiftool", "-all=", "-overwrite_original", filepath], check=False)
+    return filepath
+
+def generate_passphrase(length=24):
+    return ''.join(secrets.choice(string.ascii_letters + string.digits + "!@#$%^&*") for _ in range(length))
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--target", required=True)
+    parser.add_argument("--db", required=True)
+    parser.add_argument("--master-pass", required=True)
+    args = parser.parse_args()
+
+    from pykeepass import create_database
+    kp = create_database(args.db, password=args.master_pass)
+
+    root = kp.root_group
+    target_group = kp.add_group(root, args.target)
+    intel_group = kp.add_group(target_group, "01-INTEL")
+    creds_group = kp.add_group(target_group, "02-PERSONA-CREDS")
+    infra_group = kp.add_group(target_group, "03-INFRASTRUCTURE")
+    docs_group = kp.add_group(target_group, "04-DOCUMENTS")
+
+    note_template = f"""
+=== OPSEC REMINDER ===
+- NEVER paste raw URLs; use archive.is snapshots.
+- Timestamps logged in UTC-3 (cover timezone).
+- Language: en-GB orthography to mask origin.
+========================
+
+=== TARGET PROFILE ===
+Legal Name: 
+Aliases: 
+DOB: 
+Location: 
+Employer: {args.target}
+=======================
+
+=== INTELLIGENCE LOG ===
+[YYYY-MM-DD] Initial reconnaissance:
+- 
+=======================
+"""
+    kp.add_entry(intel_group, title="MASTER-NOTES", username="N/A",
+                 password="", notes=note_template)
+
+    burner_email = f"{secrets.token_hex(4)}@proton.me"
+    burner_pass = generate_passphrase()
+    entry = kp.add_entry(creds_group, title="BURNER-EMAIL-01",
+                         username=burner_email, password=burner_pass)
+    entry.set_custom_property("Purpose", "LinkedIn reconnaissance")
+    entry.set_custom_property("Phone", "REDACTED")
+
+    kp.save()
+    print(f"[+] Vault created: {args.db}")
+    print(f"[+] Burner seeded: {burner_email}")
+
+if __name__ == "__main__":
+    main()
+</code></pre>
+
+      <p>
+	  <strong>The Action:</strong>
+	  </p>
+
+      <ul>
+        <li><strong>Attachment Sanitization:</strong> Before importing a screenshot or PDF into KeePassXC, the operator runs <code>mat2</code> and <code>exiftool</code> (as scripted above) to strip EXIF GPS, creation software, author names, and thumbnail histories.</li>
+        <li><strong>Segregation by Compartment:</strong> Each target lives in its own <code>.kdbx</code> file. The operator never mixes "ACME Corp" entries with "Personal Banking" or other targets. If one file is extracted under duress, the others remain mathematically unreachable.</li>
+        <li><strong>Auto-Type for Personas:</strong> KeePassXC auto-type sequences allow the operator to log into synthetic social media profiles without typing credentials (defeating keyloggers). The database itself is opened inside an offline VM, so the master passphrase is never entered on a networked host.</li>
+        <li><strong>No Cloud Sync:</strong> The vault is transferred physically via encrypted USB or typed via QR code scan. There is no Dropbox, Google Drive, or Syncthing server that can be subpoenaed or compromised to leak the entire investigation.</li>
+      </ul>
+
+      <div class="info-remember">
+        <strong>The Operational Mechanics:</strong>
+        <ul>
+          <li><strong>Correlation Resistance:</strong> Unlike cloud note apps (Notion, Evernote, Obsidian Sync), KeePassXC databases contain no telemetry, no device IDs, and no account registration email. A seized database cannot be correlated to the operator via vendor logs.</li>
+          <li><strong>Forensic Resistance:</strong> KDBX files are encrypted AES-256 blobs. Without the master passphrase + YubiKey, forensic tools recover only noise. Because attachments are stored inside the encrypted blob rather than as adjacent files, there is no residual carving surface for sanitized documents.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION: EXAMPLE 2 - SANITIZED INTELLIGENCE PIPELINE         -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="example-2-pipeline">
+      <h3 id="example-2-pipeline">7.2 The Sanitized Intelligence Pipeline</h3>
+
+      <div class="reminder">
+        <strong>Operational Parameters:</strong>
+        <ul>
+          <li><strong>Goal:</strong> Maintain a searchable, timestamped operational narrative while ensuring the raw notes carry zero linguistic, temporal, or metadata artifacts that could fingerprint the operator's nationality, timezone, or writing style.</li>
+          <li><strong>OS:</strong> Any Linux recon workstation (Kali, Tails, or Qubes disposable VM).</li>
+          <li><strong>Tools:</strong> <code>git</code> (anonymized), <code>pandoc</code>, <code>age</code> (Filippo Valsorda), <code>mat2</code>, a custom Python sanitizer.</li>
+          <li><strong>Storage:</strong> Notes are kept in a <code>tmpfs</code> workspace during drafting, then encrypted with <code>age</code> before touching long-term storage. Git history is anonymized to prevent <code>user.name</code> leakage.</li>
+        </ul>
+      </div>
+
+      <p>
+	  <strong>The Setup:</strong>
+	  </p>
+
+<pre><code class="language-bash">mkdir -p /tmp/op-log-raw /tmp/op-log-clean
+sudo mount -t tmpfs -o size=2G,mode=700 tmpfs /tmp/op-log-raw
+
+# Anonymize git identity globally for this shell session
+git config --global user.name "Field Operator"
+git config --global user.email "void@local.host"
+</code></pre>
+
+      <p>
+	  <strong>The Payload:</strong>
+	  </p>
+      
+	  <p>
+	  <strong>osint-sanitize.py</strong>: a pipeline script that processes raw markdown intelligence before archival:
+	  </p>
+
+<pre><code class="language-python">#!/usr/bin/env python3
+# osint-sanitize.py
+# Usage: python3 osint-sanitize.py raw-note.md > clean-note.md.age
+
+import sys, re, subprocess, json
+from datetime import datetime, timedelta
+
+def normalize_timestamps(text):
+    def shift_time(match):
+        h, m = int(match.group(1)), int(match.group(2))
+        dt = datetime(2000, 1, 1, h, m) - timedelta(hours=3)
+        return dt.strftime("%H:%M")
+    return re.sub(r'\b(\d{2}):(\d{2})\b', shift_time, text)
+
+def linguistic_mask(text):
+    replacements = {
+        "color": "colour", "center": "centre", "organization": "organisation",
+        "analyze": "analyse", "customize": "customise",
+    }
+    for k, v in replacements.items():
+        text = re.sub(r'\b' + k + r'\b', v, text, flags=re.IGNORECASE)
+    return text
+
+def scrub_urls(text):
+    return re.sub(r'https?://[^\s]+', '[URL REDACTED - SEE ARCHIVE]', text)
+
+def detect_pii_leakage(text):
+    patterns = [r'/home/[a-zA-Z0-9]+', r'C:\\Users\\[a-zA-Z0-9]+',
+                r'@[a-zA-Z0-9_-]+\.(com|net|org)']
+    for pat in patterns:
+        if re.search(pat, text):
+            print("WARNING: Potential PII leak detected!", file=sys.stderr)
+
+if __name__ == "__main__":
+    raw = sys.stdin.read()
+    clean = normalize_timestamps(raw)
+    clean = linguistic_mask(clean)
+    clean = scrub_urls(clean)
+    detect_pii_leakage(clean)
+    sys.stdout.write(clean)
+</code></pre>
+
+      <p>
+	  <strong>commit-log.sh</strong>: a wrapper that enforces sanitization before every commit:
+	  </p>
+
+<pre><code class="language-bash">#!/bin/bash
+# commit-log.sh
+RAWDIR="/tmp/op-log-raw"
+AGE_RECIPIENT="age1qubes..."  # Operation-specific public key
+
+for f in "$RAWDIR"/*.md; do
+    [ -e "$f" ] || continue
+    BASENAME=$(basename "$f" .md)
+    
+    python3 osint-sanitize.py &lt; "$f" | \
+        age -r "$AGE_RECIPIENT" -o "/tmp/op-log-clean/${BASENAME}.md.age"
+    
+    shred -u -z "$f"
+done
+
+git -C /tmp/op-log-clean add .
+git -C /tmp/op-log-clean commit -m "Ops log $(date -u +%Y%m%d-%H%M)"
+</code></pre>
+
+      <p>
+	  <strong>The Action:</strong>
+	  </p>
+
+      <ul>
+        <li>The operator drafts raw intelligence in <code>vim</code> with a restricted configuration (<code>set noswapfile nobackup noundofile</code>) inside <code>/tmp/op-log-raw</code>.</li>
+        <li>Before ending the session, <code>./commit-log.sh</code> is executed. It normalizes timestamps to UTC-3, masks American spelling to British, redacts live URLs, and checks for accidental pastes of <code>/home/realname/</code> paths.</li>
+        <li>The sanitized markdown is encrypted with <code>age</code> (modern, minimal, no PGP metadata leakage) to an operation-specific public key. The raw file is shredded.</li>
+        <li>The resulting <code>.age</code> ciphertext is what gets archived, transferred, or stored long-term.</li>
+      </ul>
+
+      <div class="info-remember">
+        <strong>The Operational Mechanics:</strong>
+        <ul>
+          <li><strong>Attribution Control:</strong> If the encrypted repository is intercepted, the adversary faces modern authenticated encryption (<code>age</code>). If the operator's locale accidentally surfaces in a raw note (e.g., "analyze" vs "analyse"), the script masks it, defeating linguistic forensics and stylometry.</li>
+          <li><strong>Temporal Deception:</strong> By shifting timestamps in the written record, the operator creates a false chronology. If an adversary attempts to correlate a server breach in their logs with the operator's note timestamps, they will be chasing a UTC-3 ghost rather than the operator's true timezone.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION: EXAMPLE 3 - EPHEMERAL FIELD NOTEBOOK                -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="example-3-field">
+      <h3 id="example-3-field">7.3 The Ephemeral Field Notebook</h3>
+
+      <div class="reminder">
+        <strong>Operational Parameters:</strong>
+        <ul>
+          <li><strong>Goal:</strong> Take rapid operational notes during live, high-risk reconnaissance (e.g., public WiFi observation, physical surveillance support, or live terminal analysis) where the hardware may be seized or compromised moments after use.</li>
+          <li><strong>OS:</strong> Tails OS booted from USB.</li>
+          <li><strong>Storage:</strong> Strictly RAM (<code>tmpfs</code>); no persistence enabled for notes.</li>
+          <li><strong>Tools:</strong> <code>vim</code>, <code>gpg</code> (symmetric AES-256), <code>qrencode</code>, <code>shred</code>.</li>
+          <li><strong>Exfil:</strong> Optical/physical air-gap via QR codes photographed by a sterile, non-networked camera.</li>
+        </ul>
+      </div>
+
+      <p>
+	  <strong>The Setup:</strong>
+	  </p>
+      
+	  <p>
+	  Inside Tails, the operator prepares a RAM-only workspace and a hardened Vim environment:
+	  </p>
+
+<pre><code class="language-bash">mkdir -p /tmp/field-notes
+mount -t tmpfs -o size=512M,mode=700 tmpfs /tmp/field-notes
+
+cat > /tmp/field-notes/.vimrc &lt;&lt; 'EOF'
+set noswapfile
+set nobackup
+set noundofile
+set viminfo=""
+set history=0
+set clipboard=exclude:*
+EOF
+</code></pre>
+
+      <p>
+	    <strong>The Action:</strong>
+	  </p>
+      
+	  <p>
+	    The operator opens a terminal and runs the following interactive payload:
+	  </p>
+
+<pre><code class="language-bash">#!/bin/bash
+# field-note.sh
+NOTEDIR="/tmp/field-notes"
+export HOME="$NOTEDIR"
+export VIMINIT="source $NOTEDIR/.vimrc"
+
+vim -i NONE -n -c "set noswapfile nobackup noundofile viminfo=" "$NOTEDIR/session.md"
+
+clear && printf '\033c'
+
+echo "[*] Encrypting note with symmetric AES-256..."
+PASSPHRASE="CorrectHorseBatteryStaple_FIELD_OPS"
+gpg --symmetric --cipher-algo AES256 --compress-algo 1 --s2k-cipher-algo AES256 \
+    --s2k-digest-algo SHA512 --batch --passphrase-fd 3 \
+    --output "$NOTEDIR/session.md.gpg" "$NOTEDIR/session.md" 3&lt;&lt;&lt;"$PASSPHRASE"
+
+echo "[*] Rendering QR exfiltration codes..."
+BASE64_DATA=$(base64 -w 80 "$NOTEDIR/session.md.gpg")
+echo "$BASE64_DATA" | while IFS= read -r line; do
+    echo "$line" | qrencode -t ANSI -o -
+    echo "--- Scan this block ---"
+    read -p "Press Enter for next chunk..." &lt;/dev/tty
+done
+
+echo "[*] Shredding session artifacts..."
+shred -u -z "$NOTEDIR/session.md"
+shred -u -z "$NOTEDIR/session.md.gpg"
+rm -f "$NOTEDIR/.vimrc"
+history -c && history -w
+umount "$NOTEDIR"
+rmdir "$NOTEDIR"
+
+printf '\033c'
+echo "[+] Field notebook burned. No local evidence remains."
+</code></pre>
+
+      <div class="reminder">
+        <strong>The Operational Mechanics:</strong>
+        
+		<ul>
+          <li><strong>Anti-Forensics:</strong> <br>If the Tails laptop is grabbed while powered on, investigators find a <code>tmpfs</code> mount that contains no files (already shredded). If grabbed after shutdown, Tails' amnesic design has already purged RAM. There are no <code>.swp</code>, <code>~</code>, or <code>.viminfo</code> artifacts because Vim was explicitly restricted.</li>
+          <li><strong>Physical Air-Gap:</strong> The only record of the notes exists as GPG-encrypted QR codes on a sterile camera's SD card. That camera never connects to the internet, never syncs to a phone, and can be stored physically separate from the operator's residence. This defeats endpoint forensics, network interception, and cloud provider subpoenas simultaneously.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION: SUMMARY TABLE                                       -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="notes-adversary-summary-table">
+      <h2 id="notes-adversary-summary-table">8. Summary Table: Adversary Tradecraft in Notes &amp; Operational Records</h2>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table" aria-label="Notes adversary tradecraft summary">
+          <thead>
+            <tr>
+              <th>Technique</th>
+              <th>Platform</th>
+              <th>Tools</th>
+              <th>Payload / Config</th>
+              <th>Action</th>
+              <th>Operational Result</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Operational Vault</strong></td>
+              <td>Qubes Offline Vault / Tails</td>
+              <td>KeePassXC, pykeepass, mat2, exiftool</td>
+              <td>Python script generating compartmentalized KDBX with sanitized attachment imports and burner credential templates</td>
+              <td>Import evidence into target-specific encrypted databases; manage persona credentials via auto-type</td>
+              <td>Intelligence is centralized offline; attachments are metadata-scrubbed; no cloud subpoena surface exists.</td>
+            </tr>
+            <tr>
+              <td><strong>Sanitized Pipeline</strong></td>
+              <td>Kali / Tails / Qubes DispVM</td>
+              <td>git, age, python3, vim, pandoc</td>
+              <td>osint-sanitize.py (timezone shift, linguistic masking, URL redaction, PII detection); commit-log.sh (shred-after-encrypt wrapper)</td>
+              <td>Draft notes in RAM; run sanitization pipeline; encrypt with age; commit only ciphertext to anonymized git</td>
+              <td>Notes resist stylometry and timezone correlation; raw drafts are shredded; archival layer is modern authenticated encryption.</td>
+            </tr>
+            <tr>
+              <td><strong>Ephemeral Field Notebook</strong></td>
+              <td>Tails OS Live</td>
+              <td>vim, gpg, qrencode, shred, tmpfs</td>
+              <td>.vimrc with all history/swap/backup disabled; field-note.sh (symmetric GPG + QR rendering + multi-pass shred)</td>
+              <td>Write notes in RAM-only Vim; encrypt; display as QR codes; photograph with sterile camera; shred and unmount</td>
+              <td>Zero forensic residue on endpoint; physical air-gap separates intelligence from hardware; defeats seizure and post-incident analysis.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION: CHAPTER SUMMARY                                     -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="notes-chapter-summary">
+      <h2 id="notes-chapter-summary">9. Chapter Summary</h2>
+
+      <p>
+        By completing this chapter you should now be able to:
+      </p>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin: 20px 0;">
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Explain why note-taking is a core operational discipline.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;">Documentation connects intelligence to action.</span></span>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Apply best practices for operational note-taking.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;">Structure, metadata, separation of raw/analyzed data.</span></span>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Choose the right note-taking tool.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;">Match the platform to your workflow and security requirements.</span></span>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Secure your operational notes.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;">Encryption at rest, sanitization, and access control.</span></span>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Understand adversary note-taking tradecraft.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;">How attackers structure, encrypt, and sanitize their records.</span></span>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Apply anti-forensic techniques to notes.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;">RAM-only workspaces, sanitization pipelines, and physical air-gaps.</span></span>
+        </div>
+
+      </div>
+
+      <div class="info-remember">
+        <strong>Why This Matters:</strong><br>
+          Your notes are an operational asset. How you record, store, and protect intelligence
+          determines whether your work can be defended, reproduced, and kept out of adversarial
+          hands. Professional operators protect their notes with the same care they protect their 
+		  credentials.
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION: KEY TAKEAWAYS                                       -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="notes-key-takeaways">
+      <h2 id="notes-key-takeaways">10. Key Takeaways</h2>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table" aria-label="Notes and operational records key takeaways">
+          <thead>
+            <tr>
+              <th>Concept</th>
+              <th>Why It Matters</th>
+              <th>Security Impact</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Notes Are Your Audit Trail</strong></td>
+              <td>Documentation proves what was done, when, and why; essential for reporting, legal defensibility, and peer review.</td>
+              <td>Protects analysts from accusations of misconduct and supports findings under scrutiny.</td>
+            </tr>
+            <tr>
+              <td><strong>Structure Enables Reproducibility</strong></td>
+              <td>Consistent templates and headings allow anyone to follow your workflow without retracing your thoughts.</td>
+              <td>Reduces errors, speeds up peer review, and ensures operational continuity across team members.</td>
+            </tr>
+            <tr>
+              <td><strong>Metadata Provides Context</strong></td>
+              <td>Timestamps, tool versions, and target details turn raw data into actionable intelligence.</td>
+              <td>Prevents misinterpretation and strengthens the credibility of findings under legal or compliance review.</td>
+            </tr>
+            <tr>
+              <td><strong>Separation of Raw and Analyzed Data</strong></td>
+              <td>Keeping raw output distinct from interpretation prevents bias and allows independent verification.</td>
+              <td>Improves accuracy and ensures findings can be independently reproduced and validated.</td>
+            </tr>
+            <tr>
+              <td><strong>Tool Selection Affects Security</strong></td>
+              <td>Cloud-based tools introduce third-party risk; local encrypted tools keep sensitive data under your control.</td>
+              <td>Reduces exposure of operational details to external providers, subpoenas, and potential breaches.</td>
+            </tr>
+            <tr>
+              <td><strong>Notes Are a High-Value Target</strong></td>
+              <td>Adversaries actively seek notebooks, wikis, and internal documentation to map defender capabilities and extract intelligence.</td>
+              <td>Encryption, access control, and compartmentalization prevent catastrophic data leaks from a single compromised notebook.</td>
+            </tr>
+            <tr>
+              <td><strong>Encryption at Rest Is Standard</strong></td>
+              <td>KDBX, age, and GPG are default operator choices. Cloud-synced note apps are avoided in sensitive work.</td>
+              <td>The presence of encrypted notebook files on seized media indicates organized tradecraft, treat them as high-value forensic artifacts.</td>
+            </tr>
+            <tr>
+              <td><strong>Sanitization Defeats Attribution</strong></td>
+              <td>Operators strip metadata, mask linguistic fingerprints, and shift timestamps to defeat stylometry and timezone correlation.</td>
+              <td>Unsanitized notes leak nationality, working hours, device profiles, and behavioral patterns, any of which can identify an operator.</td>
+            </tr>
+            <tr>
+              <td><strong>Compartmentalization Prevents Cross-Contamination</strong></td>
+              <td>One database per target ensures that compromise of a single vault does not expose the entire investigation portfolio.</td>
+              <td>Limits blast radius; if one <code>.kdbx</code> file is extracted under duress, all others remain mathematically unreachable.</td>
+            </tr>
+            <tr>
+              <td><strong>Physical Air-Gap Defeats Network Monitoring</strong></td>
+              <td>QR code exfiltration and encrypted USB transfers bypass network-based DLP, monitoring, and cloud subpoenas entirely.</td>
+              <td>Monitor endpoints for unusual <code>qrencode</code> usage or unexpected encrypted file generation, these are indicators of air-gapped exfiltration tradecraft.</td>
+            </tr>
+            <tr>
+              <td><strong>Chain of Custody Thinking</strong></td>
+              <td>Treating notes as potential evidence ensures they are handled with care from collection to archive.</td>
+              <td>Preserves the integrity of investigations and supports legal, HR, or compliance actions.</td>
+            </tr>
+            <tr>
+              <td><strong>Institutional Memory Outlasts Individuals</strong></td>
+              <td>Well-maintained notebooks become organizational assets that survive staff changes and reduce onboarding time.</td>
+              <td>Prevents knowledge loss and ensures operational continuity across team rotations.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="reminder">
+        <strong>Operator Note:</strong><br>
+        How you record intelligence is as dangerous as the intelligence itself.
+        Encrypt at rest, sanitize in transit, destroy the originals. Your notes are an operational asset, 
+        treat them accordingly. Document every step, validate every finding, and never let your notebook
+        become the evidence that burns you.
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION: KNOWLEDGE CHECK                                     -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="notes-knowledge-check">
+      <h2 id="notes-knowledge-check">11. Knowledge Check</h2>
+
+      <p>
+        Before moving on to the next module, take a moment to reflect on the key concepts 
+        covered in this chapter. The following questions are designed to reinforce your 
+        understanding of notes and operational records for OSINT.
+      </p>
+
+      <div class="card">
+        <h3>Reflection Questions</h3>
+        
+		<ol>
+          <li>
+            <strong>Why is note-taking considered a foundational discipline in OSINT and cybersecurity operations?</strong>
+            <br>
+            <span style="color: #aaa; font-size: 0.9rem;">
+              Consider reproducibility, legal defensibility, and institutional memory.
+            </span>
+          </li>
+          <li>
+            <strong>What are the risks of using cloud-based note-taking tools for sensitive OSINT work?</strong>
+            <br>
+            <span style="color: #aaa; font-size: 0.9rem;">
+              Think about subpoenas, breaches, telemetry, and third-party risk.
+            </span>
+          </li>
+          <li>
+            <strong>Why should raw data and analyzed data be kept in separate sections of your notes?</strong>
+            <br>
+            <span style="color: #aaa; font-size: 0.9rem;">
+              Consider bias, independent verification, and auditability.
+            </span>
+          </li>
+          <li>
+            <strong>What information should be included in operational note metadata?</strong>
+            <br>
+            <span style="color: #aaa; font-size: 0.9rem;">
+              Think about timestamps, tools, versions, and context.
+            </span>
+          </li>
+          <li>
+            <strong>Why would an adversary use QR codes to exfiltrate notes instead of network transfer?</strong>
+            <br>
+            <span style="color: #aaa; font-size: 0.9rem;">
+              Consider network monitoring, physical air-gaps, and forensic recovery.
+            </span>
+          </li>
+        </ol>
+      </div>
+
+      <div class="card">
+        <h3>Scenario-Based Question</h3>
+        
+		<p>
+          <strong>Scenario:</strong> You have completed a sensitive OSINT investigation and need to archive your notes. 
+          Your threat model requires that if the notes are seized, they cannot be decrypted or correlated to you. 
+          You also need to ensure that linguistic patterns in your writing cannot identify your nationality or location.
+        </p>
+        <p><strong>Question:</strong> Describe your note-handling process from drafting to archival using the principles 
+        covered in this chapter.</p>
+      </div>
+
+      <div class="info-remember" style="margin: 15px 0;">
+        <strong>Suggested Approach:</strong>
+        
+		<ul>
+          <li>Draft notes in a <strong>RAM-only workspace</strong> (<code>tmpfs</code>).</li>
+          <li>Use <strong>vim with history/swap disabled</strong> to prevent forensic artifacts.</li>
+          <li>Run notes through a <strong>sanitization pipeline</strong> to mask timestamps, language, and redact URLs.</li>
+          <li>Encrypt with <strong>age</strong> or <strong>GPG</strong> using an operation-specific key.</li>
+          <li>Store ciphertext in a <strong>compartmentalized vault</strong> (one per target).</li>
+          <li>Shred raw drafts using <strong>shred -u -z</strong>.</li>
+        </ul>
+      </div>
+
+      <div class="reminder-lightblue">
+        <strong>Gateway Criteria:</strong>
+        <span>You are cleared to proceed to the next module when you can confidently answer 
+        all five reflection questions and explain your rationale for the scenario-based question. 
+        If any concept is unclear, revisit the relevant sections above before moving on.</span>
+      </div>
+	  
+	  <div class="info-remember">
+  <em>RedOps Reminder:</em> How you record intelligence is as dangerous as the intelligence itself.
+  Encrypt at rest, sanitize in transit, destroy the originals. Your notes are an operational asset —
+  treat them accordingly. Document every step, validate every finding, and never let your notebook
+  become the evidence that burns you.
+</div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- FLOATING NAVIGATION                                           -->
+    <!-- ============================================================ -->
+
+    <div class="lesson-nav-container">
+      <a href="https://iscsecurity.org/content/1-ethical-hacking/2-open-source-intelligence/05-operating-systems-for-osint" class="nav-link-btn">👈 Back</a>
+      <a href="https://iscsecurity.org/content/1-ethical-hacking/2-open-source-intelligence/07-password-managers" class="nav-link-btn">Next 👉</a>
+    </div>
+
+    </article>
+  </main>
+</body>
+</html>

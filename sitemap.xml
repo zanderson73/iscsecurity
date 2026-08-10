@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+  <!-- Homepage -->
+  <url>
+    <loc>https://iscsecurity.org/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  <!-- Content / Learning Paths -->
+  <url>
+    <loc>https://iscsecurity.org/content/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Ethical Hacking main index -->
+  <url>
+    <loc>https://iscsecurity.org/content/1-ethical-hacking/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Module 1: Introduction to Ethical Hacking -->
+  <url>
+    <loc>https://iscsecurity.org/content/1-ethical-hacking/1-introduction-to-ethical-hacking/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://iscsecurity.org/content/1-ethical-hacking/1-introduction-to-ethical-hacking/01-introduction</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://iscsecurity.org/content/1-ethical-hacking/1-introduction-to-ethical-hacking/02-information-security-concepts</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Module 2: OSINT -->
+  <url>
+    <loc>https://iscsecurity.org/content/1-ethical-hacking/2-open-source-intelligence/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://iscsecurity.org/content/1-ethical-hacking/2-open-source-intelligence/01-what-is-osint</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://iscsecurity.org/content/1-ethical-hacking/2-open-source-intelligence/02-open-source-intelligence-cycle</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Module 3: Footprinting & Recon (if public) -->
+  <url>
+    <loc>https://iscsecurity.org/content/1-ethical-hacking/3-footprinting-and-recon/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://iscsecurity.org/content/1-ethical-hacking/3-footprinting-and-recon/01-Intro-footprinting-and-recon</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://iscsecurity.org/content/1-ethical-hacking/3-footprinting-and-recon/02-footprinting-concepts</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Legal / Info pages -->
+  <url>
+    <loc>https://iscsecurity.org/contact</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>https://iscsecurity.org/terms</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://iscsecurity.org/privacy</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+
+</urlset>

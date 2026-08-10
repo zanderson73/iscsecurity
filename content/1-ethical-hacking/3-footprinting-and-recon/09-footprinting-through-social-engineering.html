@@ -1,0 +1,1409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Footprinting through Social Engineering | ISCSECURITY Master Class Series</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="/css/styles.css?v=2026_PRODUCTION_FINAL" />
+  
+  <!-- MemberSpace -->
+  <script>
+    window.MemberSpace = window.MemberSpace || { subdomain: "iscsecurity" };
+    (function(d){
+      var s = d.createElement("script");
+      s.src = "https://cdn.memberspace.com/scripts/widgets.js";
+      s.async = true;
+      d.head.appendChild(s);
+    })(document);
+  </script>
+  
+</head>
+
+<body class="page-lesson">
+
+<div class="site-topbar" role="note" aria-label="Legal notice">
+  <small class="topbar-note">
+    © 2026 ISCSECURITY · Authorization-first training. All testing must be lawful, scoped, and approved in writing.
+  </small>
+	<nav class="topbar-links" aria-label="Topbar links">
+      <a href="https://iscsecurity.org/index">Home</a>
+      <a href="https://iscsecurity.org/content/index">Content</a>
+	  <a href="https://iscsecurity.org/content/1-ethical-hacking/3-footprinting-and-recon/index">Footprinting &amp; Recon</a>
+      <a href="https://iscsecurity.org/contact">Contact</a>
+    </nav>
+</div>
+
+  <main class="page modules-page no-shift" id="ethical-hacking-training-content" data-ms-content="members-only">
+  <article class="lesson-content overlay" tabindex="0" aria-label="Lesson content: Footprinting through Social Engineering">
+
+    <p class="breadcrumb">
+      <a href="https://iscsecurity.org/index">Home</a> →
+        <a href="https://iscsecurity.org/content/index">Content</a> →
+        <a href="https://iscsecurity.org/content/1-ethical-hacking/3-footprinting-and-recon/index">Footprinting &amp; Recon</a> →
+      <span aria-current="page">Page 9</span>
+    </p>
+
+    <h1>Footprinting through Social Engineering</h1>
+	
+	<div class="reminder-auth">
+  <strong>🚨 AUTHORIZED USE ONLY:</strong>
+  <span>
+        All content in this document is for educational and defensive training purposes only. 
+        The adversarial techniques described are derived from real-world tradecraft but 
+        are documented exclusively for <strong>defensive analysis, detection engineering, 
+        and authorized security testing</strong>. Unauthorized deployment of any technique 
+        described may constitute a criminal offense under applicable national and 
+        international cybercrime laws. Always obtain <strong>explicit written authorization</strong> 
+        from the system owner or authorized legal entity before testing, executing, or 
+        simulating any of the techniques outlined in this document.
+    </span>
+	</div>
+
+    <div class="reminder-comp">
+  <strong>🌍 INTERNATIONAL COMPLIANCE NOTICE:</strong>
+  <span>
+    Cybercrime laws vary significantly by jurisdiction. It is your sole responsibility 
+    to understand and comply with the laws applicable to your location, the location 
+    of any target systems, and your organization's policies. When in doubt, 
+    <strong>consult a qualified legal professional</strong> before testing, executing, 
+    or simulating any technique described in this document.
+  </span>
+</div>
+
+<!-- ============================================================ -->
+    <!-- LAB ENVIRONMENT DISCLAIMER & SETUP GUIDANCE                  -->
+    <!-- ============================================================ -->
+
+    <div class="reminder-lab">
+      <strong>🧪 LAB ENVIRONMENT NOTICE:</strong>
+      <span>
+        All practical examples, command-line executions, and scenario-based exercises in this document are demonstrated within the <strong>ISCSEC internal training laboratory</strong>. 
+        This is a controlled, isolated environment that exists solely for educational and defensive training purposes.
+      </span>
+      <br><br>
+      <span>
+        <strong>You do not have access to the ISCSEC lab.</strong> As a learner, you are expected to build and maintain your own isolated lab environment, 
+        replicating the documented topology, IP schemes, and hostname conventions. The ISCSEC lab serves as a <strong>canonical reference topology</strong> 
+        for this training, not a shared or remotely accessible resource.
+      </span>
+      <br><br>
+      <span>
+        <strong>Lab requirements:</strong>
+        <ul>
+          <li>Isolated virtualised environment (e.g., VMware Workstation, VirtualBox, or Hyper-V)</li>
+          <li>Attacker operator platform (e.g., Kali Linux or equivalent)</li>
+          <li>Target Windows host (e.g., CLIENT01 at 172.16.5.60)</li>
+          <li>Internal network with domain controller (DC01 at 172.16.5.25), SQL server (SQL01 at 172.16.5.20), web server (WEB01 at 172.16.5.30), and application server (APP01 at 172.16.5.40)</li>
+          <li>All testing must be conducted within your own isolated network with <strong>explicit written authorization</strong> for any systems involved</li>
+        </ul>
+      </span>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 1: OVERVIEW & THREAT LANDSCAPE                       -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="overview-threat">
+      <h2 id="overview-threat">1. Overview &amp; Threat Landscape</h2>
+
+      <p>
+        Social engineering is not a "soft skill" appendix to technical hacking, it's the primary initial-access vector for most 
+		breaches reported today. While firewalls and endpoint detection protect the wire, humans remain the unpatched endpoint. 
+		Footprinting via social engineering transforms publicly available crumbs (job titles, profile photos, technology 
+		complaints on LinkedIn, and discarded meeting agendas) into precise targeting packages: who to call, what to say, 
+		which credential portal to clone, and which security control frustrates employees enough to bypass.
+      </p>
+
+      <p>
+        Modern adversaries (e.g., Scattered Spider, LAPSUS$, APT groups) operate like sales-development-representative teams: they 
+		build lead lists, research pain points, craft pretexts, and execute multi-channel campaigns (email, voice, SMS, physical). 
+		The objective of this module is to treat social engineering as a <em>systematic intelligence-collection discipline</em>, 
+		not random trickery.
+      </p>
+
+      <p>
+        <strong>Typical data obtained:</strong> names, email addresses, phone numbers, job titles, security products in use, 
+		operating system (OS) and software versions, internal IP addresses, server names, network layout cues, organisational 
+		hierarchy, and emotional triggers (frustrations with IT, upcoming mergers, layoffs).
+      </p>
+
+      <p>
+        <strong>Core technique categories:</strong>
+      </p>
+
+      <ul>
+        <li><strong>OSINT-driven impersonation:</strong> Building credible personas from harvested profile data.</li>
+        <li><strong>Technical elicitation:</strong> Extracting architecture details via help-desk calls or "surveys."</li>
+        <li><strong>Physical recon:</strong> Badge photography, lobby layout observation, shoulder surfing.</li>
+        <li><strong>Baiting &amp; media drops:</strong> USB tokens, malicious QR codes, fake recruiter documents.</li>
+        <li><strong>Reverse social engineering:</strong> Creating a problem (e.g., "your account is compromised") then offering the solution to gain trust.</li>
+      </ul>
+
+      <div class="info-remember">
+        <strong>BlueOps Note:</strong><br>
+        Your employees' LinkedIn profiles and GitHub commit logs are your perimeter. If an attacker knows your CISO's pet-project 
+		technology stack before your own IT asset register does, you have already lost the reconnaissance phase.
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 2: ADVERSARIAL METHODOLOGY                           -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="adversarial-methodology">
+      <h2 id="adversarial-methodology">2. Adversarial Methodology: Phased Social-Engineering Recon</h2>
+
+      <ol>
+        <li><strong>Phase 1: Target Surface Mapping (OSINT)</strong>
+          <ul>
+            <li>Enumerate employees, roles, and reporting lines via LinkedIn, job sites, and corporate directories.</li>
+            <li>Harvest email formats and username conventions (e.g., <code>{firstname}.{lastname}@target.com</code>).</li>
+            <li>Identify technology stack leaks (GitHub, Stack Overflow, conference slides).</li>
+          </ul>
+        </li>
+        <li><strong>Phase 2: Profile Enrichment &amp; Segmentation</strong>
+          <ul>
+            <li>Correlate emails with breached credentials (Have I Been Pwned, dark-web dumps).</li>
+            <li>Map VIPs, IT administrators, and finance staff (high-value targets for vishing / BEC).</li>
+            <li>Analyse social-media sentiment to identify frustration points (e.g., "new MFA is awful").</li>
+          </ul>
+        </li>
+        <li><strong>Phase 3: Pretext Development</strong>
+          <ul>
+            <li>Craft scenarios that exploit timing (payroll week, software migration, audit season).</li>
+            <li>Register lookalike domains, spoof caller IDs, and forge internal documents.</li>
+            <li>Prepare "proof" artefacts: fake support tickets, fabricated invoices, cloned login portals.</li>
+          </ul>
+        </li>
+        <li><strong>Phase 4: Engagement (Digital)</strong>
+          <ul>
+            <li>Spear-phishing with personalised lures derived from Phase 1–2.</li>
+            <li>Vishing (voice phishing) to IT help desks to coerce MFA resets or temporary passwords.</li>
+            <li>Smishing (SMS) timed to coincide with known IT maintenance windows.</li>
+          </ul>
+        </li>
+        <li><strong>Phase 5: Physical Recon (Authorised Assessments Only)</strong>
+          <ul>
+            <li>Tailgating, badge cloning observation, and lobby eavesdropping.</li>
+            <li>USB baiting and media drops in parking lots or conference centres.</li>
+            <li>Dumpster diving for org charts, meeting minutes, or discarded hardware.</li>
+          </ul>
+        </li>
+        <li><strong>Phase 6: Validation &amp; Pivot</strong>
+          <ul>
+            <li>Confirm harvested credentials against VPN or webmail portals.</li>
+            <li>Use initial access to harvest internal email headers and directory data.</li>
+            <li>Escalate from single-user compromise to bulk data exfiltration or ransomware deployment.</li>
+          </ul>
+        </li>
+      </ol>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 3: TTP MAPPING (MITRE ATT&CK®)                      -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="ttp-mapping">
+      <h2 id="ttp-mapping">3. TTP Mapping (MITRE ATT&CK<sup>®</sup>)</h2>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table">
+          <thead>
+            <tr>
+              <th>Technique ID</th>
+              <th>Name</th>
+              <th>Adversarial Use</th>
+              <th>Defensive Detection / Mitigation</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>T1593.001</code></td>
+              <td>Search Open Websites/Domains: Social Media</td>
+              <td>Harvesting employee names, roles, and technology complaints from LinkedIn/Twitter.</td>
+              <td>Social-media monitoring; employee-awareness training; limit public organisational charts.</td>
+            </tr>
+            <tr>
+              <td><code>T1593.002</code></td>
+              <td>Search Open Websites/Domains: Search Engines</td>
+              <td>Finding forgotten job postings, conference PDFs, or cached profile pages with internal data.</td>
+              <td>Regular Google dork audits; request removal of sensitive cached content.</td>
+            </tr>
+            <tr>
+              <td><code>T1589.002</code></td>
+              <td>Gather Victim Identity Info: Email Addresses</td>
+              <td>Building contact lists via theHarvester, Hunter.io, or breach dumps for phishing.</td>
+              <td>DMARC/DKIM/SPF enforcement; email obfuscation on public sites; canary email accounts.</td>
+            </tr>
+            <tr>
+              <td><code>T1589.003</code></td>
+              <td>Gather Victim Identity Info: Employee Names</td>
+              <td>Correlating names with roles to identify system admins, executives, and finance approvers.</td>
+              <td>Role-based privacy controls; redact names from public-facing team pages where possible.</td>
+            </tr>
+            <tr>
+              <td><code>T1598</code></td>
+              <td>Phishing for Information</td>
+              <td>Vishing help desks for password resets or MFA bypass codes.</td>
+              <td>Out-of-band verification; callback procedures; help-desk authentication scripts.</td>
+            </tr>
+            <tr>
+              <td><code>T1566.001</code></td>
+              <td>Phishing: Spearphishing Attachment</td>
+              <td>Sending weaponised documents reflecting internal projects identified via job postings.</td>
+              <td>Attachment sandboxing; macro restrictions; external-sender banners.</td>
+            </tr>
+            <tr>
+              <td><code>T1566.002</code></td>
+              <td>Phishing: Spearphishing Link</td>
+              <td>Cloning Okta/Azure portals discovered via header / stack analysis.</td>
+              <td>URL rewriting; link isolation; FIDO2 anti-phishing keys.</td>
+            </tr>
+            <tr>
+              <td><code>T1200</code></td>
+              <td>Hardware Additions (Baiting)</td>
+              <td>Leaving malicious USB drives in parking lots labelled "Q4 Salary Review."</td>
+              <td>USB port disablement; endpoint DLP; physical security sweeps.</td>
+            </tr>
+            <tr>
+              <td><code>T1659</code></td>
+              <td>Content Injection (Impersonation)</td>
+              <td>Creating fake recruiter profiles to befriend employees and unlock restricted content.</td>
+              <td>Verify new connections; restrict profile visibility to connections only.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 4: OSINT HARVESTING — DIGITAL FOOTPRINTING           -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="osint-harvesting">
+      <h2 id="osint-harvesting">4. OSINT Harvesting: Digital Footprinting</h2>
+
+      <h3>4.1 theHarvester: Email &amp; Virtual Host Discovery</h3>
+
+<pre><code class="language-bash"># Harvest publicly indexed emails and LinkedIn employees (authorised lab demo)
+$ theHarvester -d iscsecurity.org -l 200 -b linkedin -f iscsec_harvester.xml
+</code></pre>
+
+<pre><code class="expected-output">*******************************************************************
+* theHarvester 4.8.2                                              *
+*******************************************************************
+
+[*] Target: iscsecurity.org 
+[*] Searching LinkedIn (using google):
+    alice.johnson@iscsecurity.org
+    bob.smith@iscsecurity.org
+    carol.davis@iscsecurity.org
+    david.lee@iscsecurity.org
+    eve.martinez@iscsecurity.org
+[*] Searching Bing:
+    dev.iscsecurity.org
+    vpn.iscsecurity.org
+[*] Links found: 4
+[*] Virtual hosts found: 2
+[*] Saving XML output to iscsec_harvester.xml
+
+# High-value contacts (extracted manually):
+- carol.davis@iscsecurity.org (title: "Senior Systems Administrator")
+- eve.martinez@iscsecurity.org (title: "IT Help Desk Lead")
+</code></pre>
+
+      <div class="reminder">
+	  <strong>Analysis:</strong><br> The email format <code>firstname.lastname</code> is confirmed. Two high-value targets 
+	  identified: a senior sysadmin (privileged access) and a help-desk lead (vishing target for coercion). Virtual hosts 
+	  <code>dev</code> and <code>vpn</code> confirm infrastructure targets for credential stuffing.
+	  </div>
+
+      <h3>4.2 Sherlock: Username Cross-Platform Enumeration</h3>
+
+<pre><code class="language-bash"># Enumerate a username across many social platforms
+$ sherlock some.username --output iscsec_sherlock.txt
+</code></pre>
+
+      <pre><code class="expected-output">[*] Checking username some.username on:
+[+] Facebook: https://www.facebook.com/some.username
+[+] Twitter: https://twitter.com/some.username
+[+] Instagram: https://www.instagram.com/some.username
+[+] GitHub: https://github.com/some.username
+[+] Reddit: https://www.reddit.com/user/some.username
+[-] LinkedIn: Not Found
+[-] Pinterest: Not Found
+[-] TikTok: Not Found
+
+[*] Results saved to iscsec_sherlock.txt
+</code></pre>
+
+      <div class="reminder">
+	  <strong>Analysis:</strong><br> 
+	  Presence on GitHub is critical, likely to expose commit history with internal email addresses or 
+	  API keys. Reddit activity may reveal technology preferences or workplace complaints (e.g., "hate the new VPN").
+	  </div>
+
+      <h3>4.3 Social Searcher: Real-Time Content Intelligence</h3>
+
+      <p>Social Searcher aggregates public posts across platforms without requiring API keys.</p>
+
+      <pre><code class="expected-output"># Web UI search: "iscsecurity.org" + "password" + "frustrated"
+Results:
+- Twitter, @johndoe: "Why does iscsecurity.org VPN always disconnect on Mac? #workfromhome"
+- Reddit, r/sysadmin: "Anyone else forced to use Duo at iscsecurity? Push fatigue is real."
+- LinkedIn (public): Carol Davis posted: "Proud to lead the Okta migration this quarter."
+</code></pre>
+
+      <div class="reminder">
+	  <strong>Analysis:</strong><br> 
+	  Three actionable intelligence items: (1) Mac-heavy environment with VPN issues (baiting vector: 
+	  fake IT VPN update), (2) Duo MFA with push fatigue (MFA-bombing / push-notification attack viable), (3) Okta migration 
+	  confirmed (clone Okta login portal for phishing).
+	  </div>
+
+      <h3>4.4 BuzzSumo, Google Trends, Hashatit, Ubersuggest: Content &amp; Sentiment Analytics</h3>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table">
+          <thead>
+            <tr>
+              <th>Tool</th>
+              <th>Recon Value</th>
+              <th>Adversarial Use</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>BuzzSumo</strong></td>
+              <td>Trending content, influencer identification</td>
+              <td>Identify executives active in public discourse; mirror their writing style for pretexts.</td>
+            </tr>
+            <tr>
+              <td><strong>Google Trends</strong></td>
+              <td>Search popularity over time</td>
+              <td>Time phishing to coincide with trending industry topics (e.g., CrowdStrike outage lures).</td>
+            </tr>
+            <tr>
+              <td><strong>Hashatit</strong></td>
+              <td>Hashtag tracking</td>
+              <td>Monitor corporate event hashtags to craft timely conference-registration or travel-reimbursement scams.</td>
+            </tr>
+            <tr>
+              <td><strong>Ubersuggest</strong></td>
+              <td>SEO and keyword volume</td>
+              <td>Discover customer-facing microsites and landing pages that may lack security hardening.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 5: PHYSICAL RECONNAISSANCE TECHNIQUES                -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="physical-techniques">
+      <h2 id="physical-techniques">5. Physical Reconnaissance Techniques</h2>
+
+      <p>These techniques are strictly for <strong>authorised physical-security assessments</strong> with documented consent, 
+	  safety briefings, and legal waivers.</p>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table">
+          <thead>
+            <tr>
+              <th>Technique</th>
+              <th>Description</th>
+              <th>Intel Yield</th>
+              <th>OPSEC / Safety</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Eavesdropping</strong></td>
+              <td>Intercepting audio or written communications (voicemail, unsecured chat in coffee shops).</td>
+              <td>Project codenames, vendor names, login URLs mentioned aloud.</td>
+              <td>Legal authority must be documented; do not record without two-party consent where required.</td>
+            </tr>
+            <tr>
+              <td><strong>Shoulder Surfing</strong></td>
+              <td>Visually observing sensitive data entry (PINs, passwords, MFA codes).</td>
+              <td>Password patterns, MFA app type (Microsoft Authenticator, Duo, Google).</td>
+              <td>Controlled lab only; demonstrate privacy-screen effectiveness as mitigation.</td>
+            </tr>
+            <tr>
+              <td><strong>Dumpster Diving</strong></td>
+              <td>Recovering discarded documents, hardware, or media from physical waste.</td>
+              <td>Org charts, meeting minutes with attendee lists, old badges, hardware with stored credentials.</td>
+              <td>Written permission mandatory; PII must be sanitised; wear gloves; photograph, do not remove where possible.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Expected Physical Evidence Capture</h3>
+
+<pre><code class="expected-output"># Evidence log example (dumpster dive)
+Date: 2025-11-11T14:32:00Z
+Location: 123 Corporate Blvd, Rear Loading Dock
+
+Findings:
+- Discarded printout: "Q4 Migration Plan – Okta to Azure AD"
+
+Attendees: Carol Davis, Eve Martinez, VP Engineering
+- Damaged hard drive: 2.5" SATA, label "EXCH-01-BAK"
+- Visitor badge (expired): "Temp-2847 – Vendor: ACME HVAC"
+
+Photos: IMG_4521.JPG, IMG_4522.JPG
+Sanitisation: PII redacted; original stored in encrypted container.
+</code></pre>
+</section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 6: IMPERSONATION, TAILGATING, & PHYSICAL PRETEXTING  -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="impersonation-tailgating">
+      <h2 id="impersonation-tailgating">6. Impersonation, Tailgating, &amp; Physical Pretexting</h2>
+
+      <h3>Impersonation</h3>
+
+      <p>Presenting a convincing role to bypass human guards or obtain sensitive information.</p>
+
+      <ul>
+        <li><strong>Common personas:</strong> IT support, external auditor, building maintenance, courier/delivery, recruiter, C-suite executive assistant.</li>
+        <li><strong>Artefacts:</strong> cloned badges, branded polo shirts ordered from the same supplier, forged visitor passes, fake work orders.</li>
+      </ul>
+
+      <h3>Tailgating / Piggybacking</h3>
+
+      <p>Following an authorised employee through a secured entry point by exploiting social politeness.</p>
+
+      <ul>
+        <li><strong>Techniques:</strong> carrying a large box ("hands full"), pretending to be on a phone call, timing entry with smokers returning from break.</li>
+        <li><strong>Mitigations to test:</strong> mantraps, turnstiles, security guard challenge protocols, "no tailgating" signage.</li>
+      </ul>
+
+      <h3>Reverse Social Engineering</h3>
+
+      <p>Creating a problem, then presenting yourself as the solution.</p>
+
+      <ul>
+        <li><strong>Example:</strong> Send a fake "account lockout" email, then call the victim posing as IT support offering to "unlock" their account if they verify their password.</li>
+        <li><strong>Example:</strong> Post a deliberately broken USB "firmware update" to a help-desk technician, then arrive as the "vendor rep" to collect it and "analyse" their workstation.</li>
+      </ul>
+
+      <h3>Baiting</h3>
+
+      <p>Leaving tempting media in locations where employees will find them.</p>
+
+      <pre><code class="expected-output"># USB Bait Evidence Template
+Drop Date: 2025-11-11T07:15:00Z
+Location: North parking lot, spaces 24-30 (employee section)
+Media: 3x USB drives, 64GB, labelled "Q4 Bonus Review – Confidential"
+Payload: HID emulation / AutoRun (lab-only; no live malware)
+
+Results:
+- 08:42: USB-01 inserted into Workstation FIN-07 (Finance dept)
+- 09:15: USB-02 inserted into Workstation HR-03 (HR dept)
+- 12:20: USB-03 remains unclaimed; retrieved at end of test.
+Capture: USB-01 callback to C2 logged hostname "FIN-07.corp.local"
+</code></pre>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 7: PEOPLE SEARCH, JOB SITES, & REPUTATION MONITORING -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="people-search-jobs">
+      <h2 id="people-search-jobs">7. People Search, Job Sites, &amp; Reputation Monitoring</h2>
+
+      <h3>People Search Services (e.g., Spokeo)</h3>
+
+      <p>Aggregate public records, property data, and social profiles.</p>
+
+<pre><code class="expected-output"># Spokeo result (illustrative)
+Name: Carol Davis
+Age: 42
+Location: Ashburn, VA
+Associated emails: carol.davis@iscsecurity.org, cdavis1978@yahoo.com
+Family: Spouse (name), 2 children
+Previous employers: TechCorp (2015-2019), CloudSystems (2019-2022)
+</code></pre>
+
+      <div class="reminder">
+	  <strong>Adversarial Use:</strong><br>
+	  Personal email (<code>cdavis1978@yahoo.com</code>) may appear in older breach dumps. 
+	  Family names enable password-guessing (pet names, birthdays). Location confirms commute patterns for physical tailgating.
+	  </div>
+
+      <h3>Job Boards (LinkedIn, Glassdoor, Dice)</h3>
+
+      <p>Job postings leak operational and personnel details.</p>
+
+<pre><code class="expected-output"># Excerpt: LinkedIn job posting (saved HTML)
+Title: Senior Okta Administrator
+Employer: ISC Security
+Location: Remote (EST timezone)
+
+Requirements:
+- "Manage Duo MFA rollout across 3,000 endpoints"
+- "Experience with CrowdStrike Falcon and SentinelOne"
+- "Support hybrid Azure AD / on-premise AD environment"
+- "AWS VPC networking (10.0.0.0/8)"
+</code></pre>
+
+      <div class="reminder">
+	  <strong>Analysis:</strong><br> 
+	  Exact security stack disclosed (Okta, Duo, CrowdStrike, SentinelOne, Azure AD, AWS VPC <code>
+	  10.0.0.0/8</code>).
+	  </div>
+	  
+	  <p>This allows adversaries to:</p>
+
+      <ul>
+        <li>Prepare CrowdStrike-themed phishing lures.</li>
+        <li>Search for CVEs in SentinelOne console versions.</li>
+        <li>Know that MFA is Duo (push-fatigue attacks).</li>
+        <li>Map internal IP space expectations for VPN tunneling.</li>
+      </ul>
+
+      <p><strong>Evidence Capture:</strong> Save screenshot + HTML + ISO 8601 timestamp. Record any technology names in the 
+	  technology-register.</p>
+
+      <h3>Reputation Monitoring &amp; Alerting</h3>
+
+      <p>Use Google Alerts and Mention to monitor brand references, leaks, and executive mentions.</p>
+
+<pre><code class="language-bash"># Example: Google Alert setup (web UI)
+1. Open: https://www.google.com/alerts
+2. Search query: "iscsecurity.org" OR "isc security" (breach OR leaked OR hack)
+3. Options:
+     - How often: As-it-happens
+     - Sources: Automatic (or "News" for breach monitoring)
+     - Language: English
+     - Region: Any region
+     - Deliver to: analysis-alerts@iscsecurity.org
+4. Create Alert.
+5. Confirm preview delivery and document:
+     - Alert query string
+     - Mailbox responsible
+     - Creation date
+     - Review rotation roster
+</code></pre>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 8: DARK WEB & LEAKED DATA MONITORING                 -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="dark-web-leaks">
+      <h2 id="dark-web-leaks">8. Dark Web &amp; Leaked Data Monitoring</h2>
+
+      <p>Dark-web discovery must be tightly controlled. Only authorised analysts should access these resources under strict 
+	  isolation (dedicated VM, Tor-over-VPN, no host crossover).</p>
+
+      <h3>Tor Browser &amp; ExoneraTor</h3>
+
+      <ul>
+        <li><strong>Tor Browser:</strong> Access .onion markets and forums where credentials are traded.</li>
+        <li><strong>ExoneraTor:</strong> Verify whether a specific IP address was a Tor exit node at a given time (useful for 
+		attributing dark-web traffic or proving non-attribution).</li>
+      </ul>
+
+      <h3>Expected Dark-Web Intelligence Find</h3>
+
+      <pre><code class="expected-output"># Dark-web forum paste (simulated evidence)
+Forum: BreachBase (.onion)
+Date: 2025-10-28
+Vendor: "DataHoarder"
+Content:
+  "Database: iscsecurity.org (2024 legacy CRM dump)
+   Records: 12,400
+   Fields: email, bcrypt_hash, phone, department
+   Sample:
+     bob.smith@iscsecurity.org:$2a$10$...
+     carol.davis@iscsecurity.org:$2a$10$...
+     eve.martinez@iscsecurity.org:$2a$10$..."
+</code></pre>
+
+      <div class="reminder">
+	  <strong>Action:</strong><br>
+	  Preserve evidence screenshots, raw dump files, and exact search terms. Follow the client's 
+	  disclosure policy and applicable law. Do not download or possess leaked PII without written authorisation and a legal 
+	  safe-harbour agreement.
+	  </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 9: PUBLIC SOURCE-CODE REPOSITORIES                   -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="source-code-repos">
+      <h2 id="source-code-repos">9. Public Source-Code Repositories &amp; Recon Frameworks</h2>
+
+      <p>Developers frequently commit API keys, internal URLs, and configuration files to public repositories.</p>
+
+      <h3>9.1 Recon-ng</h3>
+
+<pre><code class="language-bash">[recon-ng][default] > marketplace install recon/domains-hosts/google_site_web
+[recon-ng][default] > modules load recon/domains-hosts/google_site_web
+[recon-ng][default][google_site_web] > options set SOURCE iscsecurity.org
+[recon-ng][default][google_site_web] > run
+</code></pre>
+
+<pre><code class="expected-output">[*] iscsecurity.org
+[*] Searching Google for: site:iscsecurity.org
+[*] dev.iscsecurity.org
+[*] mail.iscsecurity.org
+[*] vpn.iscsecurity.org
+[*] 3 total hosts found.
+</code></pre>
+
+      <h3>9.2 Photon: Wayback &amp; Archive Scraping</h3>
+
+      <pre><code class="language-bash">$ python3 photon.py -u https://iscsecurity.org -l 3 -t 200 --wayback -o photon_wayback.csv
+</code></pre>
+
+      <pre><code class="expected-output">[+] URLs found: 147
+[+] Archived URLs found: 32
+[+] URLs saved to: photon_wayback.csv
+
+# Notable entries from photon_wayback.csv
+https://iscsecurity.org/old-portal/login.php
+https://iscsecurity.org/api/v1/internal/users
+https://iscsecurity.org/backup/config.sql
+https://iscsecurity.org/.env
+</code></pre>
+
+      <div class="reminder">
+	  <strong>Analysis:</strong><br> 
+	  <code>.env</code> and <code>config.sql</code> in archives suggest past exposure of database 
+	  credentials or AWS keys. Even if currently 404, archive copies may retain sensitive strings. This is a critical finding.
+	  </div>
+
+      <h3>9.3 GitHub Dorking (Manual / Automated)</h3>
+
+      <pre><code class="language-bash"># GitHub search dorks (no API)
+"iscsecurity.org" password
+"iscsecurity" API_KEY
+"iscsecurity" AKIA  # AWS access key prefix
+"iscsecurity" "private_key" extension:pem
+</code></pre>
+
+      <pre><code class="expected-output"># Example result (illustrative)
+File: config/aws-deploy.yml
+Repo: iscsecurity/legacy-deploy
+Content:
+  AWS_ACCESS_KEY_ID: AKIAIOSFODNN7EXAMPLE
+  AWS_SECRET_ACCESS_KEY: wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
+  region: us-east-1
+</code></pre>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 10: AI-ASSISTED FOOTPRINTING                         -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="ai-assisted-footprinting">
+      <h2 id="ai-assisted-footprinting">10. AI-Assisted Footprinting</h2>
+
+      <p>AI accelerates workflow but does not replace validation. Treat generated outputs as drafts.</p>
+
+      <h3>AI-Assisted theHarvester Command Generation</h3>
+
+      <pre><code class="language-bash">$ sgpt --shell "Use theHarvester to gather email accounts associated with 'iscsecurity.org', limit to 200 results, and save output to isc_harvest.xml"
+theHarvester -d iscsecurity.org -l 200 -b all -f isc_harvest.xml
+[E]xecute, [D]escribe, [A]bort: E
+</code></pre>
+
+      <pre><code class="expected-output">Read proxies.yaml from /etc/theHarvester/proxies.yaml
+*******************************************************************
+*  _   _                                            _             *
+* | |_| |__   ___    /\  /\__ _ _ ____   _____  ___| |_ ___ _ __  *
+* | __|  _ \ / _ \  / /_/ / _` | '__\ \ / / _ \/ __| __/ _ \ '__| *
+* | |_| | | |  __/ / __  / (_| | |   \ V /  __/\__ \ ||  __/ |    *
+*  \__|_| |_|\___| \/ /_/ \__,_|_|    \_/ \___||___/\__\___|_|    *
+*                                                                 *
+* theHarvester 4.8.2                                              *
+* Coded by Christian Martorella                                   *
+* Edge-Security Research                                          *
+* cmartorella@edge-security.com                                   *
+*                                                                 *
+*******************************************************************
+
+[*] Target: iscsecurity.org 
+
+Read api-keys.yaml from /etc/theHarvester/api-keys.yaml
+
+$ sudo theHarvester -d iscsecurity.org -l 200 -b all -f isc_harvest.xml
+</code></pre>
+
+      <div class="reminder-opsec">
+        <strong>OPSEC Warning:</strong><br>
+        AI-generated commands may assume outdated syntax or default to aggressive brute-force settings. Always validate against the 
+		tool's current <code>--help</code> and your RoE. Never allow AI to generate spear-phishing content targeting real 
+		individuals without explicit ethical-review board approval.
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 11: CASE STUDIES                                     -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="case-studies">
+      <h2 id="case-studies">11. Case Studies</h2>
+
+      <h3>Case Study 1: MGM Resorts &amp; Scattered Spider (2023): Vishing and Help-Desk Impersonation</h3>
+
+      <p>
+        In September 2023, the Scattered Spider threat actor compromised MGM Resorts via a multi-hour vishing attack. The adversary 
+		had already harvested employee names, roles, and phone numbers from LinkedIn and corporate "About Us" pages. Posing as the 
+		company's IT help desk, they called an employee and convinced them to reset their MFA enrollment. Because the attacker knew 
+		internal terminology (Okta, VMware Workspace ONE) from job postings and help-wanted ads, the pretext was highly credible. 
+		Once inside, they deployed ransomware and caused estimated losses exceeding $100 million.
+      </p>
+
+      <div class="reminder">
+        Job postings that disclose internal technology stacks and help-desk structure directly enable precision vishing. Blue teams 
+		must treat public job listings as attack-surface intelligence and mandate out-of-band verification for any credential or 
+		MFA reset request.
+      </div>
+
+      <h3>Case Study 2: Uber (2016): GitHub Credential Leak Leading to Massive Breach</h3>
+
+      <p>
+        Uber developers had embedded AWS access keys in a private GitHub repository. Adversaries discovered the keys through 
+		automated GitHub dorking and archive scanning. The keys granted access to an S3 bucket containing personal data on 
+		57 million riders and drivers. While the initial access was technical, the root cause was a social-engineering-adjacent 
+		OSINT failure: treating public code repositories as confidential storage. Automated tools like Photon and GitHub 
+		dorking are now standard for discovering exactly this class of exposure.
+      </p>
+
+      <div class="reminder">
+        Public repositories are part of the external attack surface. Implement secret-scanning in CI/CD (GitHub Advanced Security, 
+		TruffleHog) and assume any committed credential is already compromised.
+      </div>
+
+      <h3>Case Study 3: The 2020 Twitter Hack: Social Engineering to Compromise Internal Tools</h3>
+
+      <p>
+        Attackers targeted Twitter employees through a phone spear-phishing (vishing) campaign. Using employee names and roles 
+		harvested from LinkedIn, they impersonated IT support and convinced staff to enter credentials into a fake VPN portal. 
+		This granted access to Twitter's internal "admin" panel, which was then used to hijack verified accounts 
+		(Obama, Biden, Musk) to post Bitcoin scam messages. No zero-day exploit was used, the entire breach rested 
+		on credible pretexting built from public profile data.
+      </p>
+
+      <div class="reminder">
+        Admin panels and internal tools must be protected by phishing-resistant MFA (FIDO2/WebAuthn), not just passwords and SMS. 
+		Employee verification procedures must assume the caller already knows internal org structure.
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 12: OPSEC & LEGAL BOUNDARIES                         -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="opsec-legal">
+      <h2 id="opsec-legal">12. OPSEC &amp; Legal Boundaries</h2>
+
+      <h3>12.1 Operational Security</h3>
+
+      <ul>
+        <li><strong>Sock Puppet Compartmentalisation:</strong> Maintain dedicated VMs, burner phone numbers, and unique email addresses for every fake persona. <br>Never cross-pollinate browser cookies or IP addresses between research and real identity.</li>
+        <li><strong>Platform Policy Evasion:</strong> Creating fake LinkedIn/Facebook accounts violates platform ToS and may breach anti-fraud laws (CFAA, CMA). Use only test accounts within authorised lab environments, or collect public data without authentication.</li>
+        <li><strong>Physical SE Safety:</strong> All physical engagements require: signed client authorisation, safety briefing, legal waiver, emergency contact protocol, <br>and real-time communication with a safety observer.</li>
+        <li><strong>Recording Laws:</strong> Audio recording of phone calls (vishing) requires two-party consent in many jurisdictions. One-party consent states still require legal review. Do not record without written approval.</li>
+        <li><strong>Dark-Web Hygiene:</strong> Use isolated hardware or VMs for Tor browsing. Assume .onion forums are actively monitored by law enforcement and adversaries. Do not download leaked PII caches without explicit authorisation.</li>
+        <li><strong>AI Content Boundaries:</strong> Do not use AI to generate deepfake audio, non-consensual imagery, or highly personalised harassment content. <br>This crosses ethical and legal lines regardless of authorisation.</li>
+      </ul>
+
+      <h3>12.2 Legal Boundaries</h3>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table">
+          <thead>
+            <tr>
+              <th>Framework</th>
+              <th>Constraint</th>
+              <th>Risk</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>CFAA / CMA</strong></td>
+              <td>Creating fake accounts to access password-protected social-media content may constitute unauthorised access.</td>
+              <td>Criminal prosecution; civil liability.</td>
+            </tr>
+            <tr>
+              <td><strong>GDPR / Privacy Laws</strong></td>
+              <td>Aggregating employee PII (emails, phone numbers, family data) from people-search sites requires lawful basis and 
+			  data-handling safeguards.</td>
+              <td>Regulatory fines; DPA enforcement.</td>
+            </tr>
+            <tr>
+              <td><strong>Wiretapping / ECPA</strong></td>
+              <td>Recording vishing calls without consent; intercepting electronic communications.</td>
+              <td>Felony charges; exclusion of evidence.</td>
+            </tr>
+            <tr>
+              <td><strong>Trespass &amp; Physical Security Laws</strong></td>
+              <td>Tailgating, impersonation, or dumpster diving without written authorisation is trespassing.</td>
+              <td>Arrest; civil suit; reputational destruction.</td>
+            </tr>
+            <tr>
+              <td><strong>Platform ToS</strong></td>
+              <td>Automated scraping (Sherlock, theHarvester against social APIs) violates LinkedIn, Twitter/X, and Facebook terms.</td>
+              <td>IP ban; API key revocation; legal referral.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="reminder">
+        <strong>Golden Rule (ROE):</strong><br>
+        If you are not certain the activity is within signed Rules of Engagement (RoE) and legal review, <em>do not execute it</em>. When in doubt, use only <strong>passive, unauthenticated</strong> techniques.
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 13: QUICK TRIAGING CHECKLIST                         -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="triage-checklist">
+      <h2 id="triage-checklist">13. Quick Triaging Checklist: Social-Engineering Recon Workflow</h2>
+
+      <pre><code class="language-bash">□ Scope Confirmation
+    □ Written authorisation for digital OSINT, vishing, phishing, and physical SE.
+    □ Legal review of recording laws (two-party vs. one-party consent).
+    □ Insurance rider confirmed for physical engagements.
+
+□ Phase 1 — Digital OSINT Harvesting
+    □ Run theHarvester for emails, names, and virtual hosts.
+    □ Run Sherlock to map username presence across platforms.
+    □ Search Social Searcher for technology complaints and project mentions.
+    □ Mine job boards for technology stack and organisational structure.
+    □ Query Google Trends / BuzzSumo for timely pretext material.
+
+□ Phase 2 — Profile Enrichment
+    □ Cross-reference emails with breach databases (Have I Been Pwned).
+    □ Map LinkedIn connections to identify reporting lines.
+    □ Search GitHub for leaked credentials, internal URLs, and config files.
+    □ Archive old site versions via Photon / Wayback Machine.
+
+□ Phase 3 — Dark-Web & Reputation Monitoring
+    □ Configure Google Alerts for brand + breach keywords.
+    □ Review Mention / Brand24 for executive-targeting indicators.
+    □ Search dark-web markets for target domain dumps (authorised analysts only).
+
+□ Phase 4 — Pretext Development
+    □ Build 2–3 plausible personas with supporting artefacts.
+    □ Register lookalike domains if authorised for phishing simulation.
+    □ Draft vishing scripts using internal terminology from job posts.
+    □ Prepare MFA-bombing windows based on help-desk hours.
+
+□ Phase 5 — Physical Recon (Authorised Only)
+    □ Conduct site surveys: badge types, mantrap presence, guard rotations.
+    □ Attempt controlled tailgating / badge-cloning observation.
+    □ Perform authorised dumpster dive with PII-handling protocol.
+    □ Document lobby WiFi SSIDs and guest-network captive portals.
+
+□ Phase 6 — Engagement & Execution
+    □ Launch spear-phishing from isolated infrastructure.
+    □ Execute vishing calls with safety observer on standby.
+    □ Drop USB tokens and record insertion rates.
+    □ Capture screenshots of cloned-portal credential submissions.
+
+□ Phase 7 — Validation & Reporting
+    □ Verify harvested credentials (if in scope) via test login to non-prod portal.
+    □ Map compromised accounts to internal data-access levels.
+    □ Redact all PII in public-facing report annexes.
+    □ Provide defensive mitigations: user training, MFA hardening, physical controls.
+</code></pre>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 14: QUICK REFERENCE — SOCIAL-ENGINEERING RECON TOOLKIT -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="quickref">
+      <h2 id="quickref">14. Quick Reference: Social-Engineering Recon Toolkit</h2>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table">
+          <thead>
+            <tr>
+              <th>Tool</th>
+              <th>Purpose</th>
+              <th>Example / Access</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>theHarvester</code></td>
+              <td>Email, name, virtual host harvesting</td>
+              <td><code>theHarvester -d target.com -l 200 -b linkedin</code></td>
+              <td>Requires API keys for some modules.</td>
+            </tr>
+            <tr>
+              <td><code>Sherlock</code></td>
+              <td>Username enumeration across 400+ platforms</td>
+              <td><code>sherlock username --output file.txt</code></td>
+              <td>Passive; no login attempts.</td>
+            </tr>
+            <tr>
+              <td>Social Searcher</td>
+              <td>Real-time multi-platform content search</td>
+              <td>Web UI</td>
+              <td>Good for sentiment and complaint mining.</td>
+            </tr>
+            <tr>
+              <td>BuzzSumo</td>
+              <td>Trending content and influencer tracking</td>
+              <td>Web UI / API</td>
+              <td>Premium; useful for executive impersonation pretexts.</td>
+            </tr>
+            <tr>
+              <td>Google Trends</td>
+              <td>Search-interest time-series</td>
+              <td>Web UI</td>
+              <td>Free; time lures to current events.</td>
+            </tr>
+            <tr>
+              <td>Hashatit</td>
+              <td>Hashtag discovery and monitoring</td>
+              <td>Web UI</td>
+              <td>Track corporate event hashtags.</td>
+            </tr>
+            <tr>
+              <td>Ubersuggest</td>
+              <td>SEO and keyword volume analysis</td>
+              <td>Web UI</td>
+              <td>Reveals customer-facing microsites.</td>
+            </tr>
+            <tr>
+              <td>Spokeo / People-Search</td>
+              <td>Aggregated public-records lookup</td>
+              <td>Web UI</td>
+              <td>Ethical and legal constraints apply.</td>
+            </tr>
+            <tr>
+              <td><code>Recon-ng</code></td>
+              <td>Modular OSINT framework</td>
+              <td><code>marketplace install recon/domains-hosts/...</code></td>
+              <td>Highly scriptable; API-key dependent.</td>
+            </tr>
+            <tr>
+              <td><code>Photon</code></td>
+              <td>Fast web crawler + Wayback integration</td>
+              <td><code>python3 photon.py -u target.com --wayback</code></td>
+              <td>Excellent for finding archived leaks.</td>
+            </tr>
+            <tr>
+              <td>Tor Browser</td>
+              <td>Anonymised access to .onion resources</td>
+              <td>Desktop app</td>
+              <td>Isolate from host OS.</td>
+            </tr>
+            <tr>
+              <td>ExoneraTor</td>
+              <td>Tor exit-node IP historical check</td>
+              <td>Web UI</td>
+              <td>Prove/disprove Tor attribution.</td>
+            </tr>
+            <tr>
+              <td>Google Alerts</td>
+              <td>Automated keyword monitoring</td>
+              <td>Web UI</td>
+              <td>Free; configure delivery mailbox carefully.</td>
+            </tr>
+            <tr>
+              <td>Mention</td>
+              <td>Brand and executive mention tracking</td>
+              <td>Web UI / API</td>
+              <td>Premium; real-time alerting.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 15: DEFENSIVE COUNTERMEASURES & THREAT MAPPING       -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="defense">
+      <h2 id="defense">15. Defensive Countermeasures &amp; Threat Mapping</h2>
+
+      <h3>15.1 Blue Team Mitigations</h3>
+
+      <ul>
+        <li><strong>Phishing-Resistant MFA:</strong> Deploy FIDO2/WebAuthn security keys. SMS and push-notification MFA are vulnerable to SIM swap and MFA-fatigue attacks.</li>
+        <li><strong>Help-Desk Verification Protocols:</strong> Require out-of-band callback to a known number or physical token verification before resetting passwords or <br>MFA enrolment.</li>
+        <li><strong>Employee Privacy Hygiene:</strong> Train staff to limit technology specifics on public profiles. Redact internal project codenames from LinkedIn. <br>Use role-based rather than individual contact pages.</li>
+        <li><strong>Secret Scanning in CI/CD:</strong> Use GitHub Advanced Security, TruffleHog, or GitLab Secret Detection to block commits containing API keys, passwords, or private keys.</li>
+        <li><strong>Physical Security Controls:</strong> Mantraps, turnstiles, and security-guard challenge protocols for tailgating. Privacy screens on all monitors. <br>Shred-sensitive-document policy with locked bins.</li>
+        <li><strong>USB Port Control:</strong> Disable USB mass-storage via GPO or endpoint policy. Deploy endpoint DLP that alerts on unauthorised USB insertion.</li>
+        <li><strong>External-Sender Banners:</strong> Tag all external emails with a visible banner to reduce credential-phishing success.</li>
+        <li><strong>Social-Engineering Simulation:</strong> Run regular authorised phishing/vishing exercises. Measure click rates and time-to-report, not just failure rates.</li>
+        <li><strong>Dark-Web Monitoring:</strong> Subscribe to breach-notification services to detect employee credential leaks before adversaries weaponise them.</li>
+      </ul>
+
+      <h3>15.2 Threat Mapping: SE Recon Finding → Attack Chain</h3>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table">
+          <thead>
+            <tr>
+              <th>Recon Finding</th>
+              <th>Likely Follow-on Attack</th>
+              <th>Defensive Control</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Employee email format + job title from LinkedIn</td>
+              <td>Spear-phishing with role-specific lure</td>
+              <td>External-sender banners; phishing simulation; limit public org charts.</td>
+            </tr>
+            <tr>
+              <td>Help-desk phone number + IT stack from job post</td>
+              <td>Vishing to coerce MFA reset</td>
+              <td>Out-of-band verification; no single-call credential resets.</td>
+            </tr>
+            <tr>
+              <td>AWS keys in public GitHub repo</td>
+              <td>Cloud data exfiltration / cryptojacking</td>
+              <td>Secret scanning; IAM key rotation; least-privilege policies.</td>
+            </tr>
+            <tr>
+              <td>Discarded org chart in dumpster</td>
+              <td>Targeted whaling / executive impersonation</td>
+              <td>Locked shred bins; clean-desk policy; physical security patrols.</td>
+            </tr>
+            <tr>
+              <td>USB inserted in finance workstation</td>
+              <td>Ransomware / credential theft via HID payload</td>
+              <td>USB port disablement; endpoint DLP; user awareness.</td>
+            </tr>
+            <tr>
+              <td>Breach dump containing legacy bcrypt hashes</td>
+              <td>Offline password cracking → credential stuffing</td>
+              <td>Dark-web monitoring; forced password reset; block reuse.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="redblue-reminder">
+    <strong>RedOps/BlueOps Note:</strong>
+        Social engineering is not magic, it's systematic intelligence applied to human psychology. Every LinkedIn endorsement, 
+		every job-posting keyword, and every GitHub commit timestamp is a data point. Your adversary is building a dossier. 
+		Your job is to build it first, demonstrate the blast radius, and help the Blue Team burn the bridges before the real 
+		attackers cross them.
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 16: ETHICAL CONSIDERATIONS & ENGAGEMENT SCOPE        -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="ethics">
+      <h2 id="ethics">16. Ethical Considerations &amp; Engagement Scope</h2>
+
+      <ul>
+        <li><strong>Consent is Non-Negotiable:</strong> Physical social engineering (tailgating, impersonation, dumpster diving) requires explicit written consent from the building owner and often individual employee notification. Verbal permission is insufficient.</li>
+        <li><strong>No Harm to Individuals:</strong> SE engagements must not induce undue stress, damage personal reputations, or result in financial harm to individual employees. The target is organisational resilience, not personal humiliation.</li>
+        <li><strong>Data Minimisation:</strong> Collect only the PII necessary to demonstrate risk. Securely purge family-member data, personal emails, and medical information discovered during people-search recon.</li>
+        <li><strong>Transparency with Clients:</strong> If you discover leaked credentials on the dark web, report them immediately. Do not use them to "test" access unless explicitly scoped and legal-reviewed.</li>
+        <li><strong>Avoid Entrapment:</strong> Do not create artificial emergencies (e.g., fake firing notices) that cause severe emotional distress. Realistic pretexts should remain professional and business-focused.</li>
+        <li><strong>Responsible Disclosure:</strong> GitHub leaks, exposed .env files, and misconfigured S3 buckets discovered via Photon/Recon-ng must be reported through the client's vulnerability-disclosure process, not exploited for lateral movement without approval.</li>
+      </ul>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 17: SUPPORTING RESOURCES & RECOMMENDED READING       -->
+    <!-- ============================================================ -->
+
+    <section class="resources" aria-label="Supporting resources">
+      <h2>17. Supporting Resources &amp; Recommended Reading</h2>
+      <ul>
+        <li>
+          <a href="https://www.social-engineer.org" target="_blank" rel="noopener">Social-Engineer.org</a>
+          <small class="resource-path">Path: Foundational concepts, attack types, and defensive guidance for social engineering.</small>
+        </li>
+        <li>
+          <a href="https://owasp.org/www-project-web-security-testing-guide/latest/" target="_blank" rel="noopener">OWASP Web Security Testing Guide – Information Gathering</a>
+          <small class="resource-path">Path: OSINT techniques relevant to pretext building.</small>
+        </li>
+        <li>
+          <a href="https://github.com/laramies/theHarvester" target="_blank" rel="noopener">theHarvester (GitHub)</a>
+          <small class="resource-path">Path: Email, name, and virtual host harvesting from public sources.</small>
+        </li>
+        <li>
+          <a href="https://github.com/sherlock-project/sherlock" target="_blank" rel="noopener">Sherlock (GitHub)</a>
+          <small class="resource-path">Path: Username enumeration across social networking sites.</small>
+        </li>
+        <li>
+          <a href="https://github.com/s0md3v/Photon" target="_blank" rel="noopener">Photon (GitHub)</a>
+          <small class="resource-path">Path: Fast web crawler and Wayback Machine integration.</small>
+        </li>
+        <li>
+          <a href="https://github.com/lanmaster53/recon-ng" target="_blank" rel="noopener">Recon-ng (GitHub)</a>
+          <small class="resource-path">Path: Modular OSINT reconnaissance framework.</small>
+        </li>
+        <li>
+          <a href="https://www.torproject.org" target="_blank" rel="noopener">Tor Project</a>
+          <small class="resource-path">Path: Tor Browser and documentation for safe, authorised dark web access.</small>
+        </li>
+        <li>
+          <a href="https://exonerator.torproject.org" target="_blank" rel="noopener">ExoneraTor</a>
+          <small class="resource-path">Path: Verify whether an IP was a Tor exit node at a specific time.</small>
+        </li>
+        <li>
+          <a href="https://www.google.com/alerts" target="_blank" rel="noopener">Google Alerts</a>
+          <small class="resource-path">Path: Setting up monitoring and alerts for brand and breach keywords.</small>
+        </li>
+      </ul>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 18: CHAPTER SUMMARY                                  -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="chapter-summary">
+      <h2 id="chapter-summary">18. Chapter Summary</h2>
+
+      <p>
+        By completing this chapter you should now be able to:
+      </p>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin: 20px 0;">
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Harvest OSINT for social-engineering pretexts.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;">Use theHarvester, Sherlock, and Social Searcher to build employee dossiers.</span></span>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Mine job sites and people-search services.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;">Extract technology stacks, org structures, and personal details from public listings.</span></span>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Perform dark-web and leak monitoring.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;">Use Tor, ExoneraTor, and breach databases to find exposed credentials.</span></span>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Conduct authorised physical reconnaissance.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;">Tailgating, shoulder surfing, dumpster diving, and USB baiting with proper consent.</span></span>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Develop credible pretexts and engagement plans.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;">Craft vishing scripts, clone portals, and time lures to business cycles.</span></span>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Apply OPSEC and legal controls.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;">Isolate sock puppets, respect recording laws, and operate within explicit RoE.</span></span>
+        </div>
+
+      </div>
+
+      <div class="info-remember" style="margin: 15px 0;">
+        <strong>Why This Matters:</strong>
+        <span style="display: block; margin-top: 5px;">
+          Social engineering is not a "soft skill" appendix to technical hacking, it's the primary initial-access vector for most 
+		  breaches reported today. Adversaries who master OSINT-driven pretexting can bypass firewalls, MFA, and endpoint 
+		  detection without writing a single line of exploit code. Defenders must treat employee public profiles, job 
+		  postings, and GitHub commits as sensitive attack-surface data requiring the same protection as network 
+		  configurations.
+        </span>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 19: KEY TAKEAWAYS                                    -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="takeaways">
+      <h2 id="takeaways">19. Key Takeaways</h2>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table">
+          <thead>
+            <tr>
+              <th>Concept</th>
+              <th>Why It Matters</th>
+              <th>Security Impact</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>OSINT Is the Foundation of Social Engineering</strong></td>
+              <td>Every employee profile, job posting, and code commit is a data point for pretext building.</td>
+              <td>Adversaries build complete dossiers without touching the target's network.</td>
+            </tr>
+            <tr>
+              <td><strong>Job Postings Leak Security Stacks</strong></td>
+              <td>Requirements lists disclose MFA vendors, EDR platforms, and cloud providers.</td>
+              <td>Enables version-specific exploit research and social-engineering pretexts.</td>
+            </tr>
+            <tr>
+              <td><strong>Vishing Exploits Help-Desk Trust</strong></td>
+              <td>Callers with internal terminology can coerce MFA resets and password changes.</td>
+              <td>Out-of-band verification and callback protocols are critical controls.</td>
+            </tr>
+            <tr>
+              <td><strong>Public Repositories Are Attack Surfaces</strong></td>
+              <td>API keys, .env files, and internal URLs are routinely committed accidentally.</td>
+              <td>Secret scanning and automated detection are non-negotiable.</td>
+            </tr>
+            <tr>
+              <td><strong>Dark-Web Exposure Is a Time Bomb</strong></td>
+              <td>Breached credentials are sold and weaponised within hours of publication.</td>
+              <td>Proactive monitoring and forced password rotation are essential.</td>
+            </tr>
+            <tr>
+              <td><strong>Physical SE Is Not Obsolete</strong></td>
+              <td>Tailgating, baiting, and dumpster diving still yield high-value intelligence.</td>
+              <td>Mantraps, shredding policies, and employee challenge protocols are effective.</td>
+            </tr>
+            <tr>
+              <td><strong>MFA Fatigue Is a Real Exploit</strong></td>
+              <td>Excessive push notifications lead to accidental approvals or help-desk bypass.</td>
+              <td>FIDO2/WebAuthn and number-matching MFA reduce fatigue-based compromise.</td>
+            </tr>
+            <tr>
+              <td><strong>Defenders Must Build the Dossier First</strong></td>
+              <td>Running your own OSINT reveals what adversaries already know about you.</td>
+              <td>Proactive exposure assessments turn intelligence into defensive action.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+	
+	<!-- ============================================================ -->
+<!-- SECTION: KNOWLEDGE CHECK                                     -->
+<!-- ============================================================ -->
+
+<section aria-labelledby="knowledge-check">
+  <h2 id="knowledge-check">Knowledge Check</h2>
+
+  <div class="card">
+    <h3>Reflection Questions</h3>
+    <ol>
+      <li>
+        <strong>A job posting for "Senior Okta Administrator" lists experience with Duo MFA, CrowdStrike Falcon, and SentinelOne. How can an adversary weaponise each of these disclosures in a social-engineering campaign?</strong>
+        <br>
+        <span style="color: #aaa; font-size: 0.9rem;">
+          Consider MFA-fatigue attacks, vendor-themed phishing lures, and version-specific exploit research.
+        </span>
+      </li>
+      <li>
+        <strong>You discover an internal hostname (<code>EXCH-01.corp.local</code>) in a publicly archived email header. What attack vectors does this enable, and what defensive controls should the organisation implement?</strong>
+        <br>
+        <span style="color: #aaa; font-size: 0.9rem;">
+          Think about internal network mapping, NTLM relay attacks, and mail gateway header sanitisation.
+        </span>
+      </li>
+      <li>
+        <strong>Social Searcher reveals multiple employee complaints about "Duo push fatigue" on Reddit. How would you design a vishing pretext to exploit this frustration, and what mitigations would you recommend?</strong>
+        <br>
+        <span style="color: #aaa; font-size: 0.9rem;">
+          Consider MFA-bombing, help-desk impersonation, and the deployment of number-matching MFA.
+        </span>
+      </li>
+      <li>
+        <strong>Why is creating a fake LinkedIn recruiter profile considered legally riskier than passive theHarvester scraping? What alternative approach would you use for OSINT gathering?</strong>
+        <br>
+        <span style="color: #aaa; font-size: 0.9rem;">
+          Think about platform Terms of Service, CFAA exposure, and the use of public data without authentication.
+        </span>
+      </li>
+      <li>
+        <strong>A GitHub search reveals an <code>.env</code> file containing <code>AWS_ACCESS_KEY_ID</code> and <code>AWS_SECRET_ACCESS_KEY</code> in a public repository. What is your immediate reporting obligation, and what follow-up actions should the client take?</strong>
+        <br>
+        <span style="color: #aaa; font-size: 0.9rem;">
+          Consider responsible disclosure, AWS key rotation, and the implementation of pre-commit secret scanning.
+        </span>
+      </li>
+    </ol>
+  </div>
+
+  <div class="card">
+    <h3>Scenario-Based Question</h3>
+    <p>
+      <strong>Scenario:</strong> You are conducting a Red Team engagement against <em>Fabricated Industries</em>, a mid-sized technology and manufacturing conglomerate. Your Rules of Engagement permit passive OSINT collection, digital social engineering (phishing, vishing), and controlled physical reconnaissance (tailgating observation, dumpster diving) with explicit client authorisation and legal review. Initial open-source research has identified the primary domain <code>fabricatedtech.com</code>, a recently acquired subsidiary <code>legacy-sys.com</code>, and several key executives active on LinkedIn.
+    </p>
+    <p><strong>Task:</strong> Design a comprehensive social-engineering reconnaissance workflow to harvest employee intelligence, identify high-value targets, develop credible pretexts, and execute a multi-channel engagement that demonstrates the human attack surface to the Blue Team.</p>
+  </div>
+
+  <div class="info-remember">
+    <strong>Suggested Approach:</strong>
+    <ul>
+      <li><strong>Phase 1: Digital OSINT Harvesting</strong>: Run theHarvester for emails, names, and virtual hosts. Use Sherlock to map username presence across platforms. Mine job boards (LinkedIn, Dice, Glassdoor) for technology stacks and organisational structure. Search Social Searcher for technology complaints and project mentions.</li>
+      <li><strong>Phase 2: Profile Enrichment &amp; Segmentation</strong>: Cross-reference emails with breach databases (Have I Been Pwned, DeHashed). Map LinkedIn connections to identify reporting lines. Search GitHub for leaked credentials, internal URLs, and config files. Archive old site versions via Photon / Wayback Machine.</li>
+      <li><strong>Phase 3: Dark-Web &amp; Reputation Monitoring</strong>: Configure Google Alerts for brand + breach keywords. Review Mention / Brand24 for executive-targeting indicators. Search dark-web markets for target domain dumps (authorised analysts only with strict legal oversight).</li>
+      <li><strong>Phase 4: Pretext Development</strong>: Build 2–3 plausible personas with supporting artefacts (cloned badges, branded apparel, forged documents). Register lookalike domains if authorised for phishing simulation. Draft vishing scripts using internal terminology from job posts. Prepare MFA-bombing windows based on help-desk hours.</li>
+      <li><strong>Phase 5: Physical Reconnaissance (Authorised Only)</strong>: Conduct site surveys: badge types, mantrap presence, guard rotations. Attempt controlled tailgating / badge-cloning observation. Perform authorised dumpster dive with PII-handling protocol. Document lobby WiFi SSIDs and guest-network captive portals.</li>
+      <li><strong>Phase 6: Engagement &amp; Execution</strong>: Launch spear-phishing from isolated infrastructure. Execute vishing calls with safety observer on standby. Drop USB tokens (lab-only, no live malware) and record insertion rates. Capture screenshots of cloned-portal credential submissions.</li>
+      <li><strong>Phase 7: Validation &amp; Reporting</strong>: Verify harvested credentials (if in scope) via test login to non-prod portal. Map compromised accounts to internal data-access levels. Redact all PII in public-facing report annexes. Provide defensive mitigations: user training, MFA hardening, physical controls.</li>
+    </ul>
+  </div>
+
+  <div class="redblue-reminder">
+    <strong>RedOps/BlueOps:</strong>
+    <span>
+      <span class="red-text">Red Team</span> uses OSINT-driven pretexting to bypass firewalls, MFA, and endpoint detection without 
+	  writing exploit code.
+      <span class="blue-text">Blue Team</span> must:
+      <ul>
+        <li>Deploy phishing-resistant MFA (FIDO2/WebAuthn) to prevent MFA-fatigue attacks</li>
+        <li>Implement help-desk verification protocols (out-of-band callback, physical token verification)</li>
+        <li>Run regular authorised phishing/vishing exercises with just-in-time training</li>
+        <li>Enforce social-media hygiene policies (no internal hostnames, project codenames, or badge photos)</li>
+        <li>Implement secret scanning in CI/CD (TruffleHog, GitHub Advanced Security)</li>
+      </ul>
+    </span>
+  </div>
+
+  <div class="reminder-lightblue">
+    <strong>Gateway Criteria:</strong><br>
+    <span>Move on to the next section when you can confidently answer all five reflection questions and articulate a complete 
+	social-engineering reconnaissance workflow using at least three distinct OSINT techniques.<br>If any concept is unclear, 
+	revisit the relevant sections above before moving on.</span>
+  </div>
+
+  <div class="info-remember">
+    <em>RedOps Reminder:</em> Social engineering is not magic, it's systematic intelligence applied to human psychology. 
+	Every LinkedIn endorsement, every job-posting keyword, and every GitHub commit timestamp is a data point. 
+	Your adversary is building a dossier. Your job is to build it first, demonstrate the blast radius, and 
+	help the Blue Team burn the bridges before the real attackers cross them.
+  </div>
+</section>
+
+    <!-- ============================================================ -->
+    <!-- FLOATING NAVIGATION                                           -->
+    <!-- ============================================================ -->
+
+    <div class="lesson-nav-container">
+      <a href="https://iscsecurity.org/content/1-ethical-hacking/3-footprinting-and-recon/08-network-and-email-footprinting" class="nav-link-btn">👈 Back</a>
+      <a href="https://iscsecurity.org/content/1-ethical-hacking/3-footprinting-and-recon/10-using-tools-and-ai" class="nav-link-btn">Next 👉</a>
+    </div>
+
+  </article>
+</main>
+</body>
+</html>

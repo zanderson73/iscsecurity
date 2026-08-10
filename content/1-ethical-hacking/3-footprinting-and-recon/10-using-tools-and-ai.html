@@ -1,0 +1,1409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Automate Footprinting Tasks using Advanced Tools and AI | ISCSECURITY Master Class Series</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="/css/styles.css?v=2026_PRODUCTION_FINAL" />
+  
+  <!-- MemberSpace -->
+  <script>
+    window.MemberSpace = window.MemberSpace || { subdomain: "iscsecurity" };
+    (function(d){
+      var s = d.createElement("script");
+      s.src = "https://cdn.memberspace.com/scripts/widgets.js";
+      s.async = true;
+      d.head.appendChild(s);
+    })(document);
+  </script>
+  
+</head>
+
+<body class="page-lesson">
+
+<div class="site-topbar" role="note" aria-label="Legal notice">
+  <small class="topbar-note">
+    © 2026 ISCSECURITY · Authorization-first training. All testing must be lawful, scoped, and approved in writing.
+  </small>
+	<nav class="topbar-links" aria-label="Topbar links">
+      <a href="https://iscsecurity.org/index">Home</a>
+      <a href="https://iscsecurity.org/content/index">Content</a>
+	  <a href="https://iscsecurity.org/content/1-ethical-hacking/3-footprinting-and-recon/index">Footprinting &amp; Recon</a>
+      <a href="https://iscsecurity.org/contact">Contact</a>
+    </nav>
+</div>
+
+  <main class="page modules-page no-shift" id="ethical-hacking-training-content" data-ms-content="members-only">
+  <article class="lesson-content overlay" tabindex="0" aria-label="Lesson content: Automate Footprinting Tasks using Advanced Tools and AI">
+
+    <p class="breadcrumb">
+      <a href="https://iscsecurity.org/index">Home</a> →
+        <a href="https://iscsecurity.org/content/index">Content</a> →
+        <a href="https://iscsecurity.org/content/1-ethical-hacking/3-footprinting-and-recon/index">Footprinting &amp; Recon</a> →
+      <span aria-current="page">Page 10</span>
+    </p>
+
+    <h1>Automate Footprinting Tasks using Advanced Tools and AI</h1>
+	
+	<div class="reminder-auth">
+  <strong>🚨 AUTHORIZED USE ONLY:</strong>
+  <span>
+        All content in this document is for educational and defensive training purposes only. 
+        The adversarial techniques described are derived from real-world tradecraft but 
+        are documented exclusively for <strong>defensive analysis, detection engineering, 
+        and authorized security testing</strong>. Unauthorized deployment of any technique 
+        described may constitute a criminal offense under applicable national and 
+        international cybercrime laws. Always obtain <strong>explicit written authorization</strong> 
+        from the system owner or authorized legal entity before testing, executing, or 
+        simulating any of the techniques outlined in this document.
+    </span>
+	</div>
+
+    <div class="reminder-comp">
+  <strong>🌍 INTERNATIONAL COMPLIANCE NOTICE:</strong>
+  <span>
+    Cybercrime laws vary significantly by jurisdiction. It is your sole responsibility 
+    to understand and comply with the laws applicable to your location, the location 
+    of any target systems, and your organization's policies. When in doubt, 
+    <strong>consult a qualified legal professional</strong> before testing, executing, 
+    or simulating any technique described in this document.
+  </span>
+</div>
+
+<!-- ============================================================ -->
+    <!-- LAB ENVIRONMENT DISCLAIMER & SETUP GUIDANCE                  -->
+    <!-- ============================================================ -->
+
+    <div class="reminder-lab">
+      <strong>🧪 LAB ENVIRONMENT NOTICE:</strong>
+      <span>
+        All practical examples, command-line executions, and scenario-based exercises in this document are demonstrated within the <strong>ISCSEC internal training laboratory</strong>. 
+        This is a controlled, isolated environment that exists solely for educational and defensive training purposes.
+      </span>
+      <br><br>
+      <span>
+        <strong>You do not have access to the ISCSEC lab.</strong> As a learner, you are expected to build and maintain your own isolated lab environment, 
+        replicating the documented topology, IP schemes, and hostname conventions. The ISCSEC lab serves as a <strong>canonical reference topology</strong> 
+        for this training, not a shared or remotely accessible resource.
+      </span>
+      <br><br>
+      <span>
+        <strong>Lab requirements:</strong>
+        <ul>
+          <li>Isolated virtualised environment (e.g., VMware Workstation, VirtualBox, or Hyper-V)</li>
+          <li>Attacker operator platform (e.g., Kali Linux or equivalent)</li>
+          <li>Target Windows host (e.g., CLIENT01 at 172.16.5.60)</li>
+          <li>Internal network with domain controller (DC01 at 172.16.5.25), SQL server (SQL01 at 172.16.5.20), web server (WEB01 at 172.16.5.30), and application server (APP01 at 172.16.5.40)</li>
+          <li>All testing must be conducted within your own isolated network with <strong>explicit written authorization</strong> for any systems involved</li>
+        </ul>
+      </span>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 1: OVERVIEW & THREAT LANDSCAPE                       -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="overview-threat">
+      <h2 id="overview-threat">1. Overview &amp; Threat Landscape</h2>
+
+      <p>
+        Manual footprinting does not scale. A mature adversary facing a thousand-person organisation cannot afford to click through 
+		LinkedIn profiles one by one or run <code>dig</code> by hand. Automation transforms reconnaissance from a cottage craft 
+		into an industrial pipeline: seed a domain, enrich it across passive and active sources, correlate entities in a graph, 
+		and export a targeting package ready for phishing, vulnerability scanning, or physical impersonation.
+      </p>
+
+      <p>
+        Modern threat actors (ransomware affiliates, APT groups, and initial-access brokers) operate recon-as-a-service. 
+	  </p>
+	  
+		<p>They use:
+      </p>
+
+      <ul>
+        <li><strong>Automated subdomain enumeration</strong> to discover forgotten admin panels, dev APIs, and staging environments.</li>
+        <li><strong>Metadata extractors</strong> to pull usernames, internal hostnames, and printer paths from every PDF and 
+		Word document indexed by Google.</li>
+        <li><strong>Graph-link tools</strong> to map the shortest path from a target domain to a personal Gmail or GitHub account.</li>
+        <li><strong>AI-driven correlation engines</strong> to summarise terabytes of news, commits, and leaked dumps into 
+		human-readable targeting briefs.</li>
+      </ul>
+
+      <p>
+        This module treats automation not as a convenience but as a <em>force multiplier</em>. Every command you script today is 
+		tomorrow's adversary playbook. <br>Defenders must understand the speed and scale of automated recon to build detection and 
+		deception strategies that keep pace.
+      </p>
+
+      <div class="info-remember">
+        <strong>BlueOps Note:</strong><br>
+        If your attack surface can be mapped in twenty minutes by a Python script and a free API key, so can your competitor's and 
+		your adversary's. The question is not whether automation works, but whether your monitoring notices when it happens.
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 2: ADVERSARIAL METHODOLOGY — AUTOMATED RECON PIPELINE -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="adversarial-methodology">
+      <h2 id="adversarial-methodology">2. Adversarial Methodology: Automated Recon Pipeline</h2>
+
+      <ol>
+        <li><strong>Phase 1: Seed &amp; Scope Ingestion</strong>
+          <ul>
+            <li>Ingest a root domain, executive name list, or ASN.</li>
+            <li>Validate scope boundaries (subdomain depth, IP range limits, out-of-scope TLDs).</li>
+          </ul>
+        </li>
+        <li><strong>Phase 2: Passive Enrichment at Scale</strong>
+          <ul>
+            <li>Harvest subdomains, certificates, and DNS records without touching the target directly.</li>
+            <li>Query archive services (Wayback, Common Crawl) for historic endpoints and leaked documents.</li>
+            <li>Scrape people-data from LinkedIn, job boards, and conference speaker lists.</li>
+          </ul>
+        </li>
+        <li><strong>Phase 3: Metadata &amp; Document Extraction</strong>
+          <ul>
+            <li>Download public documents (PDFs, DOCs, PPTs) and extract EXIF, embedded paths, author names, and software versions.</li>
+            <li>Parse GitHub repositories for secrets, internal URLs, and dependency trees.</li>
+          </ul>
+        </li>
+        <li><strong>Phase 4: Correlation &amp; Graph Analysis</strong>
+          <ul>
+            <li>Load entities (domains, emails, IPs, usernames) into link-analysis platforms.</li>
+            <li>Identify weak links: personal emails reused as admin contacts, overlapping name servers, shared GitHub contributors.</li>
+          </ul>
+        </li>
+        <li><strong>Phase 5: AI-Assisted Summarisation &amp; Target Prioritisation</strong>
+          <ul>
+            <li>Use NLP to classify documents, summarise news sentiment, and flag executive mentions.</li>
+            <li>Generate Google dorks and search queries automatically based on discovered technology stack.</li>
+          </ul>
+        </li>
+        <li><strong>Phase 6: Weaponisation Prep</strong>
+          <ul>
+            <li>Export target packages (email lists, technology stacks, credential-spraying dictionaries) to phishing frameworks or 
+			Cobalt Strike.</li>
+            <li>Schedule recurring monitoring for new subdomains, job postings, or leaked credentials.</li>
+          </ul>
+        </li>
+      </ol>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 3: TTP MAPPING (MITRE ATT&CK®)                      -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="ttp-mapping">
+      <h2 id="ttp-mapping">3. TTP Mapping (MITRE ATT&CK<sup>®</sup>)</h2>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table">
+          <thead>
+            <tr>
+              <th>Technique ID</th>
+              <th>Name</th>
+              <th>Adversarial Use</th>
+              <th>Defensive Detection / Mitigation</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>T1593.002</code></td>
+              <td>Search Open Websites/Domains: Search Engines</td>
+              <td>Automated Google dorking via DorkGPT to find exposed documents, admin panels, and directory listings.</td>
+              <td>Search-result monitoring; robots.txt / meta-tag controls; remove sensitive indexed content.</td>
+            </tr>
+            <tr>
+              <td><code>T1590.001</code></td>
+              <td>Gather Victim Network Info: Domain Properties</td>
+              <td>Bulk subdomain enumeration (subfinder) to map attack surface and identify shadow IT.</td>
+              <td>Continuous subdomain monitoring; DNSSEC; wildcard DNS with honeypot sinks.</td>
+            </tr>
+            <tr>
+              <td><code>T1596.005</code></td>
+              <td>Search Open Technical Databases: Malware Repositories</td>
+              <td>Querying leaked credential databases (DarkGPT) for employee emails and password hashes.</td>
+              <td>Dark-web monitoring services; forced password resets on leaked account detection.</td>
+            </tr>
+            <tr>
+              <td><code>T1213.001</code></td>
+              <td>Data from Information Repositories: Schematic/Design Files</td>
+              <td>Harvesting public PDFs and Office docs (FOCA) to extract internal hostnames and printer paths.</td>
+              <td>Document sanitisation before publication; metadata-scrubbing gateways; DLP on outbound docs.</td>
+            </tr>
+            <tr>
+              <td><code>T1589.002</code></td>
+              <td>Gather Victim Identity Info: Email Addresses</td>
+              <td>Automated email harvesting (theHarvester) correlated with breach dumps for credential stuffing.</td>
+              <td>DMARC p=reject; canary email accounts; rate-limiting on directory-enumeration endpoints.</td>
+            </tr>
+            <tr>
+              <td><code>T1594.001</code></td>
+              <td>Search Victim-Owned Websites: Client Applications</td>
+              <td>CMS fingerprinting (Recon-Dog / BillCipher) to identify vulnerable WordPress or Drupal instances.</td>
+              <td>Remove version banners; Web Application Firewall (WAF) rules; vulnerability scanning.</td>
+            </tr>
+            <tr>
+              <td><code>T1659</code></td>
+              <td>Content Injection (AI-Generated)</td>
+              <td>Using AI to generate convincing fake personas and pretexts at scale for phishing or vishing.</td>
+              <td>User awareness training; deepfake detection; verification callbacks for sensitive requests.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 4: TRADITIONAL & HYBRID FOOTPRINTING TOOLS           -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="traditional-tools">
+      <h2 id="traditional-tools">4. Traditional &amp; Hybrid Footprinting Tools</h2>
+
+      <h3>4.1 Maltego: Graph-Based Relationship Mapping</h3>
+
+      <p>
+        Maltego maps relationships between people, organisations, domains, and infrastructure. Use pre-defined entities to expand a 
+		target domain into linked email addresses, phone numbers, domains, and footprinting artefacts. Capture graph exports for 
+		reporting.
+      </p>
+
+      <pre><code class="expected-output"># Maltego Classic / XL workflow (GUI):
+1. New Graph -> Entity: Domain [iscsecurity.org]
+2. Right-click -> Run Transform: "DNS from Domain" (using Paterva or local transforms)
+3. Results populate:
+   - NS: ns1.cloudprovider.com, ns2.cloudprovider.com
+   - MX: mail.protection.outlook.com (indicates Microsoft 365)
+   - A: 203.0.113.45
+4. Run Transform: "Emails from Domain [theHarvester]"
+   - alice@iscsecurity.org -> Entity: Email
+   - bob@iscsecurity.org -> Entity: Email
+5. Pivot Email -> "To Person [Pipl]" or "Social Network Links [Sherlock]"
+   - alice@iscsecurity.org -> LinkedIn: Alice Johnson
+   - bob@iscsecurity.org -> GitHub: bobcodes
+
+6. Export graph as PDF/SVG: maltego_iscsecurity_graph_2025-11-11.pdf
+
+Graph reveals: Two employees with personal GitHub presence;
+GitHub commit history exposes dependency on legacy-logging library.
+</code></pre>
+
+      <h3>4.2 FOCA: Document Metadata &amp; Hidden Information Extraction</h3>
+
+      <p>
+        FOCA (Fingerprinting Organizations with Collected Archives) extracts metadata and hidden information from documents 
+		(Office, OpenOffice, PDF). <br>It can enumerate hostnames, DNS data, and embedded artefacts discovered during web crawling.
+      </p>
+
+<pre><code class="language-bash"># FOCA GUI / CLI workflow:
+$ mono FOCA.exe --domain iscsecurity.org --output foca_report/
+</code></pre>
+
+      <pre><code class="expected-output">[+] Scanning for documents via Google/Bing Dorks...
+[+] Documents found: 14
+    - https://iscsecurity.org/public/annual-report-2024.pdf
+    - https://iscsecurity.org/internal (leaked) org-chart.docx  [404 but in archive]
+
+[+] Metadata Extraction Summary:
+File: annual-report-2024.pdf
+  Author:        jdoe
+  Creator Tool:  Microsoft Word 2019 (Windows 10)
+  Producer:      Acrobat PDFMaker 19
+  Printer Path:  \\FILESERVER\HR-Printer
+  Internal IP:   192.168.1.10 (embedded link to file://192.168.1.10/share)
+  Comments:      "Draft for Carol Davis review"
+
+File: org-chart.docx (Wayback archive)
+  LastSavedBy:   admin
+  Company:       ISC Security
+  Template:      C:\Users\admin\AppData\Roaming\Microsoft\Templates\ISC_Template.dotx
+  Revision:      14
+  TotalTime:     420 minutes
+
+[!] Hostnames discovered: FILESERVER, MAILGATE-01, EXCH-01
+[!] Usernames discovered: jdoe, admin, cdavis
+[!] Internal IP range hint: 192.168.1.0/24
+</code></pre>
+
+      <div class="reminder">
+    <strong>Adversarial Analysis:</strong><br>
+	<strong>FOCA</strong> reveals that <code>jdoe</code> creates public PDFs from a Windows 10 endpoint 
+	  mapped to <code>\\FILESERVER</code>. The internal IP <code>192.168.1.10</code> and printer path suggest a flat network. 
+	  The recovered template path confirms internal username <code>admin</code> and standardised document templates; useful 
+	  for forging internal documents.
+	</div>
+
+      <h3>4.3 subfinder: Passive Subdomain Enumeration</h3>
+
+      <p>
+        Passive subdomain enumeration using multiple online sources. Supports JSON and file outputs. It collects subdomains 
+		passively using multiple online OSINT sources, ideal for building a clean list of candidate hosts without triggering 
+		active scans.
+      </p>
+
+<pre><code class="language-bash"># Example: enumerate subdomains silently and save results to domains.txt
+$ subfinder -d iscsecurity.org -silent -o domains.txt
+</code></pre>
+
+<pre><code class="expected-output">$ cat domains.txt
+sub1.iscsecurity.org
+sub2.iscsecurity.org
+api.iscsecurity.org
+www.iscsecurity.org
+dev.iscsecurity.org
+staging.iscsecurity.org
+mail.iscsecurity.org
+vpn.iscsecurity.org
+ftp.iscsecurity.org
+old.iscsecurity.org
+</code></pre>
+
+      <div class="reminder">
+    <strong>Adversarial Analysis:</strong><br>
+	<code>staging</code>, <code>dev</code>, and <code>old</code> subdomains are high-value 
+	  targets, often less hardened than production. <code>vpn</code> and <code>api</code> suggest direct ingress points. 
+	  <br>Feed these into <code>httpx</code> or <code>nmap</code> for service discovery.
+	  </div>
+
+      <h3>4.4 Recon-Dog &amp; BillCipher: Multi-Purpose Recon Wrappers</h3>
+
+      <p>
+        Recon-Dog and BillCipher are multi-purpose reconnaissance wrappers that call public APIs, perform DNS/Whois lookups, detect 
+		CMS fingerprints, and aggregate results into a single output. They are useful for rapid initial enumeration in controlled 
+		lab exercises.
+      </p>
+
+<pre><code class="language-bash"># Recon-Dog (illustrative CLI)
+$ python3 recon-dog.py -d iscsecurity.org --all
+</code></pre>
+
+<pre><code class="expected-output">[*] Target: iscsecurity.org
+[+] DNS Records:
+    A: 203.0.113.45
+    MX: mail.protection.outlook.com
+    TXT: v=spf1 include:spf.protection.outlook.com ~all
+[+] WHOIS:
+    Registrar: Example Registrar, Inc.
+    Created: 2015-03-12
+    Expires: 2026-03-12
+[+] CMS Detection (api.iscsecurity.org):
+    Framework: Django 3.2 (detected via admin interface /static/admin/)
+[+] Technologies:
+    Server: nginx/1.18.0
+    X-Powered-By: Express (staging.iscsecurity.org)
+    X-Generator: Drupal 9 (old.iscsecurity.org)
+[+] Summary saved to: recon-dog_iscsecurity_2025-11-11.txt
+</code></pre>
+
+      <div class="reminder">
+      <strong>Analysis:</strong><br> 
+	  Recon-Dog confirms an outdated Django admin panel (<code>/static/admin/</code>), an exposed 
+	  Drupal 9 instance (<code>old</code>), and an Express.js staging server. <br>These are prime candidates for CVE-specific 
+	  exploit validation.</div>
+
+      <div class="reminder-lightblue">
+        <strong>Note:</strong><br>
+        Keep tool output sanitised in reports (no real hostnames or secrets) unless authorised. Always verify source integrity of 
+		downloaded wrappers to avoid supply-chain attacks.
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 5: OSINT FRAMEWORK & AGGREGATORS                     -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="osint-framework">
+      <h2 id="osint-framework">5. OSINT Framework &amp; Aggregators</h2>
+
+      <p>
+  The <strong>OSINT Framework - (click &rarr;</strong> <a href="https://osintframework.com" target="_blank" rel="noopener">osintframework.com</a>) 
+  provides a categorised index of tools and services arranged as a tree. Use it to discover targeted utilities (local vs. remote, 
+  Google dorks, services that require registration) and to build reproducible workflows.
+</p>
+
+      <pre><code class="expected-output"># OSINT Framework navigation (web UI):
+Root
+├── Username
+│   ├── Sherlock
+│   ├── Namechk
+│   └── WhatsMyName
+├── Email Address
+│   ├── theHarvester
+│   ├── Hunter.io
+│   ├── Have I Been Pwned
+│   └── Holehe
+├── Domain / IP
+│   ├── subfinder
+│   ├── Amass
+│   ├── Shodan
+│   └── Censys
+├── Public Records
+│   ├── Spokeo
+│   ├── Whitepages
+│   └── ...
+└── Documents / Files
+    ├── FOCA
+    ├── ExifTool
+    └── Google Dorks
+
+Workflow generated:
+1. Domain -> subfinder (passive)
+2. Subdomains -> httpx (alive probe)
+3. Live hosts -> CMS detection (BillCipher)
+4. Documents -> FOCA (metadata)
+5. Emails -> Holehe (platform correlation)
+</code></pre>
+
+      
+      <div class="redblue-reminder">
+	  <strong>RedOps/BlueOps:</strong>
+	  OSINT Framework acts as a decision tree for attackers to select the cheapest, highest-yield tool for each data type. 
+	  Blue teams should mirror this process to audit their own exposure against every branch.
+	  </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 6: AI-POWERED OSINT TOOLS                            -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="ai-powered-osint">
+      <h2 id="ai-powered-osint">6. AI-Powered OSINT Tools</h2>
+
+      <p>
+        AI augments OSINT by automating web scraping, pattern recognition, summarisation, sentiment analysis, and image analysis 
+		(including metadata extraction and reverse image correlation). When used correctly, AI reduces time spent on repetitive 
+		extraction and increases the investigator's ability to find meaningful relationships across large datasets.
+      </p>
+
+      <h3>6.1 Taranis AI: NLP-Enhanced News Ingestion</h3>
+
+<pre><code class="expected-output"># Taranis AI dashboard (web UI):
+Query: "iscsecurity.org" OR "ISC Security" + (breach OR layoff OR acquisition)
+Results:
+- Article: "ISC Security Acquires CloudFort Solutions" (2025-10-15)
+  Sentiment: Neutral / Transactional
+  Extracted Entities:
+    - Person: CEO Alice Johnson
+    - Organisation: CloudFort Solutions
+    - Technology: CloudFort Okta integration
+    - Timeline: "Integration expected Q1 2026"
+- Article: "Tech Sector Layoffs Impact Northern Virginia" (2025-09-20)
+  Sentiment: Negative
+  Extracted Entities:
+    - Mention: ISC Security HQ, Ashburn VA
+    - Context: "200 positions affected"
+
+Export: taranis_iscsecurity_briefing_2025-11-11.pdf
+</code></pre>
+
+<div class="reminder">
+  <strong>Analysis:</strong><br>
+  The acquisition signals potential identity-system merger pain points (Okta integration). Layoff sentiment creates 
+  disgruntled-insider opportunities. Taranis automates what would take hours of manual news reading.
+</div>
+
+      <h3>6.2 OSS Insight: GitHub Repository Analytics</h3>
+
+      <pre><code class="expected-output"># OSS Insight query (GPT-powered):
+"Show me commit frequency and most active maintainers for repo iscsecurity/legacy-api"
+
+Result:
+- Total commits: 1,247
+- Last commit: 45 days ago (stale)
+- Top contributor: bobcodes (Bob Smith) - 38% of commits
+- Risk indicator: Dependency on log4j 2.14.1 (known vulnerable)
+- Inactive maintainer: aliceDev (Alice Johnson) - no commits in 6 months
+</code></pre>
+
+      <div class="reminder">
+      <strong>Adversarial Use:</strong><br> 
+	  Identifies <code>bobcodes</code> as the primary developer (target for LinkedIn impersonation). 
+	  Stale repo with a known Log4j version provides an easy exploit path if the service is still live.
+	  </div>
+
+      <h3>6.3 DorkGPT/DorkGenius: Automated Google Dork Generation</h3>
+
+      <pre><code class="expected-output"># AI Prompt:
+"Generate Google dorks to find exposed PDFs, XLS files, and config files for domain iscsecurity.org"
+
+DorkGPT Output:
+  site:iscsecurity.org filetype:pdf
+  site:iscsecurity.org filetype:xls OR filetype:xlsx
+  site:iscsecurity.org inurl:config.php
+  site:iscsecurity.org intitle:"index of" "config"
+  site:iscsecurity.org ext:env "DB_PASSWORD"
+</code></pre>
+
+      <div class="reminder-opsec">
+  <strong>OPSEC Note:</strong><br>
+  Automated dorking at scale triggers CAPTCHA and IP reputation blocks. Rotate residential 
+	  proxies and space queries to mimic human behaviour.
+  </div>
+
+      <h3>6.4 ChatPDF: Conversational Document Parsing</h3>
+
+<pre><code class="expected-output"># Upload: iscsecurity.org/public/annual-report-2024.pdf
+Query: "List all internal hostnames, IP addresses, and employee names mentioned."
+ChatPDF Response:
+- Hostnames: FILESERVER, MAILGATE-01, EXCH-01
+- IPs: 192.168.1.10, 10.0.2.55
+- Employees: Carol Davis (IT), Bob Smith (DevOps), Alice Johnson (CEO)
+- Vendors: CloudFort Solutions, ACME HVAC
+</code></pre>
+
+      <h3>6.5 Bardeen.ai: Automation Workflows</h3>
+
+      <p>
+        Bardeen.ai builds browser-automation playbooks (scraping LinkedIn, copying to Sheets, triggering alerts). Adversaries can 
+		chain it to monitor executive job-title changes or new employee announcements in real time.
+      </p>
+
+      <h3>6.6 AnyPicker: Visual Web Scraping</h3>
+
+      <p>
+        AnyPicker provides point-and-click extraction for anti-bot-protected sites. Useful for harvesting pricing, vendor lists, or 
+		employee directories that block traditional curl requests.
+      </p>
+
+      <h3>6.7 DarkGPT: Research-Focused Leaked-Data Querying</h3>
+
+      <p>
+        DarkGPT provides a conversational interface to compromised databases and dark-web sources. It enables rapid pivoting from 
+		an email address to associated passwords, physical addresses, and related accounts without manual dump parsing.
+      </p>
+
+<pre><code class="expected-output"># DarkGPT prompt (simulated):
+"Find all credentials and related accounts for bob.smith@iscsecurity.org"
+
+DarkGPT:
+- bob.smith@iscsecurity.org
+  Leaked: 2024-06 (Struts2 breach)
+  Hash: bcrypt $2a$10$...
+  Password hint: "smitty2023!"
+  Related accounts:
+    - bsmitty@personalmail.com (same password hash)
+    - bob.smith (LinkedIn)
+    - bobcodes (GitHub)
+</code></pre>
+
+      <div class="reminder-opsec">
+        <strong>OPSEC Warning:</strong><br>
+        DarkGPT and similar tools interface with illicit data markets. Possession of stolen PII may violate data-protection laws. 
+		Use only under explicit legal authority and secure all outputs with encryption.
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 7: CREATE & RUN A CUSTOM FOOTPRINTING SCRIPT         -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="custom-scripting">
+      <h2 id="custom-scripting">7. Create &amp; Run a Custom Footprinting Script</h2>
+
+      <p>
+  Orchestration scripts tie together disparate tools into a single reproducible pipeline. The example below performs basic automated 
+  footprinting on a safe demo domain (<strong>iscsecurity.org</strong>), a domain owned and controlled for training purposes. 
+  All queries are directed at infrastructure that has been explicitly authorised for demonstration use.
+</p>
+
+      <h3>7.1 Example Python Script</h3>
+
+      <pre><code class="language-python">#!/usr/bin/env python3
+import subprocess
+
+def dns_lookup(domain):
+    return subprocess.getoutput(f"dig {domain} ANY +noall +answer")
+
+def whois_lookup(domain):
+    return subprocess.getoutput(f"whois {domain}")
+
+def email_enumeration(domain):
+    # Save XML output and limit results to 100 (adjust as needed)
+    return subprocess.getoutput(f"theHarvester -d {domain} -b all -l 100 -f isc_harvest.xml")
+
+def run_footprinting(domain):
+    print("Performing DNS Lookup...")
+    print(dns_lookup(domain))
+
+    print("\nPerforming Whois Lookup...")
+    print(whois_lookup(domain))
+
+    print("\nEnumerating Emails...")
+    print(email_enumeration(domain))
+
+if __name__ == '__main__':
+    run_footprinting("iscsecurity.org")
+</code></pre>
+
+      <h3>7.2 Execution &amp; Expected Output</h3>
+
+      <pre><code class="language-bash">$ sudo python3 website_footprinting.py
+Performing DNS Lookup...
+iscsecurity.org.        2787    IN      MX      10 mail.protection.outlook.com.
+iscsecurity.org.        87      IN      SOA     ns-1234.awsdns-12.org. awsdns-hostmaster.amazon.com. 1 7200 900 1209600 86400
+iscsecurity.org.        85587   IN      NS      ns-1234.awsdns-12.org.
+iscsecurity.org.        85587   IN      NS      ns-5678.awsdns-34.co.uk.
+iscsecurity.org.        300     IN      A       203.0.113.45
+--SNIP--
+
+Performing Whois Lookup...
+Domain Name: iscsecurity.org
+Registry Domain ID: REDACTED FOR PRIVACY
+Registrar WHOIS Server: whois.example-registrar.com
+Updated Date: 2025-09-15T10:22:17Z
+Creation Date: 2015-03-12T08:00:00Z
+Registry Expiry Date: 2026-03-12T08:00:00Z
+Registrar Abuse Contact Email: abuse@example-registrar.com
+Name Server: ns-1234.awsdns-12.org
+Name Server: ns-5678.awsdns-34.co.uk
+DNSSEC: unsigned
+--SNIP--
+
+Enumerating Emails...
+[*] Target: iscsecurity.org
+[*] Searching Bing, Google, LinkedIn...
+    alice.johnson@iscsecurity.org
+    bob.smith@iscsecurity.org
+    carol.davis@iscsecurity.org
+[*] Virtual hosts found: dev.iscsecurity.org, vpn.iscsecurity.org
+[*] XML saved to isc_harvest.xml
+</code></pre>
+
+      <div class="reminder">
+      <strong>Analysis:</strong><br>The script confirms Microsoft 365 mail hosting, AWS Route 53 DNS, and a registrant 
+	  privacy-shielded WHOIS. Combined with theHarvester output, an adversary now has a validated email list and two 
+	  high-priority subdomains for further scanning.
+	  </div>
+
+      <div class="reminder-lightblue">
+        <strong>Note:</strong><br>
+        When you run automation that queries external services, respect usage policies and rate limits. Store outputs securely and 
+		redact sensitive items from shared reports.
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 8: AI CONSIDERATIONS & OPSEC                         -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="ai-opsec">
+      <h2 id="ai-opsec">8. AI Considerations &amp; OPSEC</h2>
+
+      <ul>
+        <li><strong>Prompt Engineering Discipline:</strong> Be explicit in prompts when asking AI to generate scripts. 
+		Supply expected inputs, outputs, and allowed tools. <br>A vague prompt may generate brute-force code that exceeds scope.</li>
+        <li><strong>Data Exposure:</strong> Avoid exposing client data or secrets to third-party AI services unless contractually 
+		authorised and privacy controls are in place. Assume prompts are logged and may be used for model training.</li>
+        <li><strong>Model Provenance:</strong> Record model name/version and prompt used for reproducibility. If a finding is later 
+		challenged, you must prove the chain of <br>AI-assisted inference.</li>
+        <li><strong>False Positives:</strong> AI summarisation can hallucinate entities (e.g., inventing a vendor relationship). 
+		Always validate AI-extracted hostnames and emails against primary sources.</li>
+        <li><strong>Rate Limiting &amp; Proxy Rotation:</strong> Automated scripts and AI scrapers can trigger IP bans, WAF blocks, 
+		and legal flags. Implement exponential back-off, rotate user-agents, and respect <code>robots.txt</code> where feasible.</li>
+        <li><strong>Credential Hygiene:</strong> Never embed API keys (Maltego, Shodan, Hunter.io) directly in scripts. Use 
+		environment variables or secret managers. <br>A leaked key in a public repo becomes an immediate supply-chain risk.</li>
+      </ul>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 9: CASE STUDIES                                      -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="case-studies">
+      <h2 id="case-studies">9. Case Studies</h2>
+
+      <h3>Case Study 1: The 0ktapus Campaign (2022): Automated Recon at Telecom Scale</h3>
+
+      <p>
+        The 0ktapus threat actor (also linked to the Twilio and Cloudflare breaches) systematically targeted telecommunications and 
+		technology companies using automated OSINT pipelines. They scraped LinkedIn and corporate websites with scripted tools to 
+		harvest thousands of employee phone numbers and email addresses. Using this dataset, they launched mass SMS-phishing 
+		campaigns directing victims to fake Okta login portals. The initial recon was entirely automated: username enumeration, 
+		phone-number correlation, and lookalike-domain registration were executed via commodity tooling and templates. 
+		<br>The campaign succeeded because the adversary treated reconnaissance as a bulk-data operation rather than a 
+		manual effort.
+      </p>
+
+      <div class="info-remember">
+        Automated people-recon enables mass spear-phishing. Blue teams must monitor for bulk enumeration of employee contact data 
+		and implement out-of-band verification for any credential-reset request initiated via SMS.
+      </div>
+
+      <h3>Case Study 2: WormGPT &amp; FraudGPT (2023–2024): AI Automation of Social Engineering</h3>
+
+      <p>
+        Cybercriminal forums began advertising "WormGPT" and "FraudGPT" AI models trained or fine-tuned for malicious purposes. 
+		These tools automated the generation of phishing emails in multiple languages, reverse-engineered obfuscated code, 
+		and summarised large document dumps to extract PII. <br>In documented incidents, attackers used AI to parse thousands 
+		of leaked résumés from recruitment databases, identifying candidates who listed internal system credentials 
+		(e.g., "Experience with CrowdStrike, Okta, and AWS IAM") and then generated customised vishing scripts. 
+		The AI reduced the recon-to-weaponisation cycle from days to hours.
+      </p>
+
+      <div class="info-remember">
+        AI summarisation and generation lower the skill barrier for reconnaissance. Defenders must assume that every public 
+		document, résumé, and repository commit is being ingested by adversarial AI and turned into targeting intelligence.
+      </div>
+
+      <h3>Case Study 3: Exposed Metadata Leading to Ransomware Initial Access (2021)</h3>
+
+      <p>
+        A mid-sized healthcare provider suffered a ransomware breach traced to an initial access broker (IAB). The broker had used 
+		automated document-harvesting tools (functionally equivalent to FOCA combined with Google dorks) to locate publicly 
+		archived PDF invoices. The metadata revealed the internal hostname <code>\\MEDFILE01\Finance</code>, the software 
+		version of the electronic medical record (EMR) system, and the Windows username of the finance director. 
+		Using this intelligence, the IAB crafted a convincing fake software-update email referencing the exact 
+		EMR version. The resulting macro-enabled document executed Cobalt Strike, leading to full domain compromise.
+      </p>
+
+      <div class="reminder-lightblue">
+      <strong>Note:</strong><br>
+		Metadata in public documents is not <strong>"hidden"</strong>, it is machine-readable attack surface. Organisations must 
+		strip metadata before publishing and monitor archive sites for document removal.
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 10: OPSEC & LEGAL BOUNDARIES                         -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="opsec-legal">
+      <h2 id="opsec-legal">10. OPSEC &amp; Legal Boundaries</h2>
+
+      <h3>10.1 Operational Security</h3>
+
+      <ul>
+        <li><strong>API Key Compartmentalisation:</strong> Run Maltego, Shodan, and Hunter.io keys inside isolated VMs. Never store 
+		keys in plain-text scripts committed to GitHub.</li>
+        <li><strong>Proxy &amp; Rotation Hygiene:</strong> Bulk subdomain enumeration and Google dorking trigger rate limits. 
+		Use reputable proxy pools or cloud functions distributed across regions.</li>
+        <li><strong>Source Integrity:</strong> Download Recon-Dog, BillCipher, and DarkGPT wrappers from verified repositories. 
+		Supply-chain attacks have poisoned OSINT tools with credential-stealing backdoors.</li>
+        <li><strong>Archive Scraping Caution:</strong> The Wayback Machine and Common Crawl are invaluable but may cache content 
+		the target has since removed. <br>Verify current state before reporting a finding as "live."</li>
+        <li><strong>AI Data Residency:</strong> If the engagement is subject to GDPR, HIPAA, or ITAR, do not upload client 
+		documents to US-cloud-hosted AI services without data-processing agreements.</li>
+      </ul>
+
+      <h3>10.2 Legal Boundaries</h3>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table">
+          <thead>
+            <tr>
+              <th>Framework</th>
+              <th>Constraint</th>
+              <th>Risk</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>CFAA/CMA</strong></td>
+              <td>Automated scraping that violates a website's Terms of Service (ToS) may constitute unauthorised access.</td>
+              <td>Criminal prosecution; civil injunction.</td>
+            </tr>
+            <tr>
+              <td><strong>GDPR/Data Protection</strong></td>
+              <td>Automated aggregation and AI processing of employee PII (emails, names, phone numbers) require lawful basis and 
+			  data-handling safeguards.</td>
+              <td>Regulatory fines up to 4% global turnover.</td>
+            </tr>
+            <tr>
+              <td><strong>Copyright &amp; Database Rights</strong></td>
+              <td>Bulk downloading of documents from archive sites may infringe copyright or database rights.</td>
+              <td>Civil liability; takedown orders.</td>
+            </tr>
+            <tr>
+              <td><strong>Computer Fraud &amp; Abuse (International)</strong></td>
+              <td>Querying foreign Regional Internet Registries (RIR's), search engines, or social platforms from an unauthorised 
+			      vantage point may implicate local anti-hacking statutes.</td>
+              <td>Extradition risk; asset seizure.</td>
+            </tr>
+            <tr>
+              <td><strong>RoE/Engagement Contract</strong></td>
+              <td>Automated tools can recurse beyond scope (e.g., subfinder discovering a partner's subdomain). 
+			      Hard-code scope limits and validate outputs before further action.</td>
+              <td>Contract breach; loss of accreditation.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="reminder">
+        <strong>Golden Rule (ROE):</strong><br>
+        If you are not certain the activity is within signed Rules of Engagement (RoE) and legal review, 
+		<em>do not execute it</em>. When in doubt, use only <strong>passive, unauthenticated</strong> techniques.
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 11: QUICK TRIAGING CHECKLIST                         -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="triage-checklist">
+      <h2 id="triage-checklist">11. Quick Triaging Checklist: Automated Footprinting Workflow</h2>
+
+      <pre><code class="language-bash">□ Scope Confirmation
+    □ Domain/IP boundaries defined and hard-coded in scripts.
+    □ Rate limits and proxy usage approved.
+    □ API keys provisioned with read-only, scoped permissions.
+
+□ Phase 1 — Passive Enumeration
+    □ Run subfinder (or amass) with -silent and -o for baseline subdomain list.
+    □ Query certificate transparency logs (crt.sh, Censys) for additional hosts.
+    □ Check archive.org and Common Crawl for historic endpoints.
+
+□ Phase 2 — Document & Metadata Harvesting
+    □ Identify public PDF/DOC/XLS files via Google dorks or DorkGPT suggestions.
+    □ Download samples and run FOCA / ExifTool for metadata extraction.
+    □ Extract usernames, hostnames, software versions, and internal IPs.
+    □ Review GitHub repos with OSS Insight or manual dorking for secrets.
+
+□ Phase 3 — Relationship Mapping
+    □ Import entities (domains, emails, usernames) into Maltego.
+    □ Run transforms for DNS, social network, and breach correlations.
+    □ Export graph and identify shortest-path attack chains.
+
+□ Phase 4 — AI-Assisted Analysis
+    □ Configure Taranis AI alerts for executive and technology mentions.
+    □ Use ChatPDF to parse large documents for hidden infrastructure details.
+    □ Generate additional Google dorks via DorkGPT based on stack identified.
+    □ Validate all AI-generated findings against primary sources.
+
+□ Phase 5 — Continuous Monitoring
+    □ Set up Bardeen.ai or cron jobs to re-run subdomain enumeration weekly.
+    □ Monitor Google Alerts / Mention for brand + breach keywords.
+    □ Dark-web monitoring (authorised only) for credential leaks referencing target domain.
+
+□ Phase 6 — Evidence & Reporting
+    □ Save raw tool outputs (XML, JSON, CSV) with ISO 8601 timestamps.
+    □ Store scripts and AI prompts in version control for reproducibility.
+    □ Redact API keys and sensitive metadata from shared report annexes.
+    □ Append defensive recommendations: subdomain monitoring, metadata scrubbing, secret scanning.
+</code></pre>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 12: QUICK REFERENCE — AUTOMATED FOOTPRINTING TOOLKIT -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="quickref">
+      <h2 id="quickref">12. Quick Reference: Automated Footprinting Toolkit</h2>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table">
+          <thead>
+            <tr>
+              <th>Tool</th>
+              <th>Purpose</th>
+              <th>Example / Access</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Maltego</strong></td>
+              <td>Graph-based link analysis</td>
+              <td>GUI desktop app</td>
+              <td>Commercial; API-key transforms available.</td>
+            </tr>
+            <tr>
+              <td><strong>FOCA</strong></td>
+              <td>Document metadata extraction</td>
+              <td><code>mono FOCA.exe --domain target.com</code></td>
+              <td>Office, PDF, OpenOffice support.</td>
+            </tr>
+            <tr>
+              <td><strong>subfinder</strong></td>
+              <td>Passive subdomain enumeration</td>
+              <td><code>subfinder -d target.com -silent -o domains.txt</code></td>
+              <td>Fast; integrates with httpx/nmap.</td>
+            </tr>
+            <tr>
+              <td><strong>Recon-Dog</strong></td>
+              <td>Multi-purpose recon wrapper</td>
+              <td><code>python3 recon-dog.py -d target.com --all</code></td>
+              <td>Good for rapid lab enumeration.</td>
+            </tr>
+            <tr>
+              <td><strong>BillCipher</strong></td>
+              <td>Multi-purpose recon wrapper</td>
+              <td>CLI / GitHub</td>
+              <td>API aggregation; verify source integrity.</td>
+            </tr>
+            <tr>
+              <td><strong>OSINT Framework</strong></td>
+              <td>Categorised tool index</td>
+              <td><code>osintframework.com</code></td>
+              <td>Decision-tree for tool selection.</td>
+            </tr>
+            <tr>
+              <td><strong>Taranis AI</strong></td>
+              <td>NLP news ingestion &amp; sentiment</td>
+              <td>Web UI / API</td>
+              <td>Premium; useful for executive monitoring.</td>
+            </tr>
+            <tr>
+              <td><strong>OSS Insight</strong></td>
+              <td>GitHub analytics + GPT queries</td>
+              <td><code>ossinsight.io</code></td>
+              <td>Free tier; identifies stale repos and maintainers.</td>
+            </tr>
+            <tr>
+              <td><strong>DorkGPT / DorkGenius</strong></td>
+              <td>AI-assisted Google dork generation</td>
+              <td>Web UI</td>
+              <td>Validate dorks before execution.</td>
+            </tr>
+            <tr>
+              <td><strong>ChatPDF</strong></td>
+              <td>Conversational PDF parsing</td>
+              <td>Web UI</td>
+              <td>Do not upload classified docs to third-party AI.</td>
+            </tr>
+            <tr>
+              <td><strong>Bardeen.ai</strong></td>
+              <td>Browser automation workflows</td>
+              <td>Browser extension / Web</td>
+              <td>Good for recurring LinkedIn scraping.</td>
+            </tr>
+            <tr>
+              <td><strong>AnyPicker</strong></td>
+              <td>Visual web scraping</td>
+              <td>Browser extension</td>
+              <td>Bypasses simple anti-bot measures.</td>
+            </tr>
+            <tr>
+              <td><strong>DarkGPT</strong></td>
+              <td>Conversational leaked-data querying</td>
+              <td>Web UI / CLI</td>
+              <td>Legal and ethical constraints are strict.</td>
+            </tr>
+            <tr>
+              <td><strong>theHarvester</strong></td>
+              <td>Email and virtual host harvesting</td>
+              <td><code>theHarvester -d target.com -b all</code></td>
+              <td>Often chained into custom scripts.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 13: DEFENSIVE COUNTERMEASURES & THREAT MAPPING       -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="defense">
+      <h2 id="defense">13. Defensive Countermeasures &amp; Threat Mapping</h2>
+
+      <h3>13.1 Blue Team Mitigations</h3>
+
+      <ul>
+        <li><strong>Subdomain Monitoring:</strong> Continuously monitor certificate transparency logs and DNS registrations for new 
+		subdomains. Alert on unexpected <code>dev</code>, <code>staging</code>, or <code>api</code> entries.</li>
+        <li><strong>Metadata Sanitisation:</strong> Implement a document-scrubbing gateway that strips author names, internal 
+		paths, and revision history from all PDFs and Office files before publication.</li>
+        <li><strong>Deception Subdomains:</strong> Plant honeypot subdomains (e.g., <code>admin.target.com</code>) that trigger 
+		alerts when scanned by tools like subfinder or amass.</li>
+        <li><strong>Secret Scanning:</strong> Use TruffleHog, GitHub Advanced Security, or GitLab Secret Detection to block commits 
+		containing API keys, AWS tokens, or database passwords.</li>
+        <li><strong>Rate Limiting &amp; Bot Detection:</strong> Implement CAPTCHA and IP-based rate limiting on public-facing 
+		directories to slow automated scrapers and dorking.</li>
+        <li><strong>Archive Removal:</strong> Regularly request removal of outdated documents from the Wayback Machine and 
+		search-engine caches to reduce historical exposure.</li>
+        <li><strong>AI-Generated Content Detection:</strong> Deploy email filters that flag messages with linguistic patterns 
+		consistent with AI-generated phishing (overly formal, generic salutations) and enforce external-sender banners.</li>
+        <li><strong>API Key Governance:</strong> Rotate keys quarterly; use scoped read-only permissions; monitor for anomalous 
+		query volumes from a single key.</li>
+      </ul>
+
+      <h3>13.2 Threat Mapping: Automated Recon Finding → Attack Chain</h3>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table">
+          <thead>
+            <tr>
+              <th>Recon Finding</th>
+              <th>Likely Follow-on Attack</th>
+              <th>Defensive Control</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>New unmanaged subdomain discovered (subfinder)</td>
+              <td>Exploitation of unpatched dev/staging server</td>
+              <td>Continuous subdomain monitoring; certificate-transparency alerting.</td>
+            </tr>
+            <tr>
+              <td>Internal hostname leaked in PDF metadata (FOCA)</td>
+              <td>Lateral-movement planning/SMB-targeted ransomware</td>
+              <td>Metadata scrubbing gateway; DLP on outbound documents.</td>
+            </tr>
+            <tr>
+              <td>AWS keys exposed in public GitHub repo (OSS Insight)</td>
+              <td>Cloud data exfiltration/cryptojacking</td>
+              <td>Pre-commit secret scanning; IAM key rotation; least privilege.</td>
+            </tr>
+            <tr>
+              <td>Employee emails harvested at scale (theHarvester + DarkGPT)</td>
+              <td>Mass spear-phishing/credential stuffing</td>
+              <td>DMARC p=reject; dark-web monitoring; phishing simulation.</td>
+            </tr>
+            <tr>
+              <td>Technology stack identified via job boards (Taranis AI)</td>
+              <td>CVE-specific exploit targeting known vulnerable versions</td>
+              <td>Limit technology specifics in public postings; virtual patching.</td>
+            </tr>
+            <tr>
+              <td>Historic admin panel found in Wayback (Photon)</td>
+              <td>Credential brute-force against legacy login</td>
+              <td>Request archive removal; enforce MFA on all admin interfaces.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="info-remember">
+        <strong>Blue Team Note:</strong><br>
+        Automation magnifies both speed and risk. A script that runs in minutes can cross boundaries that took adversaries days to 
+		reach manually. Document your scope constraints, validate your AI-generated outputs, and ensure every automated query is 
+		paired with a responsible human decision.
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 14: ETHICAL CONSIDERATIONS & ENGAGEMENT SCOPE        -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="ethics">
+      <h2 id="ethics">14. Ethical Considerations &amp; Engagement Scope</h2>
+
+      <ul>
+        <li><strong>Scope Enforcement in Automation:</strong> Automated scripts recurse and correlate at machine speed. Hard-code 
+		domain/IP allow lists and validate every output against the Rules of Engagement before further probing.</li>
+        <li><strong>Respect for Rate Limits:</strong> Aggressive scanning burdens target infrastructure and shared services 
+		(archive.org, search engines). Implement polite delays and respect <code>robots.txt</code> guidelines.</li>
+        <li><strong>AI Accountability:</strong> When AI generates a targeting list or exploit script, the human operator remains 
+		responsible for its execution. Never delegate "go/no-go" decisions to an AI model.</li>
+        <li><strong>Data Minimisation:</strong> Automated tools collect indiscriminately. Filter outputs to retain only 
+		intelligence relevant to the engagement. Securely purge unrelated personal data and PII.</li>
+        <li><strong>Third-Party AI Services:</strong> Uploading a client's confidential documents to ChatPDF or Taranis AI may 
+		constitute a data breach under GDPR or contractual confidentiality terms. Use on-premise or contracted AI instances where 
+		required.</li>
+        <li><strong>Responsible Disclosure:</strong> When automation discovers exposed credentials or internal hostnames, report 
+		them immediately. Do not use them for unauthorised lateral movement "just because they were easy to find."</li>
+      </ul>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 15: SUPPORTING RESOURCES & RECOMMENDED READING       -->
+    <!-- ============================================================ -->
+
+    <section class="resources" aria-label="Supporting resources">
+      <h2>15. Supporting Resources &amp; Recommended Reading</h2>
+      <ul>
+        <li>
+          <a href="https://www.maltego.com" target="_blank" rel="noopener">Maltego Official</a>
+          <small class="resource-path">Path: Entity mapping and link analysis for OSINT investigations.</small>
+        </li>
+        <li>
+          <a href="https://github.com/ElevenPaths/FOCA" target="_blank" rel="noopener">FOCA / Metadata Analysis</a>
+          <small class="resource-path">Path: Document metadata extraction and archive fingerprinting.</small>
+        </li>
+        <li>
+          <a href="https://github.com/projectdiscovery/subfinder" target="_blank" rel="noopener">subfinder (GitHub)</a>
+          <small class="resource-path">Path: Passive subdomain enumeration utilities.</small>
+        </li>
+        <li>
+          <a href="https://osintframework.com" target="_blank" rel="noopener">OSINT Framework</a>
+          <small class="resource-path">Path: Categorised index of OSINT tools and services.</small>
+        </li>
+        <li>
+          <a href="https://www.taranis.ai" target="_blank" rel="noopener">Taranis AI</a>
+          <small class="resource-path">Path: NLP-enhanced news ingestion &amp; reporting for OSINT workflows.</small>
+        </li>
+        <li>
+          <a href="https://ossinsight.io" target="_blank" rel="noopener">OSS Insight / GitHub Analytics</a>
+          <small class="resource-path">Path: Repository analytics and AI-powered querying.</small>
+        </li>
+        <li>
+          <a href="https://www.chatpdf.com" target="_blank" rel="noopener">ChatPDF</a>
+          <small class="resource-path">Path: Conversational parsing and summarisation of PDF documents.</small>
+        </li>
+        <li>
+          <a href="https://www.bardeen.ai" target="_blank" rel="noopener">Bardeen.ai</a>
+          <small class="resource-path">Path: Browser automation and workflow orchestration.</small>
+        </li>
+        <li>
+          <a href="https://github.com/trufflesecurity/trufflehog" target="_blank" rel="noopener">TruffleHog (GitHub)</a>
+          <small class="resource-path">Path: Secret scanning and credential detection in repositories.</small>
+        </li>
+      </ul>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 16: CHAPTER SUMMARY                                  -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="chapter-summary">
+      <h2 id="chapter-summary">16. Chapter Summary</h2>
+
+      <p>
+        By completing this chapter you should now be able to:
+      </p>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin: 20px 0;">
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Enumerate subdomains at scale.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;">Use subfinder, crt.sh, and certificate transparency logs for passive discovery.</span></span>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Extract metadata from public documents.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;">Use FOCA and ExifTool to recover internal hostnames, usernames, and printer paths.</span></span>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Map relationships via graph analysis.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;">Use Maltego to correlate domains, emails, and social profiles into attack paths.</span></span>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Leverage AI-powered OSINT tools.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;">Use Taranis AI, OSS Insight, ChatPDF, and DorkGPT for automated analysis.</span></span>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Build custom orchestration scripts.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;">Create Python scripts that chain multiple tools into a reproducible pipeline.</span></span>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Apply OPSEC and legal controls.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;">Isolate API keys, rotate proxies, respect rate limits, and validate AI-generated outputs.</span></span>
+        </div>
+
+      </div>
+
+      <div class="info-remember" style="margin: 15px 0;">
+        <strong>Why This Matters:</strong>
+        <span style="display: block; margin-top: 5px;">
+          Automation transforms reconnaissance from a cottage craft into an industrial pipeline. Adversaries who master automated 
+		  OSINT can map an organisation's attack surface, harvest employee identities, and build targeting packages in minutes, not 
+		  weeks. Defenders must implement continuous monitoring, deception subdomains, metadata sanitisation, and secret scanning 
+		  to detect and disrupt these pipelines before they deliver actionable intelligence to attackers.
+        </span>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 17: KEY TAKEAWAYS                                    -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="takeaways">
+      <h2 id="takeaways">17. Key Takeaways</h2>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table">
+          <thead>
+            <tr>
+              <th>Concept</th>
+              <th>Why It Matters</th>
+              <th>Security Impact</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Passive Enumeration Is Stealthy and Scalable</strong></td>
+              <td>Tools like subfinder and crt.sh harvest intelligence without touching target infrastructure.</td>
+              <td>Enables rapid attack-surface mapping with zero network interaction.</td>
+            </tr>
+            <tr>
+              <td><strong>Metadata Leaks Internal Infrastructure</strong></td>
+              <td>FOCA and ExifTool reveal hostnames, usernames, and printer paths from public documents.</td>
+              <td>Provides exploitable internal naming conventions and network topology.</td>
+            </tr>
+            <tr>
+              <td><strong>Graph Analysis Uncovers Hidden Relationships</strong></td>
+              <td>Maltego correlates domains, emails, and social profiles to find shortest attack paths.</td>
+              <td>Reveals weak links: personal emails on corporate domains, shared maintainers.</td>
+            </tr>
+            <tr>
+              <td><strong>AI Accelerates and Scales OSINT</strong></td>
+              <td>NLP tools summarise news, dorks, and documents at speeds impossible for humans.</td>
+              <td>Reduces recon-to-weaponisation cycle from days to hours.</td>
+            </tr>
+            <tr>
+              <td><strong>Secret Scanning Is a Non-Negotiable Control</strong></td>
+              <td>Public GitHub repos routinely contain AWS keys, passwords, and internal URLs.</td>
+              <td>Pre-commit scanners prevent leaks; rotation and monitoring limit blast radius.</td>
+            </tr>
+            <tr>
+              <td><strong>Automation Requires Hard Scope Limits</strong></td>
+              <td>Scripts recurse and correlate at machine speed, easily crossing out-of-scope boundaries.</td>
+              <td>Domain/IP allow lists and validation gates are essential for legal safety.</td>
+            </tr>
+            <tr>
+              <td><strong>AI Hallucinations Are a Risk</strong></td>
+              <td>AI-generated dorks and summaries can invent entities and relationships.</td>
+              <td>Every AI output must be validated against primary sources before action.</td>
+            </tr>
+            <tr>
+              <td><strong>Defenders Must Monitor for Automated Recon</strong></td>
+              <td>Honeypot subdomains, rate limiting, and archive removal disrupt adversary automation.</td>
+              <td>Proactive deception makes automated pipelines noisy and unreliable.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+	
+	<!-- ============================================================ -->
+<!-- SECTION 18: KNOWLEDGE CHECK                                     -->
+<!-- ============================================================ -->
+
+<section aria-labelledby="knowledge-check">
+  <h2 id="knowledge-check">18. Knowledge Check</h2>
+
+  <div class="card">
+    <h3>Reflection Questions</h3>
+    <ol>
+      <li>
+        <strong><code>subfinder</code> passively enumerates subdomains without touching the target's infrastructure. Why is this 
+		considered a lower-risk reconnaissance technique than active brute-forcing, and what are its limitations?</strong>
+        <br>
+        <span style="color: #aaa; font-size: 0.9rem;">
+          Consider detection risk, data freshness, and the completeness of passive vs. active enumeration.
+        </span>
+      </li>
+      <li>
+        <strong>FOCA extracts the internal printer path <code>\\FILESERVER\HR-Printer</code> from a public PDF. How can an 
+		adversary weaponise this information, and what defensive control would prevent this exposure?</strong>
+        <br>
+        <span style="color: #aaa; font-size: 0.9rem;">
+          Think about internal hostname mapping, SMB targeting, and automated metadata stripping in publishing pipelines.
+        </span>
+      </li>
+      <li>
+        <strong>Taranis AI identifies a news article about an upcoming acquisition. How does timing a spear-phishing campaign 
+		around this event increase its success rate, and what monitoring should the Blue Team conduct?</strong>
+        <br>
+        <span style="color: #aaa; font-size: 0.9rem;">
+          Consider organisational chaos, change-management windows, and brand-protection monitoring for acquisition-themed lures.
+        </span>
+      </li>
+      <li>
+        <strong>DarkGPT returns a bcrypt hash and password hint for a target employee. What is the correct ethical and legal 
+		response when encountering such data during an authorised engagement?</strong>
+        <br>
+        <span style="color: #aaa; font-size: 0.9rem;">
+          Think about responsible disclosure, data handling obligations, and the prohibition on testing credentials without 
+		  explicit authorisation.
+        </span>
+      </li>
+      <li>
+        <strong>An AI-generated dork returns an admin panel that appears to be live. What validation steps must you perform before 
+		reporting this as a finding, and why are each of those steps necessary?</strong>
+        <br>
+        <span style="color: #aaa; font-size: 0.9rem;">
+          Consider false positives, scope boundaries, and the distinction between archived and live content.
+        </span>
+      </li>
+    </ol>
+  </div>
+
+  <div class="card">
+    <h3>Scenario-Based Question</h3>
+    <p>
+      <strong>Scenario:</strong> You are conducting a Red Team engagement against <em>Fabricated Industries</em>, a large 
+	  multinational conglomerate. Your Rules of Engagement permit automated OSINT collection, passive enumeration, and 
+	  AI-assisted analysis, but prohibit active scanning or exploitation without explicit approval. The client has 
+	  asked you to identify their external attack surface and provide a prioritised list of exposures before the 
+	  engagement moves to active testing phases.
+    </p>
+    <p><strong>Task:</strong> Design an automated footprinting pipeline that leverages both traditional OSINT tools and AI-powered 
+	analysis to discover subdomains, extract metadata from public documents, correlate entities in a graph, and produce a 
+	prioritised targeting package for the Red Team.</p>
+  </div>
+
+  <div class="info-remember">
+    <strong>Suggested Approach:</strong>
+    <ul>
+      <li><strong>Phase 1: Seed &amp; Scope Ingestion</strong>: Ingest root domains (<code>fabricatedtech.com</code>, <code>
+	  legacy-sys.com</code>) and validate scope boundaries. <br>Hard-code domain/IP allow lists to prevent out-of-scope recursion. 
+	  Provision API keys with read-only, scoped permissions.</li>
+      <li><strong>Phase 2: Passive Subdomain Enumeration</strong>: Run <code>subfinder</code> with <code>-silent -o domains.txt
+	  </code> for baseline subdomain discovery. <br>Query certificate transparency logs (crt.sh, Censys) for additional hosts. 
+	  Check archive.org and Common Crawl for historic endpoints.</li>
+      <li><strong>Phase 3: Document &amp; Metadata Harvesting</strong>: Generate Google dorks using DorkGPT to identify public 
+	  PDF/DOC/XLS files. <br>Download samples and run FOCA/ExifTool for metadata extraction. Extract usernames, hostnames, 
+	  software versions, and internal IPs. Review GitHub repos with OSS Insight or manual dorking for secrets.</li>
+      <li><strong>Phase 4: Relationship Mapping</strong>: Import entities (domains, emails, usernames) into Maltego. 
+	  Run transforms for DNS, social network, and breach correlations. Export graph and identify shortest-path attack chains.</li>
+      <li><strong>Phase 5: AI-Assisted Analysis</strong>: Configure Taranis AI alerts for executive and technology mentions. 
+	  Use ChatPDF to parse large documents for hidden infrastructure details. Generate additional Google dorks via DorkGPT 
+	  based on stack identified. Validate all AI-generated findings against primary sources.</li>
+      <li><strong>Phase 6: Continuous Monitoring Setup</strong>: Set up Bardeen.ai or cron jobs to re-run subdomain enumeration 
+	  weekly. Configure Google Alerts/Mention for brand + breach keywords. Dark-web monitoring (authorised only) for credential 
+	  leaks referencing target domain.</li>
+      <li><strong>Phase 7: Weaponisation &amp; Blue Team Handoff</strong>: Export target packages (email lists, technology stacks, 
+	  credential-spraying dictionaries) to phishing frameworks. Prioritise findings by exploitability and blast radius. Provide 
+	  defensive mitigations: subdomain monitoring, metadata scrubbing, secret scanning, and API key governance.</li>
+    </ul>
+  </div>
+
+  <div class="redblue-reminder">
+    <strong>RedOps/BlueOps</strong>
+    <span>
+      <span class="red-text">Red Team</span> uses automation and AI to transform reconnaissance from a cottage craft into an 
+	  industrial pipeline — mapping attack surfaces in minutes, not weeks.
+      <span class="blue-text">Blue Team</span> must:
+      <ul>
+        <li>Implement continuous subdomain monitoring and certificate transparency alerting</li>
+        <li>Deploy metadata-scrubbing gateways in publishing pipelines (ExifTool, MAT2)</li>
+        <li>Use secret scanning (TruffleHog, GitHub Advanced Security) to block credential commits</li>
+        <li>Plant deception subdomains (honeypots) to detect automated enumeration</li>
+        <li>Monitor for bulk API queries and anomalous scraping patterns</li>
+      </ul>
+    </span>
+  </div>
+
+  <div class="reminder-lightblue">
+    <strong>Gateway Criteria:</strong><br>
+    <span>Move on to the next section when you can confidently answer all five reflection questions and articulate a complete 
+	automated footprinting workflow using at least three distinct tool categories (passive enumeration, metadata extraction, 
+	AI-assisted analysis).<br>If any concept is unclear, revisit the relevant sections above before moving on.</span>
+  </div>
+
+  <div class="info-remember">
+    <em>RedOps Reminder:</em> Footprinting is powerful — always verify authorisation before collecting data. Automation magnifies 
+	both speed and risk. A script that runs in minutes can cross boundaries that took adversaries days to reach manually. 
+	Document your scope constraints, validate your AI-generated outputs, and ensure every automated query is paired with 
+	a responsible human decision.
+  </div>
+</section>
+
+    <!-- ============================================================ -->
+    <!-- FLOATING NAVIGATION                                           -->
+    <!-- ============================================================ -->
+
+    <div class="lesson-nav-container">
+      <a href="https://iscsecurity.org/content/1-ethical-hacking/3-footprinting-and-recon/09-footprinting-through-social-engineering" class="nav-link-btn">👈 Back</a>
+      <a href="https://iscsecurity.org/content/1-ethical-hacking/3-footprinting-and-recon/11-footprinting-countermeasures" class="nav-link-btn">Next 👉</a>
+    </div>
+
+  </article>
+</main>
+</body>
+</html>

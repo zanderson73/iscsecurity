@@ -1,0 +1,1399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Online Breach Data &amp; Leaks Resources | ISCSECURITY Master Class Series</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="/css/styles.css?v=2026_PRODUCTION_FINAL" />
+  
+  <!-- MemberSpace -->
+  <script>
+    window.MemberSpace = window.MemberSpace || { subdomain: "iscsecurity" };
+    (function(d){
+      var s = d.createElement("script");
+      s.src = "https://cdn.memberspace.com/scripts/widgets.js";
+      s.async = true;
+      d.head.appendChild(s);
+    })(document);
+  </script>
+  
+</head>
+
+<body class="page-lesson">
+
+<div class="site-topbar" role="note" aria-label="Legal notice">
+  <small class="topbar-note">
+    © 2026 ISCSECURITY · Authorization-first training. All testing must be lawful, scoped, and approved in writing.
+  </small>
+	<nav class="topbar-links" aria-label="Topbar links">
+      <a href="https://iscsecurity.org/index">Home</a>
+      <a href="https://iscsecurity.org/content/index">Content</a>
+	  <a href="https://iscsecurity.org/content/1-ethical-hacking/2-open-source-intelligence/index">OSINT</a>
+      <a href="https://iscsecurity.org/contact">Contact</a>
+    </nav>
+</div>
+
+  <main class="page modules-page no-shift" id="ethical-hacking-training-content" data-ms-content="members-only">
+  <article class="lesson-content overlay" tabindex="0" aria-label="Lesson content: Online Breach Data &amp; Leaks Resources">
+
+    <p class="breadcrumb">
+      <a href="https://iscsecurity.org/index">Home</a> →
+        <a href="https://iscsecurity.org/content/index">Content</a> →
+        <a href="https://iscsecurity.org/content/1-ethical-hacking/2-open-source-intelligence/index">OSINT</a> →
+      <span aria-current="page">Page 18</span>
+    </p>
+
+    <h1>Online Breach Data &amp; Leaks Resources in OSINT and Cybersecurity</h1>
+
+    <!-- ============================================================ -->
+    <!-- AUTHORIZED USE BANNERS                                        -->
+    <!-- ============================================================ -->
+
+    <div class="reminder-auth">
+      <strong>🚨 AUTHORIZED USE ONLY:</strong>
+      <span>
+        All content in this document is for educational and defensive training purposes only.
+        The adversarial techniques described are derived from real-world tradecraft but
+        are documented exclusively for <strong>defensive analysis, detection engineering,
+        and authorized security testing</strong>. Unauthorized deployment of any technique
+        described may constitute a criminal offense under applicable national and
+        international cybercrime laws. Always obtain <strong>explicit written authorization</strong>
+        from the system owner or authorized legal entity before testing, executing, or
+        simulating any of the techniques outlined in this document.
+      </span>
+    </div>
+
+    <div class="reminder-comp">
+      <strong>🌍 INTERNATIONAL COMPLIANCE NOTICE:</strong>
+      <span>
+        Cybercrime laws vary significantly by jurisdiction. It is your sole responsibility
+        to understand and comply with the laws applicable to your location, the location
+        of any target systems, and your organization's policies. When in doubt,
+        <strong>consult a qualified legal professional</strong> before testing, executing,
+        or simulating any technique described in this document.
+      </span>
+    </div>
+	
+	<!-- ============================================================ -->
+    <!-- LAB ENVIRONMENT DISCLAIMER & SETUP GUIDANCE                  -->
+    <!-- ============================================================ -->
+
+    <div class="reminder-lab">
+      <strong>🧪 LAB ENVIRONMENT NOTICE:</strong>
+      <span>
+        All practical examples, command-line executions, and scenario-based exercises in this document are demonstrated within the <strong>ISCSEC internal training laboratory</strong>. 
+        This is a controlled, isolated environment that exists solely for educational and defensive training purposes.
+      </span>
+      <br><br>
+      <span>
+        <strong>You do not have access to the ISCSEC lab.</strong> As a learner, you are expected to build and maintain your own isolated lab environment, 
+        replicating the documented topology, IP schemes, and hostname conventions. The ISCSEC lab serves as a <strong>canonical reference topology</strong> 
+        for this training, not a shared or remotely accessible resource.
+      </span>
+      <br><br>
+      <span>
+        <strong>Lab requirements:</strong>
+        <ul>
+          <li>Isolated virtualised environment (e.g., VMware Workstation, VirtualBox, or Hyper-V)</li>
+          <li>Attacker operator platform (e.g., Kali Linux or equivalent)</li>
+          <li>Target Windows host (e.g., CLIENT01 at 172.16.5.60)</li>
+          <li>Internal network with domain controller (DC01 at 172.16.5.25), SQL server (SQL01 at 172.16.5.20), web server (WEB01 at 172.16.5.30), and application server (APP01 at 172.16.5.40)</li>
+          <li>All testing must be conducted within your own isolated network with <strong>explicit written authorization</strong> for any systems involved</li>
+        </ul>
+      </span>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 1: CLASSIFYING EXPOSURE TYPES BEFORE QUERYING        -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="exposure-classification">
+      <h2 id="exposure-classification">1. Classifying Exposure Types Before Querying Leak Databases</h2>
+
+      <p>
+        <strong>Adversary Goals:</strong> Breach data is high-sensitivity, high-yield intelligence. Unlike
+        infrastructure scanning, querying leak databases and paste sites involves handling personally
+        identifiable information (PII) and credentials belonging to both targets and innocents. Your dossier
+        must precisely scope what classes of exposed data serve your operational goals.
+      </p>
+
+      <p>
+        This section covers the discovery, acquisition, and weaponization of compromised credentials,
+        corporate database leaks, stealer logs, and dark-web exposure. This is the phase where passive
+        intelligence directly converts into initial access material.
+      </p>
+
+      <h3>1.1 The Breach Intelligence Dossier</h3>
+
+<pre><code class="language-json">{
+  "scope_authorization": "Explicit written authorization for credential review and password analysis",
+  "target_entities": ["target.com", "subsidiary.io", "acquired-firm.net"],
+  "persona_scope": ["executives", "admins", "developers", "support staff"],
+  "seed_identities": ["ceo@target.com", "admin@target.com", "devops@target.com"],
+  "naming_conventions": ["{first}.{last}", "{last}{first_initial}"],
+  "tech_stack_indicators": ["Okta", "Salesforce", "VPN", "Citrix", "AWX"],
+  "historical_events": ["2021-acquisition", "2023-migration-failure"],
+  "authorized_actions": ["passive-review", "pattern-analysis", "credential-verification"]
+}
+</code></pre>
+
+      <h3>1.2 Exposure Class Taxonomy</h3>
+
+      <p>Define exactly what you are hunting:</p>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table">
+          <thead>
+            <tr>
+              <th>Exposure Class</th>
+              <th>Description</th>
+              <th>Operational Value</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Credential Breaches</td>
+              <td>Username/password pairs from third-party service compromises</td>
+              <td>Password spray, credential stuffing, policy inference</td>
+            </tr>
+            <tr>
+              <td>Paste Leaks</td>
+              <td>Raw dumps posted to Pastebin, Ghostbin, or similar</td>
+              <td>Ephemeral but often contain fresh API keys, session tokens</td>
+            </tr>
+            <tr>
+              <td>Stealer Logs</td>
+              <td>Malware-exfiltrated browser data (cookies, credentials, autofill)</td>
+              <td>Session hijacking, MFA bypass, direct portal access</td>
+            </tr>
+            <tr>
+              <td>Corporate DB Dumps</td>
+              <td>Full or partial database exfiltrations (SQL, CSV, JSON)</td>
+              <td>Internal architecture, customer PII, executive contact data</td>
+            </tr>
+            <tr>
+              <td>Combo Lists</td>
+              <td>Curated credential collections for brute-force tooling</td>
+              <td>Rapid credential stuffing against VPN/Outlook gateways</td>
+            </tr>
+            <tr>
+              <td>Dark Web Markets</td>
+              <td>Sale of access, databases, or "logs" on criminal forums</td>
+              <td>Third-party breach correlation, imminent threat warning</td>
+            </tr>
+            <tr>
+              <td>Misconfigured Storage</td>
+              <td>Exposed S3 buckets, Elasticsearch, MongoDB instances</td>
+              <td>Direct data download without "breach" attribution</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="reminder">
+        <strong>Red Team Principle:</strong><br> 
+		Breach data is a weapon, not a novelty. If you are not authorized
+        to handle credentials or PII, stop here. Unauthorized possession or querying of breach databases can
+        violate computer fraud statutes, data protection regulations (GDPR, CCPA), and your Rules of Engagement.
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 2: NOTABLE PLATFORMS & PRACTICAL NOTES               -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="notable-platforms">
+      <h2 id="notable-platforms">2. Notable Platforms &amp; Practical Notes (2025)</h2>
+
+      <ul>
+        <li>
+          <strong>Have I Been Pwned (HIBP):</strong>
+          The industry-standard public breach-checking platform.
+          HIBP continuously ingests new datasets, including large stealer-log imports such as the January 2025 ingestion.
+          For organisations, an authorised Application Programming Interface (API) key enables automated and auditable queries
+          for emails, domains, and password reuse. Treat HIBP as the baseline for
+          credential hygiene pipelines and periodic enterprise-wide audits.
+        </li>
+        <br>
+        <li>
+          <strong>DeHashed:</strong>
+          A commercial breach-search service offering enriched data, plaintext emails,
+          passwords, hashes, IP logs, and forum references.
+          The API is widely used by enterprise responders and law enforcement teams because it allows deep searching
+          across otherwise difficult-to-access breach sources. Ideal for investigative work,
+          correlation, and large-scale credential pivoting.
+        </li>
+        <br>
+        <li>
+          <strong>Intelligence X (intelx.io):</strong>
+          A hybrid search engine indexing the surface web, archived materials,
+          darknet sources, paste sites, Tor services, Telegram channels, and historical snapshots.
+          Throughout 2025 the platform has rolled out UI and tooling updates that make it
+          easier to pivot between leaked files, screenshots, dumps, metadata, and old mirrors.
+          Particularly useful when confirming whether a leaked item has circulated across different ecosystems.
+        </li>
+        <br>
+        <li>
+          <strong>LeakPeek / Leak-Lookup / Similar:</strong>
+          Lightweight web UIs that allow fast checks for leaked emails, usernames, and hashes.
+          These are convenient for quick reconnaissance but should be treated as preliminary leads.
+          Always validate results using authoritative services (HIBP, DeHashed, Intelligence X).
+        </li>
+        <br>
+        <li>
+          <strong>GhostProject &amp; Community Mirrors:</strong>
+          Community-run searchable breach indexes remain active as of early 2025. These
+          platforms can reveal older, obscure, or reposted breaches but do not guarantee accuracy
+          or legality. Use cautiously and validate every finding with primary sources.
+          Operators must consider legal exposure when handling raw breach data.
+        </li>
+      </ul>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 3: TOOL SELECTION MATRIX — BREACH INTELLIGENCE       -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="tool-matrix">
+      <h2 id="tool-matrix">3. Tool Selection Matrix: The Breach Intelligence Matrix</h2>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table">
+          <thead>
+            <tr>
+              <th>Recon Layer</th>
+              <th>Tool / Resource</th>
+              <th>Adversarial Use Case</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Breach Database Lookup</td>
+              <td><code>leaks_search</code> (native), DeHashed, Have I Been Pwned</td>
+              <td>Verify if emails/usernames/domains appear in known breaches</td>
+            </tr>
+            <tr>
+              <td>Email Enumeration</td>
+              <td><code>emailbook</code> (native), Hunter.io</td>
+              <td>Generate valid email lists to feed into breach queries</td>
+            </tr>
+            <tr>
+              <td>Dark Web Monitoring</td>
+              <td><code>run_darkdump</code> (native), Tor search engines</td>
+              <td>Identify mentions of target domains, databases for sale, or threat actor chatter</td>
+            </tr>
+            <tr>
+              <td>Paste Site Intelligence</td>
+              <td><code>web_search</code> (Pastebin/Ghostbin dorks), custom scrapers</td>
+              <td>Find fresh, unindexed dumps before aggregation sites ingest them</td>
+            </tr>
+            <tr>
+              <td>Stealer Log Correlation</td>
+              <td>Specialized markets (RedLine, Raccoon logs via threat intel feeds)</td>
+              <td>Acquire session cookies and credentials not present in standard breach DBs</td>
+            </tr>
+            <tr>
+              <td>Exposed Storage</td>
+              <td><code>web_search</code> (S3/Google dorks), <code>nmap</code> (for ES/Mongo), <code>curl</code></td>
+              <td>Locate misconfigured databases leaking corporate data without criminal attribution</td>
+            </tr>
+            <tr>
+              <td>Credential Validation</td>
+              <td><code>hashcat</code> (mode identification), <code>hcxtools</code>, custom scripts</td>
+              <td>Verify hash types, rule testing (only against in-scope systems)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 4: MASTER ADVANCED QUERY SYNTAX                      -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="query-syntax">
+      <h2 id="query-syntax">4. Master Advanced Query Syntax</h2>
+
+      <p>
+        <strong>Adversary Goals:</strong> Precision commands for breach discovery and extraction.
+      </p>
+
+      <h3>4.1 Native Tool Execution: <code>leaks_search</code></h3>
+
+      <p>Query centralized breach aggregation for target exposure.</p>
+
+<pre><code class="language-bash"># Domain-wide exposure: identify all leaked emails and associated passwords
+leaks_search --query "target.com"
+
+# Specific high-value individual (authorization mandatory)
+leaks_search --query "ceo@target.com"
+
+# Username-based pivot (useful for SaaS platforms or developer accounts)
+leaks_search --query "targetdevops"
+
+# Search for breach entries containing specific keywords (e.g., VPN, internal apps)
+leaks_search --query "target.com vpn"
+leaks_search --query "target.com okta"</code></pre>
+
+      <h3>4.2 Native Tool Execution: <code>emailbook</code></h3>
+
+      <p>Generate valid corporate emails to maximize breach query coverage.</p>
+
+<pre><code class="language-bash"># Harvest valid emails for a domain (feeds leaks_search seed list)
+emailbook --domain target.com --max-results 500 > target_emails.txt
+
+# Chain to leaks_search for bulk breach triage
+for email in $(cat target_emails.txt); do
+    echo "[*] Checking breach exposure for: $email"
+    leaks_search --query "$email" >> breach_raw.json
+done
+</code></pre>
+
+      <h3>4.3 Native Tool Execution: <code>run_darkdump</code></h3>
+
+      <p>Dark web reconnaissance for threat actor activity involving the target.</p>
+
+<pre><code class="language-bash"># Search dark web for target domain mentions (markets, forums, leak sites)
+run_darkdump --query "target.com" --amount 20
+
+# Search for executive names or proprietary database references
+run_darkdump --query "\"Target Corp\" database" --amount 20
+run_darkdump --query "target.com stealer logs" --amount 20
+</code></pre>
+
+      <div class="reminder">
+        <strong>Output Formatting Requirement:</strong> When using <code>run_darkdump</code>, structure results explicitly as:
+        <ul>
+          <li><strong>Title:</strong> Site/resource title.</li>
+          <li><strong>Full URL</strong> (always included).</li>
+          <li><strong>Description:</strong> Content summary.</li>
+          <li><strong>Sentiment Analysis:</strong> Polarity &amp; subjectivity scores.</li>
+          <li><strong>Metadata:</strong> Fields and values.</li>
+          <li><strong>Document Links Count:</strong> Number of document links.</li>
+          <li><strong>Emails:</strong> List of emails (if any).</li>
+        </ul>
+      </div>
+
+      <h3>4.4 Paste Site &amp; Open Web Dorking</h3>
+
+      <pre><code class="language-bash"># Google dorks for fresh paste leaks (often missed by aggregation APIs)
+site:pastebin.com "target.com" "password"
+site:pastebin.com "target.com" "api_key"
+site:pastebin.com "@target.com" "login"
+
+# Ghostbin and alternative paste sites
+site:ghostbin.com "target.com"
+site:ideone.com "target.com"
+
+# Search for combo lists mentioning target domain (credential stuffing prep)
+"target.com" filetype:txt "combo"
+"target.com" "email:pass" OR "user:pass" filetype:txt</code></pre>
+
+      <h3>4.5 Exposed Storage &amp; Database Dumps (Non-Criminal Leaks)</h3>
+
+      <pre><code class="language-bash"># Misconfigured S3 buckets containing target data
+site:s3.amazonaws.com "target.com" "sql" OR "dump"
+site:blob.core.windows.net "target.com"
+
+# Exposed Elasticsearch / Kibana (frequently leak internal logs)
+intitle:"Elasticsearch" "target.com"
+intitle:"Kibana" "target.com"
+
+# Direct database exposure via web search
+"target.com" ext:sql "INSERT INTO" "password"
+"target.com" ext:csv "email,password"
+</code></pre>
+
+      <h3>4.6 Hash and Credential Pattern Analysis</h3>
+
+      <p>When breach data returns hashed credentials:</p>
+
+<pre><code class="language-bash"># Identify hash type for offline analysis (do NOT submit to online crackers without authorization)
+hashid "<hash_from_breach>"
+hashcat --identify hash_dump.txt
+
+# Extract password masks and patterns for spray list generation
+# (Analyze plaintext or cracked passwords to infer corporate policy)
+cat cracked_passwords.txt | sed 's/[a-z]/l/g; s/[A-Z]/u/g; s/[0-9]/d/g; s/[^a-zA-Z0-9]/s/g' | \
+  sort | uniq -c | sort -rn | head -20
+# Example output: ludsldd (lowercase, uppercase, digit, symbol, lowercase, digit, digit) -> policy inference
+</code></pre>
+</section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 5: MAP COMMON BREACH EXPOSURES & MISCONFIGURATIONS   -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="exposures">
+      <h2 id="exposures">5. Map Common Breach Exposures &amp; Misconfigurations</h2>
+
+      <p>
+        <strong>Adversary Goals:</strong> High-value intelligence targets in compromised data.
+      </p>
+
+      <h3>5.1 Credential Breach Patterns</h3>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table">
+          <thead>
+            <tr>
+              <th>Exposure</th>
+              <th>Detection</th>
+              <th>Adversarial Value</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Plaintext Passwords</td>
+              <td><code>leaks_search</code> returns clear-text values</td>
+              <td>Immediate credential stuffing against SSO/VPN</td>
+            </tr>
+            <tr>
+              <td>Hashed Passwords (MD5/SHA1/NTLM)</td>
+              <td><code>hashid</code> + offline cracking</td>
+              <td>Fast recovery; lateral movement if password reuse exists</td>
+            </tr>
+            <tr>
+              <td>Unique Corporate Passwords</td>
+              <td>Pattern analysis across multiple accounts</td>
+              <td>Infer password complexity policy; build targeted wordlists</td>
+            </tr>
+            <tr>
+              <td>Pre-2018 Breaches</td>
+              <td>Older hashes with known salts</td>
+              <td>Historical analysis for long-term password reuse habits</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>Adversarial Workflow:</p>
+
+<pre><code class="language-bash"># Extract all plaintext or trivially cracked passwords for a domain
+cat breach_raw.json | jq -r '.[] | select(.source=="Collection1" or .source=="Cit0Day") | .email, .password' > cred_pairs.txt
+
+# Build password spray list: unique passwords sorted by frequency (most common = higher hit probability)
+cat cred_pairs.txt | awk -F':' '{print $2}' | sort | uniq -c | sort -rn | awk '{print $2}' > spray_list.txt
+</code></pre>
+
+      <h3>5.2 Session &amp; Token Exposures (Stealer Logs)</h3>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table">
+          <thead>
+            <tr>
+              <th>Exposure</th>
+              <th>Detection</th>
+              <th>Adversarial Value</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Session Cookies</td>
+              <td>Dark web markets, stealer log aggregators</td>
+              <td>Bypass MFA by replaying valid sessions</td>
+            </tr>
+            <tr>
+              <td>Autofill Data</td>
+              <td>Browser credential stores exfiltrated by malware</td>
+              <td>Internal URLs, saved passwords, security question answers</td>
+            </tr>
+            <tr>
+              <td>RDP/VPN Credentials</td>
+              <td>Logs from infostealer infections on corp devices</td>
+              <td>Direct network access without phishing</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="info-remember">
+        <strong>Blue Team Detection Note:</strong><br>
+  Stealer logs are typically distributed via Telegram channels and dark web markets rather than public breach databases. 
+  While tools like <code>run_darkdump</code> may surface references, acquisition often requires premium threat-intel 
+  platform access or honeypot monitoring.
+</div>
+
+      <h3>5.3 Corporate &amp; Third-Party Data Leaks</h3>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table">
+          <thead>
+            <tr>
+              <th>Exposure</th>
+              <th>Detection</th>
+              <th>Adversarial Value</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Internal Database Schema</td>
+              <td>Exposed .sql dumps on pastebin/S3</td>
+              <td>Map table structures for SQL injection</td>
+            </tr>
+            <tr>
+              <td>Employee Contact Directories</td>
+              <td><code>leaks_search</code> for HR platforms</td>
+              <td>Spear-phishing target list with roles and managers</td>
+            </tr>
+            <tr>
+              <td>Customer PII</td>
+              <td>Misconfigured cloud storage or breach dumps</td>
+              <td>Regulatory pressure simulation, social engineering pretext</td>
+            </tr>
+            <tr>
+              <td>Source Code Archives</td>
+              <td><code>web_search</code> for .zip, .tar.gz with internal paths</td>
+              <td>Hardcoded secrets, internal hostnames, build pipelines</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>5.4 Dark Web Market Indicators</h3>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table">
+          <thead>
+            <tr>
+              <th>Indicator</th>
+              <th>Detection via <code>run_darkdump</code></th>
+              <th>Adversarial Value</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>"Database for sale — Target Corp"</td>
+              <td>Dark web forum post titles</td>
+              <td>Imminent or historical compromise confirmation</td>
+            </tr>
+            <tr>
+              <td>"Access — Target VPN / Citrix"</td>
+              <td>Marketplace listings</td>
+              <td>Third-party brokered initial access</td>
+            </tr>
+            <tr>
+              <td>Stealer logs filtered by domain</td>
+              <td>Vendor advertisements</td>
+              <td>Bulk credential/session acquisition</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 6: AUTOMATE INGESTION VIA API PIPELINES              -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="api-pipeline">
+      <h2 id="api-pipeline">6. Automate Ingestion via API Pipelines</h2>
+
+      <p>
+        <strong>Adversary Goals:</strong> From raw breach dumps to operational credential intelligence.
+        Manual breach analysis does not scale. Red teams must automate the ingestion, deduplication, and
+        pattern extraction of compromised credentials while maintaining strict data hygiene.
+      </p>
+
+      <h3>6.1 The Breach Intelligence Pipeline</h3>
+
+<pre><code class="language-python">#!/usr/bin/env python3
+# Conceptual adversary tool: Breach intelligence ingestion pipeline
+import json
+import sqlite3
+import subprocess
+import re
+from collections import Counter
+
+DB = "breach_intel.db"
+conn = sqlite3.connect(DB)
+c = conn.cursor()
+
+# Schema: Strict separation of identity, credential, and source
+c.execute('''CREATE TABLE IF NOT EXISTS breach_entries (
+                id INTEGER PRIMARY KEY, email TEXT, username TEXT,
+                password TEXT, hash TEXT, hash_type TEXT,
+                source TEXT, breach_date TEXT, first_seen TEXT,
+                domain TEXT, password_mask TEXT, is_plaintext BOOLEAN)''')
+
+c.execute('''CREATE TABLE IF NOT EXISTS password_patterns (
+                id INTEGER PRIMARY KEY, mask TEXT, frequency INTEGER,
+                domain TEXT, inferred_policy TEXT)''')
+
+def run_leaks_search(query):
+    """Conceptual wrapper for native leaks_search tool."""
+    # In practice: subprocess call or API wrapper
+    result = subprocess.run(["leaks_search", "--query", query],
+                          capture_output=True, text=True)
+    try:
+        return json.loads(result.stdout)
+    except Exception:
+        return []
+
+def generate_mask(password):
+    """Generate a Hashcat-style mask from plaintext password."""
+    if not password:
+        return None
+    mask = ""
+    for char in password:
+        if char.islower(): mask += "l"
+        elif char.isupper(): mask += "u"
+        elif char.isdigit(): mask += "d"
+        else: mask += "s"
+    return mask
+
+def ingest_domain(domain):
+    # Step 1: Harvest emails via emailbook
+    # Step 2: Query leaks_search for each
+    # Step 3: Parse and insert
+
+    # For this template, assume we have a JSON list of breach records
+    records = run_leaks_search(domain)
+
+    for record in records:
+        email = record.get("email", "")
+        password = record.get("password", "")
+        hash_val = record.get("hash", "")
+        hash_type = record.get("hash_type", "")
+        source = record.get("source", "unknown")
+
+        is_plain = bool(password and not hash_val)
+        mask = generate_mask(password) if is_plain else None
+
+        c.execute('''INSERT INTO breach_entries
+                     (email, password, hash, hash_type, source, domain, password_mask, is_plaintext)
+                     VALUES (?,?,?,?,?,?,?,?)''',
+                  (email, password, hash_val, hash_type, source, domain, mask, is_plain))
+
+    conn.commit()
+
+def analyze_patterns(domain):
+    """Extract top password masks to infer corporate policy."""
+    c.execute("SELECT password_mask FROM breach_entries WHERE domain=? AND is_plaintext=1", (domain,))
+    masks = [row[0] for row in c.fetchall() if row[0]]
+
+    counter = Counter(masks)
+    for mask, freq in counter.most_common(20):
+        # Infer policy: presence of uppercase, digits, symbols
+        has_upper = "u" in mask
+        has_digit = "d" in mask
+        has_sym = "s" in mask
+        min_len = len(mask)
+
+        inferred = f"Length>={min_len}; Upper={'Yes' if has_upper else 'No'}; Digit={'Yes' if has_digit else 'No'}; Symbol={'Yes' if has_sym else 'No'}"
+
+        c.execute('''INSERT INTO password_patterns (mask, frequency, domain, inferred_policy)
+                     VALUES (?,?,?,?)''', (mask, freq, domain, inferred))
+    conn.commit()
+
+# Operational execution
+TARGET_DOMAINS = ["target.com", "subsidiary.io"]
+for dom in TARGET_DOMAINS:
+    ingest_domain(dom)
+    analyze_patterns(dom)
+
+conn.close()
+</code></pre>
+
+      <h3>6.2 Dark Web Monitoring Automation</h3>
+
+<pre><code class="language-bash">#!/bin/bash
+# Weekly dark web sweep for target mentions
+TARGET_KEYWORDS=("target.com" "\"Target Corp\" database" "target.com stealer")
+
+for keyword in "${TARGET_KEYWORDS[@]}"; do
+    run_darkdump --query "$keyword" --amount 20 >> darkweb_raw.jsonl
+    echo "---" >> darkweb_raw.jsonl
+done
+
+# Alert on new entries (diff against previous week's baseline)
+diff /var/recon/darkweb_last.jsonl darkweb_raw.jsonl > /var/recon/darkweb_delta.txt
+cp darkweb_raw.jsonl /var/recon/darkweb_last.jsonl
+
+# If delta is non-empty, trigger analyst review
+if [ -s /var/recon/darkweb_delta.txt ]; then
+    echo "[ALERT] New dark web mentions detected for target"
+    cat /var/recon/darkweb_delta.txt
+fi
+</code></pre>
+
+      <h3>6.3 Exposed Storage Hunter</h3>
+
+<pre><code class="language-python">#!/usr/bin/env python3
+# Conceptual adversary tool: Exposed storage hunter
+import requests
+import re
+
+# Query web_search API conceptually for exposed storage
+# In practice, use Google Dorking via search APIs or spidering
+
+dorks = [
+    'site:s3.amazonaws.com "target.com" filetype:sql',
+    'site:blob.core.windows.net "target.com" ext:csv',
+    'site:pastebin.com "target.com" "password"'
+]
+
+def check_exposed_storage():
+    findings = []
+    for dork in dorks:
+        # Abstracted search execution
+        print(f"[+] Executing dork: {dork}")
+        # Parse results for direct URLs
+        # ... integration with search API ...
+    return findings
+
+# Verify if discovered URLs are still live and accessible
+def verify_url(url):
+    try:
+        r = requests.head(url, timeout=10, allow_redirects=True)
+        if r.status_code == 200:
+            return True
+    except Exception:
+        return False
+    return False
+</code></pre>
+</section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 7: OPERATIONAL GUIDANCE & BEST PRACTICES             -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="operational-guidance">
+      <h2 id="operational-guidance">7. Operational Guidance &amp; Best Practices</h2>
+
+      <ul>
+        <li>
+          <strong>Automate authoritative breach-checking:</strong>
+          Integrate HIBP and DeHashed API queries into identity, Continuous Integration and Continuous Deployment,
+          or enterprise credential hygiene pipelines. Track quotas, API keys, and response metadata so credential
+          exposures trigger automated resets or MFA enforcement.
+        </li>
+        <br>
+        <li>
+          <strong>Triangulate breach leads before escalation:</strong>
+          Check suspicious entries across multiple platforms — HIBP, DeHashed, Intelligence X,
+          LeakPeek, and public breach summaries. Coverage, indexing depth, and timestamp accuracy
+          differ across platforms, so correlation is essential for reliable triage.
+        </li>
+        <br>
+        <li>
+          <strong>Log every retrieval for auditability:</strong>
+          Store timestamps, query parameters, and raw JSON/API responses. Breach databases are
+          dynamic therefore data may shift, disappear, or gain new context later. Proper logging ensures
+          repeatable investigations and supports forensic traceability.
+        </li>
+        <br>
+        <li>
+          <strong>Operate within legal boundaries:</strong>
+          Accessing, downloading, or redistributing breach data may violate laws in multiple
+          jurisdictions. Treat all exposure findings as sensitive intelligence, restrict access,
+          and follow internal disclosure policies and contractual authorisations.
+        </li>
+      </ul>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 8: VERIFY AND TRIAGE SAFELY (OPSEC)                  -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="opsec">
+      <h2 id="opsec">8. Verify and Triage Safely (OPSEC)</h2>
+
+      <p>
+        <strong>Adversary Goals:</strong> Breach data handling is the highest-risk activity in OSINT from a
+        legal, ethical, and operational perspective. A single misstep can convert an authorized red team
+        engagement into a criminal data-privacy incident.
+      </p>
+
+      <h3>8.1 Legal &amp; Regulatory Boundaries</h3>
+
+      <ul>
+        <li><strong>Authorization is Mandatory:</strong> You must possess explicit, written authorization to query, 
+		download, retain, or analyze breach data containing PII, session tokens, API keys, or credentials belonging 
+		to the target organization.</li>
+        <li><strong>GDPR / CCPA / PDPA:</strong> Many jurisdictions classify breach database-possession and 
+		specifically session-token or credential extraction as unlawful processing of personal data unless 
+		you have a lawful basis. Red team contracts must explicitly cover breach intelligence.</li>
+        <li><strong>Third-Party Innocents:</strong> Breach dumps contain data for thousands of individuals unrelated 
+		to your target. You are responsible for minimizing collection and never retaining data outside scope.</li>
+      </ul>
+
+      <div class="reminder-opsec">
+        <strong>OPSEC Principle:</strong><br> 
+		If you cannot justify the lawful basis for holding a specific credential, session token, or PII record, you must delete it.
+      </div>
+
+      <h3>8.2 Data Hygiene &amp; Storage</h3>
+
+      <ul>
+        <li><strong>Air-Gapped Analysis:</strong> Perform breach data and stealer-log analysis on an isolated VM or 
+		encrypted container with no cloud sync, no corporate network access, and automatic snapshot deletion.</li>
+        <li><strong>Encryption at Rest:</strong> All breach databases, stealer-log archives, session-token extracts, 
+		JSON outputs, and wordlists must be stored encrypted (LUKS, VeraCrypt, or equivalent).</li>
+        <li><strong>Retention Policy:</strong> Define a strict destruction timeline in your RoE (e.g., "all breach data and 
+		extracted session material destroyed within 72 hours of engagement conclusion").</li>
+        <li><strong>No Production Credential Testing:</strong> Never test target credentials or replay session tokens 
+		against production systems unless explicitly authorized under a defined "credential / session verification" 
+		workstream.</li>
+      </ul>
+
+<pre><code class="language-bash"># Create encrypted analysis container
+cryptsetup luksFormat /dev/sdb1
+cryptsetup open /dev/sdb1 breach_analysis
+mkfs.ext4 /dev/mapper/breach_analysis
+mount /dev/mapper/breach_analysis /mnt/breach_intel
+
+# Securely wipe after engagement (includes token extracts, cookies, JSON)
+shred -vfz -n 3 /mnt/breach_intel/*.*
+cryptsetup close breach_analysis
+</code></pre>
+
+      <h3>8.3 Attribution &amp; Platform OPSEC</h3>
+
+      <ul>
+        <li><strong>Tor / VPN Isolation:</strong> Querying public breach sites (DeHashed, Have I Been Pwned) from your 
+		corporate IP creates an audit trail linking your organization to target credential lookups. Route all breach 
+		queries through dedicated engagement proxies or Tor.</li>
+        <li><strong>API Key Segregation:</strong> If using paid breach APIs, register accounts with burner emails and 
+		cryptocurrency payment where possible. Do not use corporate accounts.</li>
+        <li><strong>Session Token &amp; Cookie Hygiene:</strong> Stealer logs in 2026 frequently contain session 
+		cookies and SSO tokens rather than plaintext passwords. Treat these with the same, if not greater segregation 
+		as credentials; they bypass MFA and retain immediate operational value.</li>
+        <li><strong>Dark Web (<code>run_darkdump</code>):</strong> Dark web queries via Tor inherently provide 
+		anonymity, but ensure your Tor circuit is refreshed between target queries and that the underlying 
+		system has no identifying metadata.</li>
+        <li><strong>Pastebin Scraping:</strong> Aggressive scraping triggers CAPTCHA and IP bans. Use residential 
+		proxies and rotate User-Agents.</li>
+      </ul>
+
+<pre><code class="language-bash"># Route leaks_search queries through engagement proxy (example)
+export HTTPS_PROXY=http://engagement-proxy:3128
+leaks_search --query "target.com"
+
+# Torify dark web queries
+torsocks run_darkdump --query "target.com" --amount 20
+</code></pre>
+
+      <h3>8.4 Data Integrity &amp; Verification</h3>
+
+      <ul>
+        <li><strong>False Positives:</strong> Breach databases contain garbage, recycled data, intentional disinformation, 
+		and since late 2025, increasing volumes of <strong>AI-generated synthetic dumps</strong> (fabricated lists used 
+		for SEO or extortion). Correlate findings across multiple sources before weaponization.</li>
+        <li><strong>Age Assessment:</strong> A password from a 2012 LinkedIn breach is less likely to be valid than one 
+		from a 2024 stealer log, whereas a session cookie harvested yesterday is active <em>now</em>. Tag every credential 
+		and token with breach vintage.</li>
+        <li><strong>Hash Verification:</strong> Never assume a hash type. Use <code>hashid</code> or <code>hashcat --identify
+		</code> before attempting recovery. Misidentified hashes waste cycles and may damage cracking rigs.</li>
+      </ul>
+
+<pre><code class="language-bash"># Verify hash type before offline operations
+hashid -m '5f4dcc3b5aa765d61d8327deb882cf99'
+# Expected: MD5
+
+# Cross-reference multiple breach sources for same email
+grep "admin@target.com" breach_source_a.txt
+grep "admin@target.com" breach_source_b.txt
+# If passwords differ, the newer breach (by date) likely reflects current usage
+</code></pre>
+
+      <h3>8.5 OPSEC Checklist for Breach Intelligence Operations</h3>
+
+      <ul>
+        <li>✅ Written authorization explicitly covers breach data review, credential handling, session-token analysis, and PII processing</li>
+        <li>✅ All breach data stored exclusively on encrypted, air-gapped media with no cloud synchronization</li>
+        <li>✅ <code>leaks_search</code> and <code>emailbook</code> queries routed through engagement-specific proxies/VPNs</li>
+        <li>✅ Dark web operations (<code>run_darkdump</code>) executed from Tor-isolated VMs with no host telemetry</li>
+        <li>✅ Paid breach API accounts registered with burner identities and non-attributional payment</li>
+        <li>✅ Raw breach data filtered to retain only in-scope identities and tokens; out-of-scope PII purged immediately</li>
+        <li>✅ Synthetic dumps and AI-generated breach lists flagged and validated before inclusion in threat intel</li>
+        <li>✅ Hash types verified before any offline cracking attempts</li>
+        <li>✅ Password spray lists generated from deduplicated, scope-validated data only</li>
+        <li>✅ Session tokens, browser cookies, and API keys purged alongside credentials per retention policy</li>
+        <li>✅ Stealer log acquisition (if applicable) conducted through approved threat-intel vendors with lawful transfer agreements</li>
+        <li>✅ Complete destruction of all breach artifacts executed within RoE-mandated timeframe post-engagement</li>
+      </ul>
+
+      <div class="info-remember">
+        <strong>Blue Team Note:</strong><br> 
+		Breach data exposure is often the first sign of a successful compromise.
+        Defenders must automate HIBP/DeHashed domain monitoring, enforce MFA on all accounts, and rotate credentials
+        immediately when breach exposure is detected. Detection should focus on <strong>anomalous authentication patterns and token replay</strong>
+        (impossible travel, unusual user agents, off-hours login, session cookie reuse) rather than the breach data itself.
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 9: QUICK TRIAGING CHECKLIST                          -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="triage-checklist">
+      <h2 id="triage-checklist">9. Quick Triaging Checklist</h2>
+
+      <ul>
+        <li>
+          <strong>Scope relevance:</strong>
+          Does the breach include in-scope accounts, domains, active session tokens / API keys, or systems?
+          If yes, begin containment and rotate affected credentials or revoke tokens immediately.
+        </li>
+        <br>
+        <li>
+          <strong>Cross-verification:</strong>
+          Confirm findings on at least one authoritative service.
+          Multi-source corroboration strengthens confidence, exposes potential AI-generated synthetic dumps, and reduces false positives before notifying users or clients.
+        </li>
+        <br>
+        <li>
+          <strong>Fresh vs historic data:</strong>
+          Recent stealer-logs, active session cookies, or <strong>"live"</strong> breach dumps indicate immediate danger, especially
+          if paired with cleartext credentials, tokens, or API keys.
+        </li>
+        <br>
+        <li>
+          <strong>Document everything:</strong>
+          Record the source, timestamp, query method, platform used, and the resulting
+          remediation steps (password resets, token revocations, MFA activation, support tickets, etc.).
+        </li>
+      </ul>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 10: QUICK REFERENCE — ADVERSARIAL BREACH INTELLIGENCE -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="quickref">
+      <h2 id="quickref">10. Quick Reference: Adversarial Breach Intelligence Quick Sheet</h2>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table">
+          <thead>
+            <tr>
+              <th>Objective</th>
+              <th>Command / Tool</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Check domain breach exposure</td>
+              <td><code>leaks_search --query "target.com"</code></td>
+            </tr>
+            <tr>
+              <td>Check specific email exposure</td>
+              <td><code>leaks_search --query "user@target.com"</code></td>
+            </tr>
+            <tr>
+              <td>Stealer-log token / cookie exposure</td>
+              <td><code>leaks_search --query "target.com"</code> (review for session tokens &amp; API keys)</td>
+            </tr>
+            <tr>
+              <td>Enumerate emails for breach queries</td>
+              <td><code>emailbook --domain target.com --max-results 200</code></td>
+            </tr>
+            <tr>
+              <td>Dark web target mentions</td>
+              <td><code>run_darkdump --query "target.com" --amount 20</code></td>
+            </tr>
+            <tr>
+              <td>Paste site credential / token leaks</td>
+              <td><code>web_search</code> + <code>site:pastebin.com "target.com" (password OR token OR api-key)</code></td>
+            </tr>
+            <tr>
+              <td>Exposed S3 / cloud storage</td>
+              <td><code>site:s3.amazonaws.com "target.com" (filetype:sql OR filetype:env)</code></td>
+            </tr>
+            <tr>
+              <td>Identify hash type</td>
+              <td><code>hashid '&lt;hash&gt;'</code> or <code>hashcat --identify hash.txt</code></td>
+            </tr>
+            <tr>
+              <td>Generate password masks</td>
+              <td><code>sed 's/[a-z]/l/g; s/[A-Z]/u/g; s/[0-9]/d/g; s/[^a-zA-Z0-9]/s/g'</code></td>
+            </tr>
+            <tr>
+              <td>Encrypt breach analysis volume</td>
+              <td><code>cryptsetup luksFormat /dev/sdX</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 11: DEFENSIVE COUNTERMEASURES                        -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="defense">
+      <h2 id="defense">11. Defensive Countermeasures &amp; Threat Mapping</h2>
+
+      <p>
+        Translating adversarial breach intelligence into defense requires
+        <strong>credential hygiene</strong>, <strong>continuous monitoring</strong>, and
+        <strong>rapid incident response</strong>.
+      </p>
+
+      <h3>Defensive Best Practices</h3>
+
+      <ul>
+        <li><strong>Domain Monitoring:</strong> Subscribe to HIBP domain monitoring for all corporate domains; receive alerts when new breaches include your emails.</li>
+        <li><strong>MFA Enforcement:</strong> Mandate MFA on all accounts, especially privileged and remote access (VPN, SSO, email).</li>
+        <li><strong>Password Policies:</strong> Enforce unique, complex passwords and disallow password reuse across personal and corporate accounts.</li>
+        <li><strong>Credential Rotation:</strong> Automatically rotate credentials and revoke exposed API keys upon breach notification; integrate with identity management systems.</li>
+        <li><strong>Stealer Log Detection:</strong> Monitor for stolen session cookies, token replay attacks, unusual user agents, and off-hours access patterns.</li>
+        <li><strong>Dark Web Monitoring:</strong> Use threat-intel platforms to monitor for target mentions on dark web markets and forums.</li>
+        <li><strong>Incident Response Playbook:</strong> Develop and rehearse breach response procedures, including credential resets, token revocations, forensic collection, and notification workflows.</li>
+      </ul>
+
+      <h3>Consolidated Adversary TTP → Defensive Control Matrix</h3>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table" style="width:100%; border-collapse:collapse; border:1px solid rgba(255,255,255,0.1); margin:1em 0; font-size:0.95rem;">
+          <thead>
+            <tr>
+              <th>Adversary Technique</th>
+              <th>Observable Indicator</th>
+              <th>Defensive Action / Detection</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Breach database querying (<code>leaks_search</code>)</td>
+              <td>No direct logs (uses third-party breach data)</td>
+              <td>Domain monitoring; breach notification alerts; assume compromised</td>
+            </tr>
+            <tr>
+              <td>Email enumeration (<code>emailbook</code>)</td>
+              <td>No direct server-side logs (uses third-party APIs)</td>
+              <td>Educate staff on email exposure; monitor external brand mentions</td>
+            </tr>
+            <tr>
+              <td>Dark web monitoring (<code>run_darkdump</code>)</td>
+              <td>No direct logs (dark web platforms)</td>
+              <td>Subscribe to threat-intel feeds; monitor for target mentions</td>
+            </tr>
+            <tr>
+              <td>Password / token pattern analysis</td>
+              <td>No direct logs (offline analysis)</td>
+              <td>Enforce complex, unique passwords; implement password filtering; rotate exposed tokens</td>
+            </tr>
+            <tr>
+              <td>Credential stuffing via spray list</td>
+              <td>Multiple failed logins from diverse IPs; impossible travel</td>
+              <td>MFA enforcement; rate-limiting; geo-velocity anomaly detection</td>
+            </tr>
+            <tr>
+              <td>Stealer log acquisition (session cookies, tokens)</td>
+              <td>Session replay from unusual user agents/IPs; token abuse outside expected device profiles</td>
+              <td>Session management; token binding and revocation; continuous authentication</td>
+            </tr>
+            <tr>
+              <td>Exposed storage discovery</td>
+              <td>Third-party probes to cloud storage URLs</td>
+              <td>Cloud access audits; bucket policies; regular exposure scans</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 12: SUPPORTING RESOURCES                             -->
+    <!-- ============================================================ -->
+
+    <section class="resources" aria-label="Supporting resources">
+      <h2 id="resources">12. Supporting Resources &amp; Recommended Reading</h2>
+
+      <ul>
+        <li>
+          <a href="https://haveibeenpwned.com/API/v3" target="_blank" rel="noopener">
+            Have I Been Pwned API Documentation
+          </a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: Official API for enterprise breach checking and domain monitoring.</small>
+        </li>
+        <li>
+          <a href="https://www.dehashed.com/" target="_blank" rel="noopener">
+            DeHashed Search &amp; API
+          </a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: Commercial breach search platform with extensive API capabilities.</small>
+        </li>
+        <li>
+          <a href="https://intelx.io/" target="_blank" rel="noopener">
+            Intelligence X Platform
+          </a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: Surface, deep, and darknet indexing including pastes and historical leak archives.</small>
+        </li>
+        <li>
+          <a href="https://leakpeek.com/" target="_blank" rel="noopener">
+            LeakPeek
+          </a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: Quick breach-lookups for emails, hashes, and username exposures.</small>
+        </li>
+        <li>
+          <a href="https://ghostproject.fr/" target="_blank" rel="noopener">
+            GhostProject
+          </a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: Community breach index—useful for broad searches but requires careful validation.</small>
+        </li>
+        <li>
+          <a href="https://www.ibm.com/reports/data-breach" target="_blank" rel="noopener">
+            IBM: Cost of a Data Breach Report (2025)
+          </a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: Analysis of breach trends, root causes, and impacts across multiple industries.</small>
+        </li>
+        <li>
+          <a href="https://www.huntress.com/blog/biggest-data-breaches" target="_blank" rel="noopener">
+            Huntress: 2025 Major Breach Overview
+          </a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: Breakdown of major breach incidents and how attackers succeeded.</small>
+        </li>
+        <li>
+          <a href="https://hashcat.net/wiki/" target="_blank" rel="noopener">
+            Hashcat Wiki
+          </a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: Hash identification, mode selection, and password cracking techniques.</small>
+        </li>
+      </ul>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 13: CHAPTER SUMMARY                                  -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="chapter-summary">
+      <h2 id="chapter-summary">13. Chapter Summary</h2>
+
+      <p>
+        By completing this chapter you should now be able to:
+      </p>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin: 20px 0;">
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Classify exposure types before querying breach databases.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;">Credential breaches, paste leaks, stealer logs, corporate DB dumps, combo lists, dark web markets, misconfigured storage.</span></span>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Navigate notable breach platforms and understand their strengths.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;">HIBP, DeHashed, Intelligence X, LeakPeek, GhostProject.</span></span>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Execute advanced breach query syntax.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;">leaks_search, emailbook, run_darkdump, paste site dorks, exposed storage discovery, hash identification.</span></span>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Automate breach intelligence ingestion.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;">Python pipelines, SQLite schemas, dark web monitoring automation, exposed storage hunting.</span></span>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Apply OPSEC to breach intelligence operations.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;">Legal boundaries, data hygiene, attribution control, data integrity verification, OPSEC checklist.</span></span>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Implement defensive countermeasures.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;">Domain monitoring, MFA enforcement, credential rotation, stealer log detection, incident response.</span></span>
+        </div>
+
+      </div>
+
+      <div class="info-remember" style="margin: 15px 0;">
+        <strong>Why This Matters:</strong>
+        <span style="display: block; margin-top: 5px;">
+          Breach data provides pre-compromise intelligence that no scanner can replicate. You learn what has
+          already been broken, what credentials circulate in criminal economies, and whether your target has
+          been quietly compromised before your engagement begins. Extracted passwords feed directly into
+          password spray lists and credential stuffing campaigns against SSO, VPN, and cloud portals. Session
+          cookies from stealer logs bypass MFA entirely. This is the phase where passive intelligence directly
+          converts into initial access material.
+        </span>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 14: KEY TAKEAWAYS                                    -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="takeaways">
+      <h2 id="takeaways">14. Key Takeaways</h2>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table">
+          <thead>
+            <tr>
+              <th>Concept</th>
+              <th>Why It Matters</th>
+              <th>Security Impact</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Breach Data Is the Most Sensitive OSINT Resource</strong></td>
+              <td>Contains PII and credentials belonging to both targets and innocents.</td>
+              <td>Unauthorized access, retention, or testing is a criminal act in virtually all jurisdictions.</td>
+            </tr>
+            <tr>
+              <td><strong>Plaintext Passwords Enable Immediate Access</strong></td>
+              <td><code>leaks_search</code> returns clear-text credentials from modern stealer logs.</td>
+              <td>One valid credential against SSO/VPN compromises the entire identity ecosystem.</td>
+            </tr>
+            <tr>
+              <td><strong>Stealer Logs Bypass MFA</strong></td>
+              <td>Session cookies and autofill data enable session replay without credentials.</td>
+              <td>MFA is not a defense against session hijacking from infostealer malware.</td>
+            </tr>
+            <tr>
+              <td><strong>Password Patterns Reveal Corporate Policy</strong></td>
+              <td>Mask analysis infers minimum length, complexity requirements, and common patterns.</td>
+              <td>Targeted wordlists achieve higher spray success rates than generic lists.</td>
+            </tr>
+            <tr>
+              <td><strong>Dark Web Markets Indicate Imminent Threat</strong></td>
+              <td>"Access for sale" or database listings confirm third-party compromise.</td>
+              <td>Prioritize remediation for any target mentioned in dark web marketplaces.</td>
+            </tr>
+            <tr>
+              <td><strong>Paste Sites Are Ephemeral High-Value Sources</strong></td>
+              <td>Fresh dumps appear on Pastebin/Ghostbin before aggregation APIs index them.</td>
+              <td>Early discovery enables preemptive credential rotation before adversaries weaponize.</td>
+            </tr>
+            <tr>
+              <td><strong>Misconfigured Storage Leaks Without "Breach" Attribution</strong></td>
+              <td>S3 buckets, Elasticsearch, and MongoDB expose data without criminal compromise.</td>
+              <td>Defenders must audit cloud storage configurations continuously.</td>
+            </tr>
+            <tr>
+              <td><strong>Hash Identification Is Prerequisite to Recovery</strong></td>
+              <td>Misidentified hashes waste cycles and may damage cracking hardware.</td>
+              <td>Always use <code>hashid</code> or <code>hashcat --identify</code> before offline operations.</td>
+            </tr>
+            <tr>
+              <td><strong>Correlation Across Sources Prevents False Positives</strong></td>
+              <td>Breach databases contain garbage, recycled data, and honeytokens.</td>
+              <td>Triangulate findings across HIBP, DeHashed, and Intelligence X before escalation.</td>
+            </tr>
+            <tr>
+              <td><strong>Data Hygiene Is Non-Negotiable</strong></td>
+              <td>Breach data retention without authorization violates data protection laws.</td>
+              <td>Encrypt, air-gap, and destroy all breach artifacts within RoE-mandated timelines.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 15: KNOWLEDGE CHECK                                  -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="knowledge-check">
+      <h2 id="knowledge-check">15. Knowledge Check</h2>
+
+      <p>
+        Before moving on to the next section, take a moment to reflect on the key concepts
+        covered in this chapter.
+      </p>
+
+      <div class="card">
+        <h3>Reflection Questions</h3>
+        <ol>
+          <li>
+            <strong>Why is breach intelligence considered the highest-risk discipline in OSINT from a legal and ethical perspective?</strong>
+            <br>
+            <span style="color: #aaa; font-size: 0.9rem;">
+              Consider PII handling, data protection regulations, and the difference between authorized and unauthorized access.
+            </span>
+          </li>
+          <li>
+            <strong>What is the difference between a credential breach, a stealer log, and a misconfigured storage exposure?</strong>
+            <br>
+            <span style="color: #aaa; font-size: 0.9rem;">
+              Think about the source of the data, the mechanism of exposure, and the operational value of each.
+            </span>
+          </li>
+          <li>
+            <strong>How can an adversary use password pattern analysis to infer corporate password policies?</strong>
+            <br>
+            <span style="color: #aaa; font-size: 0.9rem;">
+              Consider Hashcat masks, frequency analysis, and complexity inference.
+            </span>
+          </li>
+          <li>
+            <strong>What OPSEC measures are essential when querying breach databases and dark web sources?</strong>
+            <br>
+            <span style="color: #aaa; font-size: 0.9rem;">
+              Think about proxy routing, API key segregation, Tor isolation, and data sanitization.
+            </span>
+          </li>
+          <li>
+            <strong>Why should defenders implement domain monitoring via HIBP and enforce MFA as a baseline control?</strong>
+            <br>
+            <span style="color: #aaa; font-size: 0.9rem;">
+              Consider breach notification lead time, credential reuse risks, and session replay attacks.
+            </span>
+          </li>
+        </ol>
+      </div>
+
+      <div class="card">
+        <h3>Scenario-Based Question</h3>
+        <p>
+          <strong>Scenario:</strong> You are a Red Team operator tasked with assessing the credential exposure
+          of a large financial services organisation. You have explicit written authorization to review breach
+          data containing in-scope emails and passwords. The organisation uses Okta for SSO and has a mix of
+          on-premise and cloud-hosted infrastructure.
+        </p>
+        <p><strong>Task:</strong> Design a complete breach intelligence workflow using the tools and
+        techniques covered in this chapter.</p>
+      </div>
+
+      <div class="info-remember">
+        <strong>Suggested Approach:</strong>
+        <ul>
+          <li><strong>Phase 1:</strong> Build breach intelligence dossier with target entities, persona scope, and authorized actions.</li>
+          <li><strong>Phase 2:</strong> Enumerate corporate emails via <code>emailbook</code> for the target domain.</li>
+          <li><strong>Phase 3:</strong> Query <code>leaks_search</code> for each email to identify plaintext and hashed credentials.</li>
+          <li><strong>Phase 4:</strong> Correlate findings across HIBP, DeHashed, and Intelligence X to validate exposure.</li>
+          <li><strong>Phase 5:</strong> Extract password masks to infer corporate policy and build targeted spray lists.</li>
+          <li><strong>Phase 6:</strong> Run <code>run_darkdump</code> to identify dark web market mentions or access-for-sale listings.</li>
+          <li><strong>Phase 7:</strong> Ingest all findings into encrypted SQLite database for operational use.</li>
+          <li><strong>Phase 8:</strong> Destroy all breach artifacts within RoE-mandated timeline post-engagement.</li>
+        </ul>
+      </div>
+
+      <div class="reminder-lightblue">
+        <strong>Gateway Criteria:</strong><br>
+        <span>Proceed to the next section when you can confidently answer
+        all five reflection questions and explain your rationale for the scenario-based question.
+        <br>If any concept is unclear, revisit the relevant sections above before moving on.</span>
+      </div>
+
+      <div class="info-remember">
+        <em>RedOps Reminder:</em> Breach intelligence is the most legally sensitive discipline in red team OSINT.
+        Unauthorized access to, retention of, or testing with stolen credentials is a criminal act in virtually
+        all jurisdictions. Operate only within the narrow corridor of explicit, documented authorization.
+        Treat breach search results as leads — verify, timestamp, and escalate only with proof and proper authorization.
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- FLOATING NAVIGATION                                           -->
+    <!-- ============================================================ -->
+
+    <div class="lesson-nav-container">
+      <a href="https://iscsecurity.org/content/1-ethical-hacking/2-open-source-intelligence/17-internet-structure" class="nav-link-btn">👈 Back</a>
+      <a href="https://iscsecurity.org/content/1-ethical-hacking/2-open-source-intelligence/19-tor" class="nav-link-btn">Next 👉</a>
+    </div>
+
+    </article>
+  </main>
+</body>
+</html>

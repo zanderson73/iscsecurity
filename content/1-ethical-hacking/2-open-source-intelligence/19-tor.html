@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>TOR Network Operations &amp; Dark Web OSINT | ISCSECURITY Master Class Series</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="/css/styles.css?v=2026_PRODUCTION_FINAL" />
+  
+  <!-- MemberSpace -->
+  <script>
+    window.MemberSpace = window.MemberSpace || { subdomain: "iscsecurity" };
+    (function(d){
+      var s = d.createElement("script");
+      s.src = "https://cdn.memberspace.com/scripts/widgets.js";
+      s.async = true;
+      d.head.appendChild(s);
+    })(document);
+  </script>
+  
+</head>
+
+<body class="page-lesson">
+
+<div class="site-topbar" role="note" aria-label="Legal notice">
+  <small class="topbar-note">
+    © 2026 ISCSECURITY · Authorization-first training. All testing must be lawful, scoped, and approved in writing.
+  </small>
+	<nav class="topbar-links" aria-label="Topbar links">
+      <a href="https://iscsecurity.org/index">Home</a>
+      <a href="https://iscsecurity.org/content/index">Content</a>
+	  <a href="https://iscsecurity.org/content/1-ethical-hacking/2-open-source-intelligence/index">OSINT</a>
+      <a href="https://iscsecurity.org/contact">Contact</a>
+    </nav>
+</div>
+
+  <main class="page modules-page no-shift" id="ethical-hacking-training-content" data-ms-content="members-only">
+  <article class="lesson-content overlay" tabindex="0" aria-label="Lesson content: TOR Network Operations &amp; Dark Web OSINT">
+
+    <p class="breadcrumb">
+      <a href="https://iscsecurity.org/index">Home</a> →
+        <a href="https://iscsecurity.org/content/index">Content</a> →
+        <a href="https://iscsecurity.org/content/1-ethical-hacking/2-open-source-intelligence/index">OSINT</a> →
+      <span aria-current="page">Page 19</span>
+    </p>
+
+    <h1>TOR Network Operations &amp; Dark Web OSINT</h1>
+
+    <!-- ============================================================ -->
+    <!-- AUTHORIZED USE BANNERS                                        -->
+    <!-- ============================================================ -->
+
+    <div class="reminder-auth">
+      <strong>🚨 AUTHORIZED USE ONLY:</strong>
+      <span>
+        All content in this document is for educational and defensive training purposes only.
+        The adversarial techniques described are derived from real-world tradecraft but
+        are documented exclusively for <strong>defensive analysis, detection engineering,
+        and authorized security testing</strong>. Unauthorized deployment of any technique
+        described may constitute a criminal offense under applicable national and
+        international cybercrime laws. Always obtain <strong>explicit written authorization</strong>
+        from the system owner or authorized legal entity before testing, executing, or
+        simulating any of the techniques outlined in this document.
+      </span>
+    </div>
+
+    <div class="reminder-comp">
+      <strong>🌍 INTERNATIONAL COMPLIANCE NOTICE:</strong>
+      <span>
+        Cybercrime laws vary significantly by jurisdiction. It is your sole responsibility
+        to understand and comply with the laws applicable to your location, the location
+        of any target systems, and your organization's policies. When in doubt,
+        <strong>consult a qualified legal professional</strong> before testing, executing,
+        or simulating any technique described in this document.
+      </span>
+    </div>
+	
+	<!-- ============================================================ -->
+    <!-- LAB ENVIRONMENT DISCLAIMER & SETUP GUIDANCE                  -->
+    <!-- ============================================================ -->
+
+    <div class="reminder-lab">
+      <strong>🧪 LAB ENVIRONMENT NOTICE:</strong>
+      <span>
+        All practical examples, command-line executions, and scenario-based exercises in this document are demonstrated within the <strong>ISCSEC internal training laboratory</strong>. 
+        This is a controlled, isolated environment that exists solely for educational and defensive training purposes.
+      </span>
+      <br><br>
+      <span>
+        <strong>You do not have access to the ISCSEC lab.</strong> As a learner, you are expected to build and maintain your own isolated lab environment, 
+        replicating the documented topology, IP schemes, and hostname conventions. The ISCSEC lab serves as a <strong>canonical reference topology</strong> 
+        for this training, not a shared or remotely accessible resource.
+      </span>
+      <br><br>
+      <span>
+        <strong>Lab requirements:</strong>
+        <ul>
+          <li>Isolated virtualised environment (e.g., VMware Workstation, VirtualBox, or Hyper-V)</li>
+          <li>Attacker operator platform (e.g., Kali Linux or equivalent)</li>
+          <li>Target Windows host (e.g., CLIENT01 at 172.16.5.60)</li>
+          <li>Internal network with domain controller (DC01 at 172.16.5.25), SQL server (SQL01 at 172.16.5.20), web server (WEB01 at 172.16.5.30), and application server (APP01 at 172.16.5.40)</li>
+          <li>All testing must be conducted within your own isolated network with <strong>explicit written authorization</strong> for any systems involved</li>
+        </ul>
+      </span>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 1: ANONYMITY REQUIREMENTS & ONION INFRASTRUCTURE     -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="anonymity-scoping">
+      <h2 id="anonymity-scoping">1. Anonymity Requirements &amp; Onion Infrastructure Scoping</h2>
+
+      <p>
+        <strong>Adversary Goals:</strong> Before launching TOR, classify exactly why anonymity is required
+        and what you intend to access, monitor, or simulate. TOR usage in red team operations spans a
+        spectrum from passive intelligence collection (dark web monitoring) to active anonymous interaction
+        (simulating adversary C2 or accessing onion services).
+      </p>
+
+      <p>
+        TOR is not merely a privacy browser, it is an <strong>anonymity infrastructure layer</strong> that
+        enables both threat-intelligence collection and anonymous operational execution. This section
+        integrates foundational TOR tradecraft with red-team operational workflows.
+      </p>
+
+      <h3>1.1 The TOR Operational Dossier</h3>
+
+      <pre><code class="language-json">{
+  "operation_type": "dark_web_monitoring | anonymous_c2_sim | threat_intel_harvest",
+  "target_onion_presence": ["leak_site.onion", "marketplace.onion", "negotiation_portal.onion"],
+  "anonymity_requirements": "complete_unlinkable | origin_obfuscation | censorship_bypass",
+  "attribution_risk": "high (nation-state adversary simulation) | medium (criminal forum monitoring)",
+  "bridge_requirement": false,
+  "pluggable_transport": "none | obfs4 | meek | snowflake",
+  "isolation_level": "vm_isolated | tor_over_vpn | dedicated_egress_node"
+}</code></pre>
+
+      <h3>1.2 TOR Network Layers</h3>
+
+      <p>Define your interaction model:</p>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table" style="width:100%; border-collapse:collapse; border:1px solid rgba(255,255,255,0.1); margin:1em 0; font-size:0.95rem;">
+          <thead>
+            <tr>
+              <th>Layer</th>
+              <th>Description</th>
+              <th>Operational Value</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Client Anonymization</td>
+              <td>Standard user → Guard → Middle → Exit → Destination</td>
+              <td>Protects operator origin IP during research and OSINT</td>
+            </tr>
+            <tr>
+              <td>Onion Services (.onion)</td>
+              <td>Host publishes service accessible only via TOR; no exit node</td>
+              <td>Both operator and site hide network location; used by ransomware leak sites</td>
+            </tr>
+            <tr>
+              <td>Bridge Relays</td>
+              <td>Unlisted entry points for censored regions</td>
+              <td>Prevents ISP/local network from detecting TOR usage</td>
+            </tr>
+            <tr>
+              <td>Pluggable Transports</td>
+              <td>obfs4, meek, snowflake—obfuscate TOR traffic shape</td>
+              <td>Evades deep-packet inspection (DPI) and state-level blocking</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="reminder">
+        <strong>Red Team Principle:</strong><br> 
+		TOR provides anonymity, not impunity. Operational errors frequently
+        deanonymize users more effectively than traffic analysis. Document every .onion accessed and never
+        exceed written authorization.
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 2: TOOL SELECTION MATRIX — ANONYMITY & DARK WEB     -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="tool-matrix">
+      <h2 id="tool-matrix">2. Tool Selection Matrix: The Anonymity &amp; Dark Web Intelligence Matrix</h2>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table" style="width:100%; border-collapse:collapse; border:1px solid rgba(255,255,255,0.1); margin:1em 0; font-size:0.95rem;">
+          <thead>
+            <tr>
+              <th>Recon Layer</th>
+              <th>Tool / Resource</th>
+              <th>Adversarial Use Case</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Dark Web Search</td>
+              <td><code>run_darkdump</code> (native), Ahmia, Kilos</td>
+              <td>Query .onion sites and dark web indexes for target mentions</td>
+            </tr>
+            <tr>
+              <td>TOR Browser</td>
+              <td>Official Tor Browser (Firefox-based hardened)</td>
+              <td>Anonymous browsing, anti-fingerprinting, circuit visualization</td>
+            </tr>
+            <tr>
+              <td>Proxy Wrapping</td>
+              <td><code>torsocks</code>, <code>proxychains-ng</code></td>
+              <td>Force arbitrary Linux tools through TOR without native SOCKS support</td>
+            </tr>
+            <tr>
+              <td>Circuit Control</td>
+              <td><code>tor</code> daemon + Stem (Python controller), <code>nyx</code></td>
+              <td>Build custom circuits, isolate streams, automate circuit rotation</td>
+            </tr>
+            <tr>
+              <td>Bridge / PT Config</td>
+              <td><code>obfs4proxy</code>, <code>snowflake-client</code></td>
+              <td>Circumvent network blocks and censorship fences</td>
+            </tr>
+            <tr>
+              <td>Onion Service Enumeration</td>
+              <td><code>nmap</code> via <code>torsocks</code>, <code>curl --socks5-hostname</code></td>
+              <td>Probe .onion service ports and headers when authorized</td>
+            </tr>
+            <tr>
+              <td>Fingerprinting</td>
+              <td>ExifTool, manual TLS analysis</td>
+              <td>Verify that your TOR client presents expected anonymity set</td>
+            </tr>
+            <tr>
+              <td>Dark Web OSINT</td>
+              <td><code>web_search</code> (surface indexers), Telegram channels</td>
+              <td>Correlate surface-web breach announcements with dark web evidence</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 3: MASTER ADVANCED QUERY SYNTAX & CONFIGURATION      -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="query-syntax">
+      <h2 id="query-syntax">3. Master Advanced Query Syntax &amp; Configuration</h2>
+
+      <p>
+        <strong>Adversary Goals:</strong> Relay configuration, proxy chains, and dark web tooling for
+        precision anonymous operations.
+      </p>
+
+      <h3>3.1 TOR Daemon &amp; Client Configuration (<code>torrc (Tor Run Control</code>))</h3>
+
+<pre><code class="language-bash"># Minimal hardened torrc for red team operations
+# Path: /etc/tor/torrc (Linux) or Tor Browser -> Settings
+
+# Isolate circuits per destination (prevents cross-site correlation)
+SOCKSPort 9050 IsolateDestAddr IsolateDestPort
+
+# Control port for automation (Stem/Python) — bind to localhost only
+ControlPort 9051
+CookieAuthentication 1
+CookieAuthFile /var/lib/tor/control_auth_cookie
+
+# Automated circuit rotation via controller (do not rely on New Identity button)
+MaxCircuitDirtiness 10
+
+# Bridge configuration (if operating from censored/ surveilled egress)
+# UseBridge 1
+# Bridge obfs4 <IP:PORT> <FINGERPRINT> cert=CERT iat-mode=0
+
+# Strict exit node policy — avoid certain jurisdictions if simulating specific threat actor
+# ExitNodes {us},{ca},{gb}
+# ExcludeExitNodes {ir},{cn},{ru}
+</code></pre>
+
+      <h3>3.2 Proxy Wrapping for OSINT Tools</h3>
+
+      <p>Force native tools through TOR to mask operator origin during reconnaissance.</p>
+
+<pre><code class="language-bash"># Route leaks_search through TOR (masks querying IP from breach APIs)
+torsocks leaks_search --query "target.com"
+
+# Dark web monitoring via native tool through TOR circuit
+torsocks run_darkdump --query "target.com" --amount 20
+
+# DNS resolution and curl to .onion services (requires --socks5-hostname for DNS resolution over SOCKS)
+curl --socks5-hostname 127.0.0.1:9050 -v http://&lt;service&gt;.onion/
+
+# Proxychains for multi-hop or tool chaining
+proxychains4 nmap -sT -Pn -p80,443 &lt;target&gt;.onion
+proxychains4 curl -s http://check.torproject.org
+</code></pre>
+
+      <h3>3.3 TOR Browser Operational Hardening</h3>
+
+<pre><code class="language-bash"># Verify TOR Browser integrity before launch (Linux)
+gpg --auto-key-locate nodefault,wkd --locate-keys torbrowser@torproject.org
+gpg --verify tor-browser-linux-xx.x.x.tar.xz.asc tor-browser-linux-xx.x.x.tar.xz
+
+# Launch with explicit SOCKS proxy port for tool chaining
+# Tor Browser exposes SOCKS on 9150 by default (distinct from system tor on 9050)
+export TBB_SOCKS=127.0.0.1:9150
+curl --socks5-hostname $TBB_SOCKS https://check.torproject.org
+</code></pre>
+
+      <h3>3.4 Dark Web Query Syntax via <code>run_darkdump</code></h3>
+
+      <p>Execute targeted dark web searches for threat actor activity.</p>
+
+<pre><code class="language-bash"># Search for target domain mentions on dark web markets and forums
+run_darkdump --query "target.com" --amount 20
+
+# Search for leaked database sales or stealer logs
+run_darkdump --query "\"Target Corp\" database for sale" --amount 20
+
+# Search for executive exposure or negotiation portals
+run_darkdump --query "target.com ransomware negotiation" --amount 20
+</code></pre>
+
+      <div class="reminder">
+        <strong>Output Formatting Requirement:</strong><br> 
+		When using <code>run_darkdump</code>, structure results explicitly as:
+        <ul>
+          <li><strong>Title:</strong> Website/resource title.</li>
+          <li><strong>Full URL</strong> (always included).</li>
+          <li><strong>Description:</strong> Content summary.</li>
+          <li><strong>Sentiment Analysis:</strong> Polarity &amp; subjectivity scores.</li>
+          <li><strong>Metadata:</strong> Fields and values.</li>
+          <li><strong>Document Links Count:</strong> Number of document links.</li>
+          <li><strong>Emails:</strong> List of emails (if any).</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 4: MAP COMMON TOR EXPOSURES & MISCONFIGURATIONS      -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="exposures">
+      <h2 id="exposures">4. Map Common TOR Exposures &amp; Misconfigurations</h2>
+
+      <p>
+        <strong>Adversary Goals:</strong> Anonymity failures, deanonymization vectors, and infrastructure weaknesses.
+      </p>
+
+      <h3>4.1 Exit-Node Risks &amp; Traffic Capture</h3>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table">
+          <thead>
+            <tr>
+              <th>Exposure</th>
+              <th>Detection / Context</th>
+              <th>Adversarial Value</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Unencrypted Exit Traffic</td>
+              <td>HTTP (not HTTPS) exiting TOR</td>
+              <td>Exit node operators or compromised exits can sniff credentials</td>
+            </tr>
+            <tr>
+              <td>DNS Leakage Outside TOR</td>
+              <td>Applications resolving DNS via local resolver</td>
+              <td>Local ISP observes destination domains despite TOR usage</td>
+            </tr>
+            <tr>
+              <td>Time Correlation</td>
+              <td>Login times across sessions correlate with operator timezone</td>
+              <td>Deanonymization via behavioral pattern analysis</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>Mitigation Commands:</p>
+
+<pre><code class="language-bash"># Verify no DNS leakage (should return TOR exit IP, never your ISP)
+curl --socks5-hostname 127.0.0.1:9050 https://dnsleaktest.com/standardtest.html
+
+# Verify all traffic egresses through TOR
+curl --socks5-hostname 127.0.0.1:9050 https://check.torproject.org
+</code></pre>
+
+      <h3>4.2 Onion Service Misconfigurations</h3>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table">
+          <thead>
+            <tr>
+              <th>Exposure</th>
+              <th>Detection</th>
+              <th>Adversarial Value</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Server-side deanonymization (real IP in headers)</td>
+              <td><code>curl -I</code> against .onion inspecting Server, X-Forwarded-For</td>
+              <td>Reveals origin infrastructure behind hidden service</td>
+            </tr>
+            <tr>
+              <td>Apache/Nginx misconfigured to listen on clearnet + TOR</td>
+              <td>Censys/Shodan for leaked server headers matching .onion content</td>
+              <td>Direct clearnet access bypassing anonymity layer</td>
+            </tr>
+            <tr>
+              <td>SSL/TLS certificate issued to real domain on .onion service</td>
+              <td>Certificate transparency log correlation</td>
+              <td>Links .onion identity to registered organization</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>4.3 Bridge &amp; Pluggable Transport Enumeration</h3>
+
+      <p>
+        While bridges are intended to be secret, aggressive scanning by adversaries can enumerate them.
+        From a red team perspective:
+      </p>
+
+      <ul>
+        <li>Use <code>snowflake</code> or <code>meek</code> over <code>obfs4</code> in high-censorship environments; obfs4 bridges are increasingly fingerprinted.</li>
+        <li>Rotate bridges frequently via BridgeDB or built-in Tor Browser moat.</li>
+      </ul>
+
+<pre><code class="language-bash"># Request obfs4 bridges via email (operational separation)
+echo "get transport obfs4" | gpg --encrypt --armor --recipient bridges@torproject.org | mail bridges@torproject.org
+</code></pre>
+
+      <h3>4.4 Browser &amp; Machine Fingerprinting</h3>
+
+      <p>
+        TOR Browser mitigates fingerprinting, but operator mistakes break the anonymity set:
+      </p>
+
+      <ul>
+        <li><strong>Canvas/WebGL/Font fingerprinting:</strong> TOR Browser standardizes these, but modified settings (window resizing, extensions) create unique identifiers.</li>
+        <li><strong>Uploading files with metadata:</strong> Documents/images uploaded via TOR Browser may contain EXIF or author metadata.</li>
+      </ul>
+
+<pre><code class="language-bash"># Strip metadata before any upload through TOR
+exiftool -all= sensitive_document.pdf
+exiftool -all= image_for_upload.png
+</code></pre>
+</section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 5: AUTOMATE INGESTION VIA API PIPELINES              -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="api-pipeline">
+      <h2 id="api-pipeline">5. Automate Ingestion via API Pipelines</h2>
+
+      <p>
+        <strong>Adversary Goals:</strong> Dark web monitoring and anonymous collection automation.
+      </p>
+
+      <h3>5.1 Automated Dark Web Intelligence Pipeline</h3>
+
+<pre><code class="language-python">#!/usr/bin/env python3
+# Conceptual adversary tool: Dark web intelligence ingestion pipeline
+import subprocess
+import json
+import sqlite3
+from datetime import datetime
+
+DB = "tor_darkweb_intel.db"
+conn = sqlite3.connect(DB)
+c = conn.cursor()
+
+c.execute('''CREATE TABLE IF NOT EXISTS darkweb_mentions (
+                id INTEGER PRIMARY KEY, query TEXT, title TEXT,
+                url TEXT, description TEXT, sentiment_polarity REAL,
+                sentiment_subjectivity REAL, metadata TEXT,
+                document_links INTEGER, emails TEXT, retrieved TEXT)''')
+
+def run_darkdump_torified(query, amount=20):
+    """Execute run_darkdump through torsocks for origin anonymity."""
+    cmd = ["torsocks", "run_darkdump", "--query", query, "--amount", str(amount)]
+    result = subprocess.run(cmd, capture_output=True, text=True)
+    # Parse structured output (conceptual — adjust to actual JSON/stdout format)
+    try:
+        return json.loads(result.stdout)
+    except Exception:
+        return []
+
+def ingest_darkweb(query):
+    results = run_darkdump_torified(query)
+    for item in results:
+        c.execute('''INSERT INTO darkweb_mentions
+                     (query, title, url, description, sentiment_polarity,
+                      sentiment_subjectivity, metadata, document_links, emails, retrieved)
+                     VALUES (?,?,?,?,?,?,?,?,?,?)''',
+                  (query, item.get("title"), item.get("url"), item.get("description"),
+                   item.get("sentiment", {}).get("polarity"),
+                   item.get("sentiment", {}).get("subjectivity"),
+                   json.dumps(item.get("metadata")),
+                   item.get("document_links"),
+                   ",".join(item.get("emails", [])),
+                   datetime.utcnow().isoformat()))
+    conn.commit()
+
+# Operational monitoring targets
+TARGET_QUERIES = ["target.com", "\"Target Corp\" database", "target.com stealer logs"]
+for q in TARGET_QUERIES:
+    ingest_darkweb(q)
+
+conn.close()
+</code></pre>
+
+      <h3>5.2 Circuit Rotation &amp; Stream Isolation</h3>
+
+<pre><code class="language-python">#!/usr/bin/env python3
+# Conceptual adversary tool: Circuit rotation via Stem controller
+from stem.control import Controller
+from stem.process import launch_tor_with_config
+from stem import Signal
+
+# Launch TOR with isolated streams per destination (prevents correlation)
+def rotate_identity():
+    with Controller.from_port(port=9051) as controller:
+        controller.authenticate()
+        controller.signal(Signal.NEWNYM)
+        print("[+] TOR identity rotated")
+
+# Verify new exit IP
+import requests
+proxies = {'http': 'socks5h://127.0.0.1:9050', 'https': 'socks5h://127.0.0.1:9050'}
+r = requests.get('https://check.torproject.org', proxies=proxies, timeout=30)
+</code></pre>
+</section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 6: VERIFY AND TRIAGE SAFELY (OPSEC)                  -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="opsec">
+      <h2 id="opsec">6. Verify and Triage Safely (OPSEC)</h2>
+
+      <p>
+        <strong>Adversary Goals:</strong> TOR provides anonymity, not impunity. Operational errors frequently
+        deanonymize users more effectively than traffic analysis.
+      </p>
+
+      <h3>6.1 Attribution &amp; Identity Isolation</h3>
+
+      <ul>
+        <li><strong>Never mix identities:</strong> The browser profile, credentials, or cryptocurrency wallets used over TOR must never touch clearnet sessions. Use dedicated VMs per persona.</li>
+        <li><strong>VM Isolation:</strong> Run TOR Browser inside a Whonix workstation or Tails live OS. The host OS must never see TOR traffic unwrapped.</li>
+        <li><strong>Clock Synchronization:</strong> Ensure VM clock matches UTC; local timezone leaks through JavaScript Date() objects despite TOR Browser mitigation.</li>
+      </ul>
+
+      <h3>6.2 Legal &amp; Operational Boundaries</h3>
+
+      <ul>
+        <li><strong>Illicit Content:</strong> Accessing illegal markets or CSAM over TOR is criminally prosecutable regardless of anonymity layer. Law enforcement routinely operates exit nodes and infiltrates markets.</li>
+        <li><strong>Rules of Engagement:</strong> If simulating a ransomware group's TOR C2 channel, ensure explicit authorization covers anonymous infrastructure interaction. Document every .onion accessed.</li>
+        <li><strong>Export/Compliance:</strong> Some jurisdictions regulate encryption exports or anonymity tools; verify compliance if operating across national boundaries.</li>
+      </ul>
+
+      <div class="reminder-opsec">
+        <strong>OPSEC Principle:</strong><br> 
+		TOR is a powerful privacy tool. Use it for lawful research and sanctioned testing only. Always document usage, 
+		avoid cleartext over exit nodes, and never exceed written authorization.
+      </div>
+
+      <h3>6.3 Exit Node &amp; Malicious Relay Mitigation</h3>
+
+      <ul>
+        <li><strong>Compromised / Malicious Relays:</strong> Adversaries operate rogue exit nodes to strip SSL and inject content. Always enforce HTTPS via HTTPS-Only mode.</li>
+        <li><strong>Guard Discovery:</strong> Persistent adversaries may attempt to identify your guard relay and then coerce or monitor it. For ultra-sensitive ops, rotate guards by deleting state file (advanced).</li>
+      </ul>
+
+<pre><code class="language-bash"># Force guard rotation (operational reset)
+sudo systemctl stop tor
+sudo rm /var/lib/tor/state
+sudo systemctl start tor
+</code></pre>
+
+      <h3>6.4 Cleartext &amp; Metadata Discipline</h3>
+
+      <ul>
+        <li>No cleartext credentials over TOR unless end-to-end encrypted (HTTPS, .onion end-to-end encryption).</li>
+        <li>File metadata scrubbing mandatory before upload (see Section 4.4).</li>
+        <li>Disable JavaScript where operational context allows (Tor Browser Safest mode) to reduce attack surface from malicious .onion sites.</li>
+      </ul>
+
+      <h3>6.5 OPSEC Checklist for TOR Operations</h3>
+
+      <ul>
+        <li>✅ TOR Browser integrity verified via GPG before installation</li>
+        <li>✅ <code>torrc</code> configured with <code>IsolateDestAddr</code> and <code>IsolateDestPort</code></li>
+        <li>✅ All native tools wrapped with <code>torsocks</code> or <code>--socks5-hostname</code> to prevent DNS leakage</li>
+        <li>✅ Bridge / pluggable transport configured if operating from monitored egress</li>
+        <li>✅ Dedicated VM or Whonix workstation used; host OS isolated from TOR traffic</li>
+        <li>✅ Documented authorization exists for all .onion services accessed</li>
+        <li>✅ No mixing of clearnet identity (email, crypto, accounts) with TOR identity</li>
+        <li>✅ Metadata stripped from all files before upload via TOR</li>
+        <li>✅ HTTPS-Only mode enforced; unencrypted HTTP avoided at exit nodes</li>
+        <li>✅ Automated <code>run_darkdump</code> queries executed through <code>torsocks</code> to mask origin IP</li>
+        <li>✅ Circuit rotation and identity change logged for operational audit trail</li>
+      </ul>
+
+      <div class="info-remember">
+        <strong>Blue Team Note:</strong><br>
+		TOR traffic is not inherently malicious, but high volumes of TOR
+        egress from internal networks may indicate malware C2, data exfiltration, or unauthorized research.
+        Defenders should monitor for TOR connection attempts (port 9001, 9030), bridge traffic patterns,
+        and unusual DNS queries to .onion domains.
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 7: QUICK REFERENCE — ADVERSARIAL TOR QUICK SHEET    -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="quickref">
+      <h2 id="quickref">7. Quick Reference: Adversarial TOR Quick Sheet</h2>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table" style="width:100%; border-collapse:collapse; border:1px solid rgba(255,255,255,0.1); margin:1em 0; font-size:0.95rem;">
+          <thead>
+            <tr>
+              <th>Objective</th>
+              <th>Command / Tool</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Launch TOR Browser with proxy port</td>
+              <td><code>./start-tor-browser.desktop</code> (SOCKS 9150)</td>
+            </tr>
+            <tr>
+              <td>Route tool through TOR</td>
+              <td><code>torsocks &lt;command&gt;</code> or <code>proxychains4 &lt;command&gt;</code></td>
+            </tr>
+            <tr>
+              <td>CURL via TOR with DNS resolution</td>
+              <td><code>curl --socks5-hostname 127.0.0.1:9050 &lt;url&gt;</code></td>
+            </tr>
+            <tr>
+              <td>Dark web search anonymized</td>
+              <td><code>torsocks run_darkdump --query "target.com" --amount 20</code></td>
+            </tr>
+            <tr>
+              <td>Verify TOR connectivity</td>
+              <td><code>curl --socks5-hostname 127.0.0.1:9050 https://check.torproject.org</code></td>
+            </tr>
+            <tr>
+              <td>Check DNS leakage</td>
+              <td><code>curl --socks5-hostname 127.0.0.1:9050 https://dnsleaktest.com</code></td>
+            </tr>
+            <tr>
+              <td>Rotate TOR circuit</td>
+              <td><code>stem</code> Python controller or <code>kill -HUP &lt;tor_pid&gt;</code></td>
+            </tr>
+            <tr>
+              <td>Strip metadata pre-upload</td>
+              <td><code>exiftool -all= &lt;file&gt;</code></td>
+            </tr>
+            <tr>
+              <td>Request obfs4 bridges</td>
+              <td>Email <code>bridges@torproject.org</code> GPG-encrypted</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 8: DEFENSIVE COUNTERMEASURES                         -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="defense">
+      <h2 id="defense">8. Defensive Countermeasures &amp; Threat Mapping</h2>
+
+      <p>
+        Translating adversarial TOR tradecraft into defense requires
+        <strong>traffic monitoring</strong>, <strong>policy enforcement</strong>, and
+        <strong>user awareness</strong>.
+      </p>
+
+      <h3>Defensive Best Practices</h3>
+
+      <ul>
+        <li><strong>TOR Egress Monitoring:</strong> Monitor network for TOR connection attempts (ports 9001, 9030) and bridge traffic patterns.</li>
+        <li><strong>DNS Anomaly Detection:</strong> Alert on .onion DNS queries originating from internal networks.</li>
+        <li><strong>Exit Node Blocking:</strong> Consider blocking known TOR exit nodes for sensitive services (while understanding legitimate use cases).</li>
+        <li><strong>Encryption Enforcement:</strong> Enforce HTTPS and HSTS; exit nodes cannot decrypt properly encrypted traffic.</li>
+        <li><strong>User Education:</strong> Train employees not to use TOR for corporate purposes without authorization; TOR traffic may indicate malware activity.</li>
+        <li><strong>Bridge Detection:</strong> Use threat intelligence feeds to identify known obfs4 bridge IPs and correlate with internal connection attempts.</li>
+        <li><strong>Incident Response:</strong> Develop playbooks for TOR-related alerts, including malware C2 investigation and data exfiltration scenarios.</li>
+      </ul>
+
+      <h3>Consolidated Adversary TTP → Defensive Control Matrix</h3>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table" style="width:100%; border-collapse:collapse; border:1px solid rgba(255,255,255,0.1); margin:1em 0; font-size:0.95rem;">
+          <thead>
+            <tr>
+              <th>Adversary Technique</th>
+              <th>Observable Indicator</th>
+              <th>Defensive Action / Detection</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Dark web monitoring via <code>run_darkdump</code></td>
+              <td>No direct network indicators (uses .onion queries)</td>
+              <td>No detection; defense is proactive (data minimization, breach monitoring)</td>
+            </tr>
+            <tr>
+              <td>TOR Browser OSINT browsing</td>
+              <td>TOR egress traffic from internal IPs</td>
+              <td>Alert on TOR connections; investigate for policy violation or malware</td>
+            </tr>
+            <tr>
+              <td>Onion service enumeration</td>
+              <td>DNS queries to .onion domains; port scans to TOR relays</td>
+              <td>DNS anomaly detection; block .onion resolution at resolver level</td>
+            </tr>
+            <tr>
+              <td>Exit node traffic capture</td>
+              <td>Unencrypted HTTP from TOR exit nodes</td>
+              <td>Enforce HTTPS; HSTS; TLS inspection at egress</td>
+            </tr>
+            <tr>
+              <td>DNS leakage outside TOR</td>
+              <td>DNS queries from TOR-wrapped applications bypassing proxy</td>
+              <td>Monitor for DNS queries that should be TOR-routed; enforce proxy configuration</td>
+            </tr>
+            <tr>
+              <td>Bridge/PT usage</td>
+              <td>Obfuscated traffic patterns; high entropy payloads</td>
+              <td>Deep-packet inspection for obfuscated protocols; behavioral analysis</td>
+            </tr>
+            <tr>
+              <td>Malicious relay / compromised exit</td>
+              <td>SSL stripping; certificate mismatch alerts</td>
+              <td>Certificate pinning; HSTS preloading; TLS monitoring</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 9: SUPPORTING RESOURCES                              -->
+    <!-- ============================================================ -->
+
+    <section class="resources" aria-label="Supporting resources">
+      <h2 id="resources">9. Supporting Resources &amp; Recommended Reading</h2>
+
+      <ul>
+        <li>
+          <a href="https://www.torproject.org/" target="_blank" rel="noopener">
+            The Tor Project: Official Documentation
+          </a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: Core documentation, Tor Browser releases, bridges, pluggable transports, Arti updates.</small>
+        </li>
+        <li>
+          <a href="https://support.torproject.org/" target="_blank" rel="noopener">
+            Tor Project: Support &amp; Operational Guides
+          </a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: Safe browsing, onion services, censorship circumvention, threat models.</small>
+        </li>
+        <li>
+          <a href="https://blog.torproject.org/" target="_blank" rel="noopener">
+            Tor Project Blog: Release Notes &amp; Security Updates
+          </a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: Tor Browser 15.x updates, Arti rollout news, deprecations, security fixes.</small>
+        </li>
+        <li>
+          <a href="https://metrics.torproject.org/" target="_blank" rel="noopener">
+            Tor Metrics Portal
+          </a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: Relay statistics, user trends, censorship regions, bridge adoption metrics.</small>
+        </li>
+        <li>
+          <a href="https://arxiv.org/abs/2509.10755" target="_blank" rel="noopener">
+            Academic: "Five Minutes of DDoS Brings Down Tor" (2025)
+          </a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: Analysis of Tor directory protocol, DDoS weaknesses, mitigation research.</small>
+        </li>
+        <li>
+          <a href="https://arxiv.org/abs/2510.11804" target="_blank" rel="noopener">
+            Academic: "A Comprehensive Survey of Website Fingerprinting Attacks &amp; Defenses in Tor" (2025)
+          </a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: Modern attack vectors, fingerprinting weaknesses, ML/AI-driven deanonymization.</small>
+        </li>
+        <li>
+          <a href="https://www.europol.europa.eu/media-press" target="_blank" rel="noopener">
+            Europol/FBI Press Releases on Darknet Operations
+          </a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: Recent takedowns, investigative methods, law-enforcement case studies.</small>
+        </li>
+        <li>
+          <a href="https://www.whonix.org/" target="_blank" rel="noopener">
+            Whonix
+          </a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: TOR-isolated operating system for operational anonymity.</small>
+        </li>
+        <li>
+          <a href="https://tails.net/" target="_blank" rel="noopener">
+            Tails (The Amnesic Incognito Live System)
+          </a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: Live OS with TOR built-in and no persistent storage.</small>
+        </li>
+      </ul>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 10: CHAPTER SUMMARY                                  -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="chapter-summary">
+      <h2 id="chapter-summary">10. Chapter Summary</h2>
+
+      <p>
+        By completing this chapter you should now be able to:
+      </p>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin: 20px 0;">
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Define TOR operational requirements and build an anonymity dossier.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;">Operation type, target onion presence, isolation level, bridge/PT requirements.</span></span>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Configure TOR daemon and Browser for operational security.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;">torrc hardening, isolation flags, bridge configuration, pluggable transports.</span></span>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Execute dark web intelligence collection via run_darkdump.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;">torsocks wrapping, query syntax, structured output parsing.</span></span>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Map common TOR exposures and deanonymization vectors.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;">Exit-node risks, onion service misconfigurations, bridge enumeration, browser fingerprinting.</span></span>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Apply OPSEC to TOR operations.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;">VM isolation, metadata scrubbing, circuit rotation, guard management.</span></span>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Implement defensive countermeasures for TOR traffic.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;">Egress monitoring, DNS anomaly detection, exit node blocking, incident response.</span></span>
+        </div>
+
+      </div>
+
+      <div class="info-remember" style="margin: 15px 0;">
+        <strong>Why This Matters:</strong>
+        <span style="display: block; margin-top: 5px;">
+          TOR enables anonymous baseline intelligence gathering. Use <code>run_darkdump</code> via
+          <code>torsocks</code> to monitor dark web markets and leak sites for target mentions without
+          revealing operator origin. Credential and session data harvested via breach intelligence can be
+          contextualized with dark web market listings, confirming whether target access is being brokered.
+          Misconfigured .onion endpoints may leak clearnet origin IPs via headers or certificates.
+          Anonymity technologies are force multipliers for both defenders and adversaries—operational
+          discipline determines which side you emulate.
+        </span>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 11: KEY TAKEAWAYS                                    -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="takeaways">
+      <h2 id="takeaways">11. Key Takeaways</h2>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table" style="width:100%; border-collapse:collapse; border:1px solid rgba(255,255,255,0.1); margin:1em 0; font-size:0.95rem;">
+          <thead>
+            <tr>
+              <th>Concept</th>
+              <th>Why It Matters</th>
+              <th>Security Impact</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>TOR Is an Anonymity Infrastructure Layer, Not Just a Browser</strong></td>
+              <td>Enables both threat-intelligence collection and anonymous operational execution.</td>
+              <td>Proper TOR use protects operator identity; improper use exposes the entire operation.</td>
+            </tr>
+            <tr>
+              <td><strong>Circuit Isolation Prevents Correlation</strong></td>
+              <td><code>IsolateDestAddr</code> and <code>IsolateDestPort</code> separate streams per destination.</td>
+              <td>Prevents passive observers from linking your queries across different .onion services.</td>
+            </tr>
+            <tr>
+              <td><strong>DNS Leakage Undermines Anonymity</strong></td>
+              <td>Applications resolving DNS outside TOR reveal destinations to local ISP.</td>
+              <td>Always use <code>torsocks</code> or <code>--socks5-hostname</code> for DNS resolution over TOR.</td>
+            </tr>
+            <tr>
+              <td><strong>Metadata in Files Uniquely Identifies Operators</strong></td>
+              <td>EXIF, author, and creator metadata persist through TOR uploads.</td>
+              <td>Strip metadata (<code>exiftool -all=</code>) before uploading any file via TOR.</td>
+            </tr>
+            <tr>
+              <td><strong>Onion Services Can Leak Clearnet IPs</strong></td>
+              <td>Misconfigured servers expose real IPs via headers, certs, or error messages.</td>
+              <td>Correlating .onion content with clearnet infrastructure deanonymizes hidden services.</td>
+            </tr>
+            <tr>
+              <td><strong>Bridges Are Not Invisible</strong></td>
+              <td>obfs4 bridges are increasingly fingerprinted and enumerated.</td>
+              <td>Rotate bridges frequently; use snowflake or meek in high-censorship environments.</td>
+            </tr>
+            <tr>
+              <td><strong>Exit Nodes Can Intercept Traffic</strong></td>
+              <td>Malicious exits strip SSL and inject content.</td>
+              <td>Enforce HTTPS and HSTS; never send cleartext credentials over TOR.</td>
+            </tr>
+            <tr>
+              <td><strong>Tor Browser Modifications Break Anonymity</strong></td>
+              <td>Window resizing, extensions, and changed settings create unique fingerprints.</td>
+              <td>Use default TOR Browser window size; disable JavaScript where possible.</td>
+            </tr>
+            <tr>
+              <td><strong>Dark Web Intelligence Provides Early Warning</strong></td>
+              <td><code>run_darkdump</code> reveals target mentions, access-for-sale, and stealer logs.</td>
+              <td>Early discovery enables preemptive remediation before adversaries weaponize.</td>
+            </tr>
+            <tr>
+              <td><strong>Operational Discipline Separates Legitimate Research from Unauthorized Activity</strong></td>
+              <td>TOR provides anonymity, not impunity. Law enforcement operates exit nodes and infiltrates markets.</td>
+              <td>Document every .onion accessed; never exceed written authorization.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 12: KNOWLEDGE CHECK                                  -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="knowledge-check">
+      <h2 id="knowledge-check">12. Knowledge Check</h2>
+
+      <p>
+        Now that we have completed this module (check ou the cheat sheet on the next page), take a moment to reflect on the 
+		key concepts covered in this chapter.
+      </p>
+
+      <div class="card">
+        <h3>Reflection Questions</h3>
+        <ol>
+          <li>
+            <strong>Why is circuit isolation (<code>IsolateDestAddr</code>) critical for operational TOR security?</strong>
+            <br>
+            <span style="color: #aaa; font-size: 0.9rem;">
+              Consider cross-site correlation, passive traffic analysis, and session separation.
+            </span>
+          </li>
+          <li>
+            <strong>What are the risks of using TOR without <code>torsocks</code> or <code>--socks5-hostname</code>?</strong>
+            <br>
+            <span style="color: #aaa; font-size: 0.9rem;">
+              Think about DNS leakage, local resolver exposure, and ISP visibility.
+            </span>
+          </li>
+          <li>
+            <strong>How can an adversary deanonymize an onion service operator?</strong>
+            <br>
+            <span style="color: #aaa; font-size: 0.9rem;">
+              Consider server headers, certificate transparency, and misconfiguration leaks.
+            </span>
+          </li>
+          <li>
+            <strong>What OPSEC measures are essential when conducting dark web intelligence collection?</strong>
+            <br>
+            <span style="color: #aaa; font-size: 0.9rem;">
+              Think about VM isolation, metadata scrubbing, circuit rotation, and authorization documentation.
+            </span>
+          </li>
+          <li>
+            <strong>Why should defenders monitor for TOR egress traffic from internal networks?</strong>
+            <br>
+            <span style="color: #aaa; font-size: 0.9rem;">
+              Consider malware C2, data exfiltration, and unauthorized research activity.
+            </span>
+          </li>
+        </ol>
+      </div>
+
+      <div class="card">
+        <h3>Scenario-Based Question</h3>
+        <p>
+          <strong>Scenario:</strong> You are a Red Team operator tasked with monitoring dark web forums
+          and markets for mentions of a large financial services organisation. <br>You have explicit written
+          authorization to access .onion services for intelligence collection. The target has recently
+          been listed on a ransomware leak site, and you need to confirm the legitimacy of the listing.
+        </p>
+        <p><strong>Task:</strong> Design a complete TOR-based dark web intelligence workflow using
+        the tools and techniques covered in this chapter.</p>
+      </div>
+
+      <div class="info-remember" style="margin: 15px 0;">
+        <strong>Suggested Approach:</strong>
+        <ul>
+          <li><strong>Phase 1:</strong> Build TOR operational dossier with target onion presence and isolation requirements.</li>
+          <li><strong>Phase 2:</strong> Verify TOR Browser integrity via GPG; launch with hardened <code>torrc</code> configuration.</li>
+          <li><strong>Phase 3:</strong> Use <code>torsocks run_darkdump --query "target.com ransomware"</code> to search dark web indexes.</li>
+          <li><strong>Phase 4:</strong> Directly access the ransomware leak site .onion via TOR Browser (Safest mode, JavaScript disabled).</li>
+          <li><strong>Phase 5:</strong> Document all findings with timestamps, URLs, and content summaries.</li>
+          <li><strong>Phase 6:</strong> Cross-correlate dark web findings with surface-web breach intelligence (HIBP, DeHashed).</li>
+          <li><strong>Phase 7:</strong> Rotate TOR circuit after session; securely store findings in encrypted database.</li>
+          <li><strong>Phase 8:</strong> Report findings to client with remediation recommendations.</li>
+        </ul>
+      </div>
+
+      <div class="reminder-lightblue">
+  <strong>Gateway Criteria:</strong><br>
+  <span>
+    You are cleared to proceed to the next module <strong>"Footprinting and Reconnaissance"</strong> 
+    be sure you can confidently answer all five reflection questions and explain your rationale for the 
+    scenario-based question. Before moving on, review the next section "OSINT Recon Cheat Sheet (2026)" 
+	to consolidate your understanding of the key tools, commands, and workflows covered throughout this 
+	module. If any concept remains unclear, revisit the relevant sections above before 
+    proceeding to the next module.
+  </span>
+</div>
+
+      <div class="info-remember" style="margin: 15px 0;">
+        <em>RedOps Reminder:</em> Tor is a powerful privacy tool. Use it for lawful research and sanctioned
+        testing only. Always document usage, avoid cleartext over exit nodes, and never exceed written
+        authorization. Anonymity technologies are force multipliers for both defenders and adversaries—
+        operational discipline determines which side you emulate.
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- FLOATING NAVIGATION                                           -->
+    <!-- ============================================================ -->
+
+    <div class="lesson-nav-container">
+      <a href="https://iscsecurity.org/content/1-ethical-hacking/2-open-source-intelligence/18-online-breach-data-and-leaks-resources" class="nav-link-btn">👈 Back</a>
+      <a href="https://iscsecurity.org/content/1-ethical-hacking/2-open-source-intelligence/20-osint-cheat-sheet" class="nav-link-btn">Next 👉</a>
+   </div>
+
+    </article>
+  </main>
+</body>
+</html>

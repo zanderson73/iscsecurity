@@ -1,0 +1,1727 @@
+/* ===== ISC-RedTeam-Ops — stable layout ===== */
+
+/* ---------- Reset & globals ---------- */
+  
+* { 
+  box-sizing: border-box; 
+  -webkit-tap-highlight-color: transparent; /* Prevents ugly grey boxes when tapping links on phones */
+}
+
+html, body { 
+  margin: 0; 
+  height: auto; 
+  width: 100%;
+}
+
+html {
+  overflow-x: hidden; 
+  overflow-y: auto; 
+  scroll-behavior: smooth;
+}
+
+body {
+  font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: #f3f5f7;
+  background-color: #000;
+  /* Safe fallback gradient layered over the background graphic */
+  background-image: 
+    linear-gradient(rgba(0, 0, 0, 0.60), rgba(0, 0, 0, 0.60)), 
+    url("../images/redops-bg.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  /* Standard modern font smoothing for high-end displays */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 💻 OPERATING SYSTEM OVERRIDE: Desktop & Laptops only */
+/* This isolates 'fixed' behavior to systems capable of rendering it without performance lag */
+@media (min-width: 1025px) {
+  body {
+    background-attachment: fixed;
+  }
+}
+
+a {
+  color: #fff;
+  text-decoration: none;
+  transition: color 0.2s ease, text-shadow 0.2s ease; /* Makes glow interaction smooth */
+}
+
+a:hover,
+a:focus {
+  color: #ff3b3b; /* Red accent */
+  text-shadow: 0 0 6px #ff3b3b, 0 0 12px #ff3b3b; /* Enhanced responsive glow layers */
+  outline: none;
+}
+
+/* ---------- Top-left: Content dropdown (47/47 base) ---------- */
+.navbar {
+  position: fixed; 
+  top: 47px; 
+  left: 47px;
+  display: flex; 
+  align-items: center; 
+  z-index: 1000;
+}
+.navbar .brand { display: none !important; }
+
+.dropdown { position: relative; display: inline-block; }
+.dropbtn {
+  cursor: pointer; 
+  color: #fff;
+  padding: 10px 14px; 
+  border-radius: 6px;
+  background: rgba(0,0,0,.45);
+  border: 1px solid rgba(255,255,255,.12);
+  font-weight: 500;
+  /* Eliminates mobile safari click delays */
+  touch-action: manipulation; 
+}
+
+.dropdown-content {
+  display: none; 
+  position: absolute; 
+  top: 100%; 
+  left: 0;
+  min-width: 220px; 
+  max-width: 85vw; /* Prevents overflow clipping on small screens */
+  max-height: 260px; 
+  overflow-y: auto; 
+  overscroll-behavior: contain;
+  padding: 8px; 
+  background: rgba(15,15,20,.96); /* Slightly more opaque for text legibility over web text */
+  border: 1px solid rgba(255,255,255,.12); 
+  border-radius: 12px; 
+  z-index: 1001;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+}
+
+/* Base hover states for desktop pointing devices */
+.dropdown:hover .dropdown-content,
+.dropdown:focus-within .dropdown-content,
+.dropdown-content:hover { 
+  display: block; 
+}
+
+/* 📱 Safe Mobile Interaction Overrides */
+/* Keeps dropdown visible if user hits target using touchscreen inputs */
+.dropdown .dropbtn:focus + .dropdown-content {
+  display: block;
+}
+
+.dropdown-content a {
+  display: block; 
+  /* Safe text-wrapping for long titles on narrow screens */
+  white-space: normal; 
+  word-wrap: break-word;
+  padding: 10px 12px; 
+  border-radius: 8px; 
+  text-decoration: none;
+  color: #e9ecf1;
+  font-size: 0.95rem;
+}
+.dropdown-content a:hover { background: rgba(255,255,255,.08); }
+
+
+/* ---------- Top-right: Search (47/47 base) ---------- */
+.search-container {
+  position: fixed; 
+  top: 47px; 
+  right: 47px; 
+  z-index: 1000;
+}
+.search-container input {
+  width: 220px; 
+  max-width: 28vw;
+  padding: 8px 12px; 
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.2); 
+  background: #fff; 
+  color: #000; 
+  outline: none;
+  font-size: 16px; /* ⚠️ CRITICAL: iOS zooms into inputs automatically if font-size is lower than 16px */
+  transition: all 0.25s ease;
+}
+.search-container input::placeholder { color: #666; }
+
+
+/* ==========================================================================
+   MOBILE & TABLET RESPONSIVE RECONCILIATION BREAKPOINTS
+   ========================================================================== */
+
+/* ➔ TABLET VIEWPORT LAYOUT (Screens up to 768px wide) */
+@media (max-width: 768px) {
+  .navbar { top: 60px; left: 20px; }
+  .search-container { top: 60px; right: 20px; }
+  .search-container input { width: 180px; max-width: 40vw; }
+}
+
+/* ➔ SMARTPHONE VIEWPORT LAYOUT (Screens up to 480px wide) */
+@media (max-width: 480px) {
+  /* Push menus down safely underneath your global legal top-bar */
+  .navbar { 
+    top: 75px; 
+    left: 12px; 
+  }
+  .search-container { 
+    top: 75px; 
+    right: 12px; 
+  }
+  
+  /* Shrink text input fields proportionally to prevent collision */
+  .search-container input { 
+    width: 140px; 
+    max-width: 45vw; 
+    padding: 7px 10px;
+    border-radius: 8px;
+  }
+  
+  .dropbtn {
+    padding: 8px 10px;
+    font-size: 0.9rem;
+  }
+  
+  /* Left align text blocks if menu snaps close to phone edges */
+  .dropdown-content {
+    min-width: 200px;
+    left: 0;
+  }
+}
+
+/* ---------- Homepage hero ONLY ---------- */
+.page-module .hero,
+.page-lesson .hero { display: none !important; }
+
+/* Centered hero on the homepage */
+.home-page .hero {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  top: 65px;
+  text-align: center;
+  width: min(950px, 92vw);
+  padding: 0 22px;
+  z-index: 1;
+}
+.home-page .hero h1 {
+  margin: 0 0 4px;
+  font-size: clamp(24px, 4vw, 48px); /* FIXED: Reduced minimum base clamp from 28px to 24px to prevent phone headline wrapping */
+  font-weight: 500;
+  text-shadow: 0 10px 28px rgba(0,0,0,.6);
+  line-height: 1.2;
+}
+.home-page .hero p { margin: 2px 0; color: #e4e7eb; }
+
+.hero-sub {
+  margin-top: 6px;
+  font-size: 1.1rem;
+  color: #cfd6df;
+  letter-spacing: 0.5px;
+}
+
+.intro-link a {
+  font-size: clamp(1.1rem, 2.5vw, 1.25rem); /* FIXED: Fluidly scales text size for smaller touch targets */
+  font-weight: 500;
+  color: #e9edf3;
+  text-decoration: none;
+  transition: all 0.25s ease;
+}
+
+.intro-link a:hover {
+  color: #ff3b3b;
+  text-shadow: 0 0 6px #ff3b3b;
+}
+
+.legal-callout {
+  background: rgba(0,0,0,0.45);
+  border-left: 4px solid #ff3b3b;
+  border-radius: 8px;
+  padding: 18px 22px;
+  margin: 16px 0 20px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.4);
+  color: #e9edf3;
+  line-height: 1.65;
+}
+.legal-callout h3 { margin: 0 0 8px; color:#fff; }
+
+/* FIXED: Modernized into a wrapping flexible layout to protect compact grids */
+.legal-chips-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.legal-chip {
+  display: inline-flex; 
+  align-items: center;
+  margin: 0; 
+  padding: 4px 10px; /* FIXED: Increased padding slightly for easier mobile readability */
+  border: 1px solid rgba(255,255,255,0.12); 
+  border-radius: 999px;
+  background: rgba(255,255,255,0.04); 
+  font-size: .85rem; /* FIXED: Scaled down from .92rem for small screen consistency */
+  color: #e9edf3;
+  white-space: nowrap;
+}
+.legal-note { color:#cfd6df; font-size:.98rem; }
+
+.page-section-header {
+  text-align: center;
+  margin: 2.5rem 0 1.5rem;
+}
+
+.section-title {
+  font-size: clamp(1.3rem, 3vw, 1.8rem); /* FIXED: Fluid title sizes across all monitor platforms */
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.section-subtitle {
+  font-size: 0.95rem;
+  opacity: 0.7;
+  margin-top: 0.4rem;
+}
+
+.global-banner {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px;
+  padding: 10px 14px;
+  color: #e9edf3;
+  margin: 10px 0 18px;
+  transition: box-shadow 0.3s ease; /* FIXED: Moved transition rule to base state so out-hover animation is smooth */
+}
+
+.global-banner:hover {
+  box-shadow: inset 4px 0 10px rgba(255, 59, 59, 0.25),
+              0 0 10px rgba(255, 59, 59, 0.15);
+}
+
+.policy-box {
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-left: 4px solid #ff3b3b;   /* Red accent line */
+  border-radius: 10px;
+  padding: 16px 20px;
+  margin: 16px 0;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+  transition: box-shadow 0.3s ease; /* FIXED: Moved transition rule to base state */
+}
+.policy-box h4 {
+  margin: 0 0 8px;
+  color: #fff;
+  font-weight: 600;
+}
+.policy-box ul {
+  margin: 6px 0 0 18px;
+  padding-left: 0; /* FIXED: Safety reset to prevent structural indent clipping */
+}
+.policy-box li {
+  margin-bottom: 6px;
+}
+
+.policy-box:hover {
+  box-shadow: inset 4px 0 10px rgba(255, 59, 59, 0.25),
+              0 0 10px rgba(255, 59, 59, 0.15);
+}
+
+/* ==========================================================================
+   MOBILE & TABLET ADAPTIVE OVERRIDES
+   ========================================================================== */
+
+/* ➔ TARGET TABLET & MOBILE VIEWPORTS (Screens up to 768px wide) */
+@media (max-width: 768px) {
+  .home-page .hero {
+    position: relative; /* FIXED: Disables absolute positioning block to honor natural layout flow */
+    top: auto;
+    left: auto;
+    transform: none;
+    margin: 110px auto 20px;
+    width: 100%;
+  }
+  
+  .legal-callout, .policy-box {
+    padding: 14px 16px; /* FIXED: Compresses internal gutters on compact viewports */
+    margin: 12px 0;
+  }
+}
+
+/* ➔ TARGET PHONE-SPECIFIC VIEWPORTS (Screens up to 480px wide) */
+@media (max-width: 480px) {
+  .home-page .hero {
+    margin-top: 130px; /* FIXED: Safe clearing buffer below multi-line mobile topbar notice */
+  }
+  
+  .policy-box ul {
+    margin-left: 14px; /* FIXED: Tighter margins so items don't slide off-screen */
+  }
+  
+  .hero-sub {
+    font-size: 0.95rem;
+  }
+}
+
+/* Disable scrolling only on the module index page on large desktop screens */
+body.page-modules {
+  overflow: hidden;
+  height: 100vh;
+}
+
+/* 📱 MOBILE OVERRIDE: Unlock the course list on compact touch screens */
+@media (max-width: 1024px) {
+  body.page-modules {
+    overflow-y: auto !important;
+    height: auto !important;
+    min-height: 100vh;
+  }
+}
+
+/* Legal pages layout */
+body.page-legal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 100vh;
+  overflow-y: auto;
+}
+
+/* Legal content container */
+.legal-wrap {
+  max-width: 900px;
+  width: 90%;
+  margin: 140px auto 80px;
+  padding: 30px 40px;
+  background: rgba(0, 0, 0, 0.55);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
+  color: #e8e8e8;
+  line-height: 1.7;
+  backdrop-filter: blur(10px);
+  box-sizing: border-box; /* FIXED: Prevents padding from expanding container past 100% viewport width */
+}
+
+/* Headings */
+.legal-wrap h1 {
+  font-size: clamp(1.6rem, 4vw, 2rem); /* FIXED: Scales down header on mobile to prevent ugly character clipping */
+  color: #00aaff;
+  text-align: center;
+  margin-bottom: 25px;
+}
+.legal-wrap h2 {
+  font-size: clamp(1.2rem, 3.5vw, 1.5rem); /* FIXED: Scaled fluidly for devices */
+  color: #ff5252;
+  margin-top: 24px;
+  margin-bottom: 12px;
+}
+
+/* Scrollbar styling */
+.legal-wrap::-webkit-scrollbar {
+  width: 8px;
+}
+.legal-wrap::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+}
+.legal-wrap::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+#main { flex: 1 0 auto; width: 100%; } /* main grows to fill space */
+.site-footer { margin-top: auto; flex-shrink: 0; width: 100%; }  /* pushes footer to bottom */
+
+
+/* ==========================================================================
+   MOBILE & TABLET ADAPTIVE OVERRIDES
+   ========================================================================== */
+
+/* ➔ TARGET TABLET & MIDDLE VIEWPORTS (Screens up to 768px wide) */
+@media (max-width: 768px) {
+  .legal-wrap {
+    margin: 110px auto 60px; /* Reduces extreme top blank gap space */
+    padding: 24px 24px; /* Frees up extra space on tablets */
+    border-radius: 12px;
+  }
+}
+
+/* ➔ TARGET PHONE-SPECIFIC VIEWPORTS (Screens up to 480px wide) */
+@media (max-width: 480px) {
+  .legal-wrap {
+    margin: 130px auto 40px; /* Safe buffer clear beneath multi-line top mobile navigation entries */
+    padding: 20px 16px; /* Compresses layout gutters to give text max width on tiny phone screens */
+    width: 94%; /* Widens container shell layout slightly for maximum small screen readability */
+    border-radius: 8px;
+  }
+}
+
+/* ---------- Subscribe pill ---------- */
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+}
+.subscribe {
+  display: inline-flex; align-items: center; white-space: nowrap;
+  gap: 0; margin: 18px auto 0; padding: 0; background: transparent; border: 0;
+}
+.subscribe input[type="email"] {
+  height: 36px; width: 145px; padding: 0 12px;
+  border: 1px solid #ccc; border-right: 0;
+  border-radius: 18px 0 0 18px;
+  background: #fff; color: #000; font-size: 14px; outline: 0;
+}
+.subscribe input::placeholder { color: #555; }
+.subscribe button {
+  height: 36px; padding: 0 14px; border: 0;
+  border-radius: 0 18px 18px 0;
+  background: linear-gradient(135deg,#ff2d55,#ff7a00);
+  color: #fff; font-weight: 700; font-size: 14px; line-height: 36px; cursor: pointer;
+}
+
+/* ---------- Module / Lesson content layout ---------- */
+.page {
+  position: relative;
+  left: 0 !important;          
+  margin: 140px auto 80px;    
+  width: min(1100px, 92vw);   
+  color: #e9edf3;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+.content-overlay {
+  background: transparent;
+  box-shadow: none;
+}
+
+/* Ensure table telemetry content honors the parent container boundaries */
+.iscsec-table, .overlay, article {
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* Hard reset text margins that might be causing invisible indents */
+p, h1, h2, h3, h4, h5, h6 {
+  max-width: 100%;
+}
+
+/* ---------- Bottom-right: Payments ---------- */
+.payment-icons {
+  position: fixed;
+  right: 47px;
+  bottom: 47px;
+  z-index: 3000;
+}
+
+.payment-icons a img {
+  height: 34px;
+  width: auto;
+  display: block;
+  transition: transform .2s ease;
+}
+
+.payment-icons a:hover img {
+  transform: scale(1.08);
+}
+
+/* ---------- Bottom-left: Discord (Ignored as requested, but safely bounded) ---------- */
+.discord-link {
+  position: fixed; left: 47px; bottom: 47px; z-index: 1000;
+}
+.discord-link a {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 8px 12px; border-radius: 12px;
+  background: #5865F2; color: #fff; text-decoration: none; font-weight: 700;
+  box-shadow: 0 10px 24px rgba(88,101,242,.35);
+}
+.discord-link img { height: 20px; width: auto; display: block; }
+
+/* ---------- Validated Custom Components ---------- */
+/* FIXED: Renamed from invalid space/parentheses syntax to clean valid CSS naming */
+.submission-checklist {
+  background: rgba(0,0,0,0.45);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  padding: 18px 28px;
+  margin-top: 12px;
+  line-height: 1.6;
+  box-shadow: 0 0 20px rgba(0,0,0,0.4);
+  list-style-type: none;
+}
+
+.submission-checklist li {
+  margin-bottom: 12px;
+  padding-left: 1em;
+  text-indent: -1em;
+}
+
+.submission-checklist strong {
+  color: #ff3b3b;
+  font-weight: 600;
+}
+
+
+/* ==========================================================================
+   MOBILE, TABLET, AND OS ADAPTIVE HOOKS
+   ========================================================================== */
+
+/* ➔ TARGET TABLET SYSTEMS (Screens up to 1024px wide) */
+@media (max-width: 1024px) {
+  .page {
+    left: 0 !important; /* FIXED: Strips left alignment shift on tablet profiles to maximize reading width */
+    margin: 110px auto 60px;
+    width: 90vw;
+  }
+  
+  /* Convert fixed badges into natural flow items to avoid blocking interaction layers */
+  .payment-icons {
+    position: relative;
+    bottom: auto;
+    right: auto;
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin: 40px auto 20px;
+    z-index: 10;
+  }
+}
+
+/* ➔ TARGET PHONE SMARTPHONE SCREENS (Screens up to 480px wide) */
+@media (max-width: 480px) {
+  .page {
+    margin-top: 130px; /* Safe clearing block clearance beneath header bars */
+    width: 94vw;
+  }
+  
+  .submission-checklist {
+    padding: 14px 16px; /* Tighter gutters so nested items don't compress text lines */
+  }
+
+  .subscribe {
+    display: flex;
+    flex-direction: column; /* Stacks layout element fields if email strings grow long */
+    width: 100%;
+    gap: 8px;
+  }
+
+  .subscribe input[type="email"] {
+    width: 100%;
+    border-radius: 6px;
+    border-right: 1px solid #ccc;
+    text-align: center;
+  }
+
+  .subscribe button {
+    width: 100%;
+    border-radius: 6px;
+  }
+}
+
+/* =========================================================
+   GLOBAL PAGE LAYOUT CONTROL
+   Ensures footer stays at the bottom of the viewport
+   ========================================================= */
+html, body {
+  height: 100%;
+}
+
+body.home-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+#main {
+  flex: 1 0 auto;
+  width: 100%;
+}
+
+.site-footer {
+  margin-top: auto;
+  position: relative;
+  z-index: 30;
+  width: 100%;
+}
+
+
+/* =========================================================
+   FOOTER & TOPBAR STYLING — ISCSEC THEME
+   ========================================================= */
+:root { 
+  --topbar-h: 38px; /* Desktop Baseline Height configuration metric */
+}
+
+body.home-page {
+  /* Automatically inherits fluid padding to accommodate responsive header shifting */
+  padding-top: calc(var(--topbar-h) + 6px); 
+}
+
+/* Top legal bar */
+.site-topbar {
+  position: fixed; 
+  top: 0; 
+  left: 0; 
+  right: 0; 
+  height: var(--topbar-h);
+  display: flex; 
+  align-items: center; 
+  justify-content: space-between; 
+  gap: 12px;
+  padding: 6px 14px;
+  background: rgba(0,0,0,0.75); /* FIXED: Deepened opacity from 0.55 to prevent overlapping document text from showing through */
+  backdrop-filter: blur(8px);
+  border-bottom: 1px dashed rgba(255,59,59,0.22);
+  z-index: 1000;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.35);
+  box-sizing: border-box;
+}
+
+/* Links (small, pill style) */
+.topbar-links { 
+  display: flex; 
+  gap: 10px; 
+  align-items: center;
+}
+
+.topbar-links a {
+  color: rgba(255,255,255,0.9); 
+  text-decoration: none;
+  font-size: 0.82rem; 
+  padding: 4px 8px; 
+  border-radius: 8px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.06);
+  transition: all .22s ease;
+  white-space: nowrap;
+}
+
+.topbar-links a:hover,
+.topbar-links a:focus {
+  color: #fff;
+  background: rgba(255, 59, 59, 0.25);
+  border-color: rgba(255, 59, 59, 0.35);
+  text-shadow: 0 0 6px rgba(255, 59, 59, 0.65);
+  transform: translateY(-1px);
+  outline: none;
+}
+
+/* Text size config */
+.topbar-note {
+  color: #d8dde5; 
+  font-size: 0.85rem; 
+  line-height: 1.2;
+  white-space: nowrap; 
+  overflow: hidden; 
+  text-overflow: ellipsis;
+}
+
+
+/* ==========================================================================
+   MOBILE & TABLET ADAPTIVE HEADER BREAKPOINTS
+   ========================================================================== */
+
+/* ➔ SCREEN PROFILE BREAKPOINT: APPLIES TO ALL VIEWS UNDER 768px WIDE */
+@media (max-width: 768px) {
+  :root {
+    --topbar-h: auto; /* Dissolves rigid absolute pixel sizing to prevent clipping stacked items */
+  }
+
+  .site-topbar {
+    flex-direction: column; /* FIXED: Converts from standard row layout to stacked multi-tier block */
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 8px 12px;
+    text-align: center;
+  }
+
+  .topbar-note {
+    white-space: normal; /* FIXED: Removes the truncation block so the entire legal text string wraps perfectly */
+    overflow: visible;
+    text-overflow: clip;
+    font-size: 0.78rem; /* Slightly reduced for clean mobile styling text-blocks */
+    max-width: 100%;
+    line-height: 1.3;
+  }
+
+  .topbar-links {
+    justify-content: center;
+    flex-wrap: wrap; /* Allows navigation tags to wrap down naturally if viewport becomes extra narrow */
+    gap: 6px;
+    width: 100%;
+  }
+
+  .topbar-links a {
+    font-size: 0.75rem;
+    padding: 3px 6px;
+  }
+}
+
+/* Keep your "Content" button below the bar if it's absolutely positioned */
+.navbar { margin-top: 6px; }
+
+.info-remember {
+  background: rgba(255, 255, 255, 0.03);
+  border-left: 3px solid rgba(0, 128, 255, 0.8);
+  padding: 12px 18px;
+  border-radius: 6px;
+  color: #eaeaea;
+  margin-top: 16px;
+  font-size: clamp(0.95rem, 2.5vw, 1.05rem); /* FIXED: Fluidly scales reading copy font size down on mobile screen views */
+  line-height: 1.6;
+}
+
+.info-remember em {
+  color: rgba(0, 170, 255, 0.95);
+  font-style: italic;
+  font-weight: 600;
+}
+
+/* ---------- Section dividers (content flow) ---------- */
+.section-divider {
+  border: none;
+  height: clamp(4px, 1vw, 10px); /* FIXED: Fluidly scales down divider lines on phones to save layout estate */
+  background: rgba(255, 255, 255, 0.25); /* FIXED: Lowered contrast color slight layout bleed visibility */
+  margin: clamp(24px, 5vw, 40px) 0;
+}
+
+.iscsec-quiz-result:empty {
+  display: none;
+}
+
+.iscsec-quiz-controls-bottom {
+  margin-top: 20px;
+  display: flex;
+  flex-wrap: wrap; /* Safely wraps layout button paths if they jam on narrow screens */
+  gap: 10px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* ISCSEC Banner Styling */
+.iscsec-banner {
+  background: linear-gradient(90deg, #111, #222);
+  color: #00ff99;
+  font-family: 'Courier New', monospace;
+  font-weight: bold;
+  padding: 6px 10px;
+  border-left: 4px solid #00ff99;
+  border-radius: 4px;
+  margin: 10px 0;
+  display: inline-block;
+  box-shadow: 0 0 8px rgba(0, 255, 153, 0.3);
+  max-width: 100%; /* FIXED: Prevents system banner elements from stretching layout shells */
+}
+
+/* Code and pre blocks */
+pre code {
+  display: block;
+  background-color: #0d0d0d;
+  color: #d4d4d4;
+  padding: 12px;
+  border-radius: 6px;
+  overflow-x: auto;
+  font-family: 'Fira Code', 'Courier New', monospace;
+  font-size: clamp(0.85rem, 2.5vw, 0.95rem); /* FIXED: Scales small screen terminal text fluidly to prevent ugly line breaks */
+  border: 1px solid #1f1f1f;
+  line-height: 1.4;
+  /* Smooth touch-momentum scrolling on iOS configurations */
+  -webkit-overflow-scrolling: touch; 
+}
+
+/* ISCSEC Table Styling */
+.iscsec-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 15px 0;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-size: clamp(0.82rem, 2.5vw, 0.9rem); /* FIXED: Dynamic sizing for mobile views */
+}
+
+.iscsec-table th {
+  background-color: #222;
+  color: #00ff99;
+  padding: 10px 8px; /* Slightly widened target footprint spacing metrics */
+  text-align: left;
+  border-bottom: 2px solid #00ff99;
+  white-space: nowrap; /* Keeps system data category markers neatly in line */
+}
+
+.iscsec-table td {
+  background-color: #111;
+  color: #ccc;
+  padding: 10px 8px;
+  border-bottom: 1px solid #333;
+}
+
+.iscsec-table tr:hover td {
+  background-color: #181818;
+}
+
+/* ==========================================================================
+   MOBILE & TABLET TABLE OVERLAY STRUCTURAL DEFENSE HOOKS
+   ========================================================================== */
+
+/* ➔ SCREEN INTERFACE ADJUSTMENTS: TARGETS COMPACT SCREENS (600px AND DOWN) */
+@media (max-width: 600px) {
+  /* IMPORTANT INTERFACE RULE FOR HTML AUTHORS:
+     To keep table elements safe from breaking narrow page lines, wrap them in a container element:
+     <div class="iscsec-table-responsive"><table class="iscsec-table">...</table></div> */
+  .iscsec-table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin: 15px 0;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 6px;
+  }
+  
+  .iscsec-table-responsive .iscsec-table {
+    margin: 0; /* Clear duplicate outer spacing bindings */
+  }
+}
+
+/* Optional subtle fade-in for banners and code sections */
+.iscsec-banner, pre code {
+  animation: fadeIn 0.6s ease-in-out;
+  /* Hardware accelerates the animation layer to protect mobile engines from frame drops */
+  will-change: opacity, transform; 
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-3px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* =========================================================
+   LOGIN / REGISTER PAGES
+   ========================================================= */
+
+body.page-auth {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  overflow-y: auto;
+}
+
+.auth-wrap {
+  max-width: 1100px;
+  width: 90%;
+  margin: 140px auto 80px;
+  padding: 30px 40px;
+  box-sizing: border-box; /* FIXED: Protects wrapper width calculation metrics */
+}
+
+.auth-wrap.split-layout {
+  display: grid;
+  grid-template-columns: minmax(300px, 480px) 1fr;
+  gap: 28px;
+  align-items: stretch;
+}
+
+.auth-left,
+.auth-right {
+  background: rgba(0, 0, 0, 0.55);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
+  color: #e8e8e8;
+  line-height: 1.7;
+  backdrop-filter: blur(10px);
+  padding: 30px;
+  box-sizing: border-box;
+}
+
+.auth-left h1,
+.auth-right h2 {
+  color: #00aaff;
+  margin-top: 0;
+  font-size: clamp(1.5rem, 4vw, 2.2rem); /* FIXED: Fluidly scales headers across platforms */
+}
+
+.auth-right h3 {
+  color: #ff5252;
+  margin-top: 24px;
+  margin-bottom: 10px;
+  font-size: clamp(1.1rem, 3vw, 1.3rem);
+}
+
+.auth-meta {
+  color: #cfd6df;
+  margin-top: -8px;
+  margin-bottom: 22px;
+  font-size: 0.95rem;
+}
+
+.auth-form {
+  display: grid;
+  gap: 16px;
+}
+
+.form-group {
+  display: grid;
+  gap: 6px;
+}
+
+.form-group label {
+  font-weight: 600;
+  color: #fff;
+  font-size: 0.95rem;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 11px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.95);
+  color: #000;
+  font: inherit;
+  outline: none;
+  font-size: 16px; /* FIXED: Hardlocks 16px rule baseline to stop iOS browser auto-zooming bugs */
+  box-sizing: border-box;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-group input:focus {
+  border-color: #ff3b3b;
+  box-shadow: 0 0 0 3px rgba(255, 59, 59, 0.22);
+}
+
+.form-options {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: center;
+  flex-wrap: wrap;
+  font-size: 0.95rem;
+}
+
+.checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #e8e8e8;
+  cursor: pointer;
+  user-select: none; /* Stops accidental text highlighting loops on mobile double-taps */
+}
+
+.forgot-link,
+.auth-alt a,
+.auth-right a {
+  color: #00aaff;
+  text-decoration: none;
+  transition: color 0.2s ease, text-shadow 0.2s ease;
+}
+
+.forgot-link:hover,
+.auth-alt a:hover,
+.auth-right a:hover {
+  color: #ff3b3b;
+  text-shadow: 0 0 6px #ff3b3b;
+}
+
+.btn-primary {
+  width: 100%;
+  padding: 12px 16px;
+  border: 0;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #ff2d55, #ff7a00);
+  color: #fff;
+  font-weight: 800;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: transform 0.2s ease, filter 0.2s ease;
+  touch-action: manipulation; /* Optimizes tap responsive action metrics on phone devices */
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+  outline: none;
+}
+
+.auth-alt {
+  margin: 4px 0 0;
+  color: #cfd6df;
+  text-align: center;
+}
+
+.auth-right ul {
+  margin: 8px 0 0 20px;
+  padding: 0;
+}
+
+.auth-right li {
+  margin-bottom: 8px;
+}
+
+
+/* ==========================================================================
+   MOBILE & TABLET ADAPTIVE OVERRIDES (Consolidated Architecture Framework)
+   ========================================================================== */
+
+/* ➔ TARGET COMPACT DESKTOPS AND TABLETS (Screens up to 900px wide) */
+@media (max-width: 900px) {
+  .auth-wrap {
+    width: 92%;
+    padding: 20px 20px; /* FIXED: Aligned structural padding to liberate tablet form real estate */
+    margin: 110px auto 60px;
+  }
+
+  .auth-wrap.split-layout {
+    grid-template-columns: 1fr; /* Drops down cleanly to single-column stacked format */
+    gap: 20px;
+  }
+}
+
+/* ➔ TARGET SMARTPHONE SCREEN CONNECTIONS (Screens up to 520px wide) */
+@media (max-width: 520px) {
+  .auth-wrap {
+    margin-top: 130px; /* Safe clearing clearance below stacked multi-tier mobile legal notice bar */
+    padding: 0;
+    width: 94%;
+  }
+
+  .auth-left,
+  .auth-right {
+    padding: 20px 16px; /* Minimizes edge space metrics so form keys maximize screen space */
+    border-radius: 12px;
+  }
+  
+  .form-options {
+    flex-direction: column; /* Stack checkboxes and forget links vertically if row collapses */
+    align-items: flex-start;
+    gap: 10px;
+  }
+}
+
+/* =========================================================
+   ISCSEC BRAND / EMBLEM SYSTEM
+   ========================================================= */
+
+/* Reusable brand block */
+.iscsec-brand-block {
+  text-align: center;
+  margin: 0 auto 28px;
+}
+
+.iscsec-brand-title {
+  text-align: center;
+  font-size: clamp(24px, 3vw, 40px); /* FIXED: Reduced lower clamp threshold from 26px to 24px to prevent horizontal wrapping on small mobile displays */
+  font-weight: 800;
+  letter-spacing: 2px;
+  margin: 0 0 10px;
+  color: #ffffff;
+  text-shadow:
+    0 0 8px rgba(255, 59, 59, 0.6),
+    0 0 18px rgba(255, 59, 59, 0.4);
+}
+
+.iscsec-emblem {
+  display: block;
+  width: min(160px, 38vw);
+  height: auto;
+  margin: 0 auto 16px;
+  filter: drop-shadow(0 0 14px rgba(255, 59, 59, 0.75));
+  transition: transform 0.25s ease, filter 0.25s ease;
+  will-change: transform, filter; /* Hardware accelerates the badge animations to prevent lag on older iOS/Android devices */
+}
+
+.iscsec-emblem:hover {
+  transform: scale(1.04);
+  filter: drop-shadow(0 0 22px rgba(255, 59, 59, 0.95));
+}
+
+/* Homepage size */
+.home-page .iscsec-emblem {
+  width: min(220px, 42vw);
+}
+
+.toc-emblem {
+  width: 120px !important;
+  max-width: 25vw !important;
+  height: auto !important;
+}
+
+/* Content/module page size */
+.page-lesson .iscsec-emblem,
+.page-module .iscsec-emblem,
+.modules-page .iscsec-emblem {
+  width: min(140px, 32vw);
+}
+
+/* =========================================================
+   INTRO PAGE BRAND BLOCK
+   ========================================================= */
+
+.intro-page {
+  left: 0 !important;
+  margin: 95px auto 80px;
+  box-sizing: border-box;
+}
+
+.intro-page .iscsec-brand-block {
+  margin-bottom: 40px;
+}
+
+.intro-page .iscsec-emblem {
+  width: min(130px, 34vw);
+}
+
+.intro-page .content-overlay {
+  max-width: 1000px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.intro-page .content-overlay h1 {
+  margin-top: 0;
+}
+
+/* =========================================================
+   MODULE INDEX PAGE LAYOUT
+   ========================================================= */
+
+.modules-page {
+  position: relative;
+  left: 0 !important;
+  transform: none !important;
+  width: min(1100px, 92vw);
+  margin: 140px auto 80px;
+  color: #e9edf3;
+  box-sizing: border-box;
+}
+
+.modules-layout {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 80px;
+  align-items: start;
+  width: 100%;
+}
+
+.modules-list-panel {
+  padding-top: 120px;
+}
+
+.modules-brand-panel {
+  text-align: center;
+}
+
+.modules-brand-panel .iscsec-brand-block {
+  margin-bottom: 0;
+}
+
+.modules-brand-panel .iscsec-emblem {
+  width: min(140px, 32vw);
+}
+
+
+/* ==========================================================================
+   MOBILE & TABLET ADAPTIVE OVERRIDES (Consolidated Grid Architecture)
+   ========================================================================== */
+
+/* ➔ TARGET COMPACT DESKTOPS AND LANDSCAPE TABLETS (Screens up to 1024px wide) */
+@media (max-width: 1024px) {
+  .modules-layout {
+    gap: 40px; /* Compresses extreme whitespace between panels on tablets */
+    grid-template-columns: 260px 1fr; /* Narrows down side menu track width dynamically */
+  }
+
+  .modules-list-panel {
+    padding-top: 60px; /* Halves desktop vertical space constraints */
+  }
+}
+
+/* ➔ TARGET VERTICAL PORTRAIT TABLETS (Screens up to 768px wide) */
+@media (max-width: 768px) {
+  .modules-page {
+    margin: 110px auto 60px; /* Tighter margins to accommodate topbar scaling */
+    width: 90vw;
+  }
+
+  .modules-layout {
+    grid-template-columns: 1fr; /* FIXED: Dissolves horizontal grid column restrictions to stack elements vertically */
+    gap: 30px;
+  }
+
+  .modules-list-panel {
+    padding-top: 0; /* FIXED: Strips unnecessary vertical spaces to match stacked content stream */
+    order: 2; /* Ensures course directories sit underneath brand assets on compact viewports */
+  }
+
+  .modules-brand-panel {
+    order: 1; /* Elevates branding elements to the top of the phone container layout */
+  }
+}
+
+/* ➔ TARGET COMPACT SMARTPHONE VIEWPORTS (Screens up to 480px wide) */
+@media (max-width: 480px) {
+  .modules-page, .intro-page {
+    margin-top: 130px; /* Safe clearing clearance below stacked multi-line mobile legal notice topbar */
+    width: 94vw;
+  }
+}
+
+/* =========================================================
+   NO-SHIFT UTILITY
+   ========================================================= */
+
+.page.no-shift {
+  position: relative;
+  left: 0 !important;
+  transform: none !important;
+  margin: 140px auto 80px;
+  width: min(1100px, 92vw);
+  box-sizing: border-box;
+}
+
+.page.no-shift .content-overlay {
+  width: 100%;
+}
+
+/* =========================================================
+   MODULE INDEX STACKED LAYOUT
+   ========================================================= */
+
+body.page-module .modules-page {
+  position: relative !important;
+  left: 0 !important;
+  transform: none !important;
+  width: min(900px, 92vw) !important;
+  margin: 120px auto 80px !important;
+  padding: 0 !important;
+}
+
+body.page-module .modules-stack {
+  display: block !important;
+  width: 100% !important;
+  text-align: center !important;
+}
+
+body.page-module .iscsec-brand-block {
+  margin: 0 auto !important;
+  padding-bottom: 0 !important;
+}
+
+/* Base style for home page emblem */
+.home-page .iscsec-emblem {
+  width: min(300px, 75vw) !important; /* FIXED: Safely caps image scaling bounds to protect phone widths */
+  max-width: 100% !important;
+  height: auto !important;
+  margin: 0 auto !important;
+}
+
+.iscsec-emblem--standard {
+  width: min(200px, 60vw) !important;
+  max-width: 100% !important;
+}
+
+/* Unified body.page-module emblem rules and fixed conflict */
+body.page-module .iscsec-emblem {
+  width: min(400px, 75vw) !important;
+  max-width: 100% !important;
+  height: auto !important;
+  margin: 0 auto !important;
+  display: block !important;
+}
+
+/* Shifting breadcrumb tracking metrics */
+body.page-module p.breadcrumb {
+  margin-top: -90px !important; /* FIXED: Reduced from -60px to stop text from smashing behind mobile header elements */
+  margin-bottom: 20px !important;
+  text-align: center !important;
+}
+
+/* ➔ MOBILE COMFORT GUARDRAIL: Preclude text collisions on compact touchscreens */
+@media (max-width: 600px) {
+  body.page-module p.breadcrumb {
+    margin-top: -45px !important; /* Relieves the compression slightly on phones so text stays clear of navigation bars */
+    font-size: 0.82rem !important; /* Scales down text bounds for tiny viewports */
+    padding: 0 10px !important;   /* Protects lines from touching screen edges */
+  }
+}
+
+/* =========================================================
+   EBOOK COVER STYLES
+   ========================================================= */
+
+body.ebook-cover .modules-page {
+  width: min(550px, 92vw);
+  margin: 110px auto 80px !important;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+/* 📱 SMARTPHONE RESPONSIVE OVERRIDE */
+@media (max-width: 520px) {
+  body.ebook-cover .modules-page {
+    margin-top: 140px !important; /* Safe clearance below your stacked mobile top bar notice */
+    width: 94vw;                  /* Gives maximum screen estate to your text content on tiny phone screens */
+  }
+}
+
+body.ebook-cover .section-title {
+  font-size: clamp(22px, 4vw, 52px); /* FIXED: Lowered mobile bound constraint to keep text on one single line */
+  letter-spacing: 0.08em;
+  line-height: 1.2;
+}
+
+body.ebook-cover .section-subtitle {
+  font-size: clamp(14px, 2vw, 24px); /* FIXED: Optimized scaling parameter thresholds */
+  opacity: 0.9;
+}
+
+body.ebook-cover .module-list {
+  display: inline-block;
+  text-align: left;
+  margin-top: 24px;
+}
+
+body.ebook-cover .iscsec-emblem {
+  width: min(450px, 75vw) !important; /* FIXED: Replaced brittle max-width logic so emblem looks massive on desktop but scales flawlessly down on phones */
+  max-width: 100% !important;
+  height: auto !important;
+}
+
+body.ebook-cover .iscsec-brand-block {
+  margin-bottom: 0 !important;
+}
+
+body.ebook-cover .modules-list-panel {
+  padding-top: 0 !important;
+  margin-top: -15px !important; /* FIXED: Relieved extreme compression shift metrics */
+}
+
+body.ebook-cover .page-section-header {
+  margin-top: 0 !important;
+}
+
+/* =========================================================
+   LISTS & CONTENT ALIGNMENT
+   ========================================================= */
+
+body.page-module .module-list {
+  display: table !important;
+  text-align: left !important;  /* CHANGED: was 'center' */
+  margin: 0 auto 12px auto !important; 
+  padding-left: 1.4em !important;
+}
+
+body.page-module .learning-objectives-list {
+  display: table !important;
+  text-align: left !important;
+  margin: 12px auto !important;
+  padding-left: 1.4em !important;
+}
+
+body.page-module .module-list li,
+body.page-module .learning-objectives-list li {
+  text-align: left !important;
+  margin-bottom: 6px !important;
+}
+
+.module-list-wrapper {
+  text-align: center !important;
+}
+.module-list-wrapper ol {
+  display: inline-block !important;
+  text-align: left !important;
+  margin: 0 auto !important;
+  padding-left: 1.4em !important;
+}
+
+
+/* ==========================================================================
+   FINAL CONSOLIDATED CLEAN RESPONSIVE INTERFACES FOR EXTENSIONS
+   ========================================================================== */
+
+/* ➔ SCREEN PROFILE ADAPTATIONS: COVERS DEVICES UP TO 768px WIDE */
+@media (max-width: 768px) {
+  body.page-module .modules-page {
+    margin: 110px auto 40px !important;
+  }
+  
+  body.page-module p.breadcrumb {
+    margin-top: 0 !important; /* FIXED: Drops the risky negative vertical margins completely on compact phone viewports */
+  }
+
+  /* FIXED: Resets rigid desktop tabular alignments into highly fluid vertical blocks on mobile screens */
+  body.page-module .module-list,
+  body.page-module .learning-objectives-list,
+  body.ebook-cover .module-list {
+    display: block !important;
+    width: 100% !important;
+    text-align: left !important;
+    margin: 16px 0 !important;
+    padding-left: 1.2em !important;
+  }
+}
+
+/* ➔ SMARTPHONE SCREEN REAL-ESTATE ADAPTATIONS: UP TO 480px WIDE */
+@media (max-width: 480px) {
+  body.page-module .modules-page,
+  body.ebook-cover .modules-page {
+    margin-top: 140px !important; /* Clean clearance below stacked navigation rows */
+    width: 94vw !important;
+  }
+}
+
+/* =========================================================
+   REFINED HORIZONTAL LESSON FOOTER NAVIGATION
+   ========================================================= */
+
+.lesson-nav-container {
+  display: flex;
+  justify-content: space-between; /* Hard-locks buttons strictly to opposite sides */
+  align-items: center;
+  width: 100%;
+  max-width: 100%;               /* Restricts the flexbox from stretching out of bounds */
+  margin: 40px auto 20px;        /* Added extra top spacing below the reminder bar */
+  padding: 10px 0;
+  gap: 20px;
+  box-sizing: border-box;
+  clear: both;                   /* Protects layout from any floating asset blocks */
+}
+
+/* Hard-locks uniform background configurations onto BOTH buttons */
+.nav-link-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #e9edf3 !important;     /* Hard-locks copy coloring over global link defaults */
+  text-decoration: none !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  padding: 10px 20px !important; /* Expanded target footprints for comfortable tapping */
+  border-radius: 8px !important;
+  transition: all 0.22s ease-in-out !important;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+/* Cyberpunk hover states applied equally to both buttons */
+.nav-link-btn:hover,
+.nav-link-btn:focus {
+  color: #ff3b3b !important;
+  border-color: rgba(255, 59, 59, 0.5) !important;
+  background: rgba(255, 59, 59, 0.1) !important;
+  text-shadow: 0 0 8px #ff3b3b !important;
+  box-shadow: 0 0 15px rgba(255, 59, 59, 0.2);
+  transform: translateY(-1px);
+  outline: none;
+}
+
+/* 📱 SMARTPHONE RESPONSIVE COMPRESSION ENGINES */
+@media (max-width: 600px) {
+  .lesson-nav-container {
+    margin-top: 30px;
+    gap: 12px;
+  }
+
+  .nav-link-btn {
+    font-size: 0.85rem !important;
+    padding: 8px 14px !important;
+    border-radius: 6px !important;
+  }
+}
+
+/* =========================================================
+   GLOBAL DEFENSIVE RESPONSIVE MEDIA UTILITIES
+   ========================================================= */
+
+/* Prevents massive inline screenshots or diagram assets from exploding past phone screen lines */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Fallback catch-all to make sure unformatted terminal inputs scroll cleanly on touch screens */
+pre {
+  overflow-x: auto;
+  max-width: 100%;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Flexible layout wrapper container class for complex standard layout data metrics */
+.table-wrapper {
+  overflow-x: auto;
+  width: 100%;
+  -webkit-overflow-scrolling: touch;
+  margin: 15px 0;
+}
+
+/* =========================================================
+   FIXED CALLOUT HIGHLIGHT SYSTEMS
+   ========================================================= */
+
+/* 🔥 RED HIGHLIGHT PANEL */
+.reminder {
+  margin-top: 30px;
+  padding: 20px;
+  border-left: 4px solid #ff3b3b;
+  background: rgba(255, 59, 59, 0.08);
+  border-radius: 8px;
+  color: #f3f5f7 !important; /* FIXED: Restores bright text clarity */
+}
+
+/* 🔷 BLUE HIGHLIGHT PANEL */
+/* FIXED: Changed from space selection (.info remember) to valid class hyphen (.info-remember) */
+.info-remember {
+  background: rgba(255, 255, 255, 0.03);
+  border-left: 3px solid rgba(0, 128, 255, 0.8);
+  padding: 12px 18px;
+  border-radius: 6px;
+  color: #eaeaea;
+  margin-top: 16px;
+  font-size: clamp(0.95rem, 2.5vw, 1.05rem);
+  line-height: 1.6;
+}
+
+.info-remember em {
+  color: rgba(0, 170, 255, 0.95);
+  font-style: italic;
+  font-weight: 600;
+}
+
+/* =========================================================
+   AUTHORIZED USE ONLY - Red Warning
+   ========================================================= */
+
+.reminder-auth {
+  margin-bottom: 20px;
+  padding: 16px 20px;
+  background: #ffebee;
+  border-left: 4px solid #f44336;
+  border-radius: 4px;
+}
+
+.reminder-auth strong {
+  color: #b71c1c;
+}
+
+.reminder-auth span {
+  color: #b71c1c;
+}
+
+.reminder-auth strong span {
+  color: #b71c1c;
+}
+
+/* =========================================================
+   INTERNATIONAL COMPLIANCE - Orange Warning
+   ========================================================= */
+
+.reminder-comp {
+  margin-bottom: 20px;
+  padding: 16px 20px;
+  background: #fff3e0;
+  border-left: 4px solid #ff9800;
+  border-radius: 4px;
+}
+
+.reminder-comp strong {
+  color: #e65100;
+}
+
+.reminder-comp span {
+  color: #e65100;
+}
+
+/* 🔥 RED HIGHLIGHT PANEL */
+.reminder {
+  margin-top: 12px !important;
+  margin-bottom: 12px !important;
+  padding: 20px;
+  border-left: 4px solid #ff3b3b;
+  background: rgba(255, 59, 59, 0.08);
+  border-radius: 8px;
+  color: #f3f5f7 !important;
+  display: block !important;      /* ← ADD THIS */
+  clear: both !important;        /* ← ADD THIS */
+  width: 100% !important;        /* ← ADD THIS */
+  box-sizing: border-box !important; /* ← ADD THIS */
+}
+
+/* 🔷 BLUE HIGHLIGHT PANEL */
+.info-remember {
+  background: rgba(255, 255, 255, 0.03);
+  border-left: 3px solid rgba(0, 128, 255, 0.8);
+  padding: 12px 18px;
+  border-radius: 6px;
+  color: #eaeaea;
+  margin-top: 12px !important;
+  margin-bottom: 12px !important;
+  font-size: clamp(0.95rem, 2.5vw, 1.05rem);
+  line-height: 1.6;
+  display: block !important;      /* ← ADD THIS */
+  clear: both !important;        /* ← ADD THIS */
+  width: 100% !important;        /* ← ADD THIS */
+  box-sizing: border-box !important; /* ← ADD THIS */
+}
+
+/* 🟠 OPSEC REMINDER - Orange Warning Style */
+.reminder-opsec {
+  background: #fff3e0 !important;
+  border-left: 4px solid #ff9800 !important;
+  padding: 16px 20px !important;
+  border-radius: 4px !important;
+  margin-top: 12px !important;
+  margin-bottom: 12px !important;
+  color: #e65100 !important;
+  display: block !important;      /* ← ADD THIS */
+  clear: both !important;        /* ← ADD THIS */
+  width: 100% !important;        /* ← ADD THIS */
+  box-sizing: border-box !important; /* ← ADD THIS */
+}
+
+/* 🔷 LIGHT BLUE REMINDER - Dark Blue Text */
+.reminder-lightblue {
+  background: #e3f2fd !important;
+  border-left: 4px solid #0d47a1 !important;
+  padding: 12px 18px !important;
+  border-radius: 4px !important;
+  margin-top: 12px !important;
+  margin-bottom: 12px !important;
+  color: #0d47a1 !important;
+  display: block !important;      /* ← ADD THIS */
+  clear: both !important;        /* ← ADD THIS */
+  width: 100% !important;        /* ← ADD THIS */
+  box-sizing: border-box !important; /* ← ADD THIS */
+}
+
+/* Red-Blue Team Reminder - Darker Purple Combination */
+.redblue-reminder {
+  margin-top: 10px;
+  padding: 20px 24px;
+  border-left: 4px solid #6c3483;
+  background: rgba(108, 52, 131, 0.15);
+  border-radius: 8px;
+  color: #e9edf3;
+}
+
+.redblue-reminder strong {
+  color: #af7ac5;
+  display: block;
+  margin-bottom: 8px;
+  font-size: 1.05em;
+}
+
+/* Hide only the visible Members button on lesson pages */
+body.page-lesson [class*="PositionedMemberButton"],
+body.page-lesson [data-testid="memberButton"],
+body.page-lesson .MemberSpaceWidgetInternal__PositionedMemberButton_d46Pr_container {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}

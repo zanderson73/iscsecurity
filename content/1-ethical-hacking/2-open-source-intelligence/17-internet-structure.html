@@ -1,0 +1,1383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Internet Structure, Breaches &amp; Anonymity | ISCSECURITY Master Class Series</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="/css/styles.css?v=2026_PRODUCTION_FINAL" />
+  
+  <!-- MemberSpace -->
+  <script>
+    window.MemberSpace = window.MemberSpace || { subdomain: "iscsecurity" };
+    (function(d){
+      var s = d.createElement("script");
+      s.src = "https://cdn.memberspace.com/scripts/widgets.js";
+      s.async = true;
+      d.head.appendChild(s);
+    })(document);
+  </script>
+  
+</head>
+
+<body class="page-lesson">
+
+<div class="site-topbar" role="note" aria-label="Legal notice">
+  <small class="topbar-note">
+    © 2026 ISCSECURITY · Authorization-first training. All testing must be lawful, scoped, and approved in writing.
+  </small>
+	<nav class="topbar-links" aria-label="Topbar links">
+      <a href="https://iscsecurity.org/index">Home</a>
+      <a href="https://iscsecurity.org/content/index">Content</a>
+	  <a href="https://iscsecurity.org/content/1-ethical-hacking/2-open-source-intelligence/index">OSINT</a>
+      <a href="https://iscsecurity.org/contact">Contact</a>
+    </nav>
+</div>
+
+  <main class="page modules-page no-shift" id="ethical-hacking-training-content" data-ms-content="members-only">
+  <article class="lesson-content overlay" tabindex="0" aria-label="Lesson content: Internet Structure, Breaches &amp; Anonymity">
+
+    <p class="breadcrumb">
+      <a href="https://iscsecurity.org/index">Home</a> →
+        <a href="https://iscsecurity.org/content/index">Content</a> →
+        <a href="https://iscsecurity.org/content/1-ethical-hacking/2-open-source-intelligence/index">OSINT</a> →
+      <span aria-current="page">Page 17</span>
+    </p>
+
+    <h1>Internet Structure, Breaches &amp; Anonymity in OSINT and Cybersecurity</h1>
+
+    <!-- ============================================================ -->
+    <!-- AUTHORIZED USE BANNERS                                        -->
+    <!-- ============================================================ -->
+
+    <div class="reminder-auth">
+      <strong>🚨 AUTHORIZED USE ONLY:</strong>
+      <span>
+        All content in this document is for educational and defensive training purposes only.
+        The adversarial techniques described are derived from real-world tradecraft but
+        are documented exclusively for <strong>defensive analysis, detection engineering,
+        and authorized security testing</strong>. Unauthorized deployment of any technique
+        described may constitute a criminal offense under applicable national and
+        international cybercrime laws. Always obtain <strong>explicit written authorization</strong>
+        from the system owner or authorized legal entity before testing, executing, or
+        simulating any of the techniques outlined in this document.
+      </span>
+    </div>
+
+    <div class="reminder-comp">
+      <strong>🌍 INTERNATIONAL COMPLIANCE NOTICE:</strong>
+      <span>
+        Cybercrime laws vary significantly by jurisdiction. It is your sole responsibility
+        to understand and comply with the laws applicable to your location, the location
+        of any target systems, and your organization's policies. When in doubt,
+        <strong>consult a qualified legal professional</strong> before testing, executing,
+        or simulating any technique described in this document.
+      </span>
+    </div>
+	
+	<!-- ============================================================ -->
+    <!-- LAB ENVIRONMENT DISCLAIMER & SETUP GUIDANCE                  -->
+    <!-- ============================================================ -->
+
+    <div class="reminder-lab">
+      <strong>🧪 LAB ENVIRONMENT NOTICE:</strong>
+      <span>
+        All practical examples, command-line executions, and scenario-based exercises in this document are demonstrated within the <strong>ISCSEC internal training laboratory</strong>. 
+        This is a controlled, isolated environment that exists solely for educational and defensive training purposes.
+      </span>
+      <br><br>
+      <span>
+        <strong>You do not have access to the ISCSEC lab.</strong> As a learner, you are expected to build and maintain your own isolated lab environment, 
+        replicating the documented topology, IP schemes, and hostname conventions. The ISCSEC lab serves as a <strong>canonical reference topology</strong> 
+        for this training, not a shared or remotely accessible resource.
+      </span>
+      <br><br>
+      <span>
+        <strong>Lab requirements:</strong>
+        <ul>
+          <li>Isolated virtualised environment (e.g., VMware Workstation, VirtualBox, or Hyper-V)</li>
+          <li>Attacker operator platform (e.g., Kali Linux or equivalent)</li>
+          <li>Target Windows host (e.g., CLIENT01 at 172.16.5.60)</li>
+          <li>Internal network with domain controller (DC01 at 172.16.5.25), SQL server (SQL01 at 172.16.5.20), web server (WEB01 at 172.16.5.30), and application server (APP01 at 172.16.5.40)</li>
+          <li>All testing must be conducted within your own isolated network with <strong>explicit written authorization</strong> for any systems involved</li>
+        </ul>
+      </span>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 1: MACRO-LAYER CARTOGRAPHY — THE INTERNET GRAPH      -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="macro-cartography">
+      <h2 id="macro-cartography">1. Macro-Layer Cartography: Mapping the Target's Presence on the Internet Graph</h2>
+
+      <p>
+        <strong>Adversary Goals:</strong> Before querying infrastructure, define the target's position within
+        the global routing table, DNS hierarchy, and peering ecosystem. This reveals not just what they own,
+        but where they physically and logically connect to the internet.
+      </p>
+
+      <p>
+        The Internet is a global <strong>"network of networks"</strong> built on the TCP/IP stack.
+        Underneath it sit ISPs, long-haul backbones, and Internet Exchange Points (IXPs), while above it sit DNS,
+        CDNs, clouds (AWS/Azure/GCP), and edge nodes. All relevant to recon and attack-surface mapping.
+      </p>
+
+      <p>
+        IPv6 adoption and Zero Trust architectures continue to change how assets are discovered and enumerated,
+        increasing the importance of multi-source reconnaissance and cloud-aware tooling.
+      </p>
+
+      <h3>1.1 The Structural Dossier</h3>
+
+      <p>Build a target file containing:</p>
+
+      <ul>
+        <li><strong>Autonomous System Numbers (ASNs):</strong> Their own and acquired subsidiaries.</li>
+        <li><strong>Registered CIDRs:</strong> <code>inetnum</code> / <code>inet6num</code> objects across all RIRs.</li>
+        <li><strong>Upstream &amp; Peer ASNs:</strong> Transit providers (Tier 1/2) and settlement-free peers.</li>
+        <li><strong>IXP Presence:</strong> Internet Exchange Points where they maintain peering fabric.</li>
+        <li><strong>DNS Authority Chain:</strong> Root nameserver → TLD NS → Authoritative NS → Zone apex.</li>
+        <li><strong>Certificate Transparency Baseline:</strong> All historical TLS certificates issued to their domains.</li>
+        <li><strong>RIR Handles:</strong> Administrative, technical, and abuse contacts linked to their resources.</li>
+      </ul>
+
+      <h3>1.2 Pivot Points</h3>
+
+      <p>Internet structure reconnaissance pivots on:</p>
+
+      <ul>
+        <li><strong>ASN → Prefixes → Peers → IXPs → Physical Facilities</strong></li>
+        <li><strong>Domain → Authoritative NS → NS Version / Geographic Distribution → Zone Transfer Misconfigurations</strong></li>
+        <li><strong>Certificate CN/SAN → Origin IP (CDN bypass) → Unprotected Web Infrastructure</strong></li>
+        <li><strong>IP Geolocation Clustering → Data Center Mapping → Physical Perimeter Correlation</strong></li>
+      </ul>
+
+      <div class="reminder">
+        <strong>Red Team Note:</strong><br> 
+		Internet-structure reconnaissance is almost entirely passive and
+        generates zero packets to the target's edge. It is the highest-return, lowest-risk phase of
+        external reconnaissance.
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 2: TOOL SELECTION MATRIX — INTERNET-STACK RECON      -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="tool-matrix">
+      <h2 id="tool-matrix">2. Tool Selection Matrix: The Internet-Stack Reconnaissance Matrix</h2>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table" style="width:100%; border-collapse:collapse; border:1px solid rgba(255,255,255,0.1); margin:1em 0; font-size:0.95rem;">
+          <thead>
+            <tr>
+              <th>Recon Layer</th>
+              <th>Tool / Resource</th>
+              <th>Adversarial Use Case</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Routing &amp; ASN</td>
+              <td><code>whois</code> (RIR/RADb), RIPE Stat API, <code>bgpq4</code></td>
+              <td>Enumerate owned netblocks, verify route origin consistency</td>
+            </tr>
+            <tr>
+              <td>IP-to-ASN Mapping</td>
+              <td>Team Cymru (<code>whois.cymru.com</code>)</td>
+              <td>Bulk-map live IPs to originating AS and prefix</td>
+            </tr>
+            <tr>
+              <td>Peering &amp; IXP</td>
+              <td>PeeringDB API</td>
+              <td>Identify physical facilities, private peering IPs, colo presence</td>
+            </tr>
+            <tr>
+              <td>RIR RDAP/WHOIS</td>
+              <td><code>whois</code>, ARIN/RIPE REST APIs</td>
+              <td>Extract registration dates, abuse contacts, Org IDs</td>
+            </tr>
+            <tr>
+              <td>DNS Structure</td>
+              <td><code>dig +trace</code>, <code>dig AXFR</code>, <code>dnsviz</code></td>
+              <td>Map DNS authority chain, test zone transfers, validate DNSSEC</td>
+            </tr>
+            <tr>
+              <td>Certificate Intel</td>
+              <td><code>crt.sh</code> API, Censys</td>
+              <td>Find origin servers behind CDNs via certificate history</td>
+            </tr>
+            <tr>
+              <td>Geolocation</td>
+              <td><code>get_ip_geolocation</code>, <code>get_domain_ip</code></td>
+              <td>Cluster infrastructure physically, identify shadow regions</td>
+            </tr>
+            <tr>
+              <td>Press / M&amp;A Intel</td>
+              <td><code>web_search</code></td>
+              <td>Discover undisclosed facilities, new AS acquisitions, PoP openings</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 3: MASTER ADVANCED QUERY SYNTAX                      -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="query-syntax">
+      <h2 id="query-syntax">3. Master Advanced Query Syntax</h2>
+
+      <p>
+        <strong>Adversary Goals:</strong> RIR RPSL, RDAP, BGP, and DNS Authority commands for precision
+        internet-structure reconnaissance.
+      </p>
+
+      <h3>3.1 Routing Registry &amp; ASN Enumeration</h3>
+
+<pre><code class="language-bash"># Query ARIN RDAP for ASN registration (JSON output for parsing)
+curl -s https://rdap.arin.net/registry/autnum/15169 | \
+  jq '.name, .handle, .startAutnum, .endAutnum, .entities[0].vcardArray[1][] | select(.[0]=="email") | .[3]'
+
+# Query RIPE NCC for all route objects originating from target ASN
+whois -h whois.ripe.net -i origin AS12345
+
+# Query RADb for all prefixes announced by ASN (legacy but widely used)
+whois -h whois.radb.net "!gAS12345"
+
+# Bulk IP-to-ASN mapping via Team Cymru (netcat mode for scale)
+{ echo "begin"; echo "verbose"; cat target_ips.txt; echo "end"; } | nc whois.cymru.com 43
+
+# Single IP verbose lookup
+whois -h whois.cymru.com " -v 203.0.113.45"
+</code></pre>
+
+      <h3>3.2 PeeringDB &amp; IXP Intelligence</h3>
+
+<pre><code class="language-bash"># Retrieve network record by ASN (includes policy, website, prefix counts)
+curl -s "https://api.peeringdb.com/api/net?asn=15169" | \
+  jq '.data[] | {name, info_prefixes4, info_prefixes6, policy_general, website}'
+
+# Extract all IXPs where target maintains presence and associated peering IPs
+# First get the internal net_id
+NET_ID=$(curl -s "https://api.peeringdb.com/api/net?asn=15169" | jq '.data[0].id')
+
+# Then pull IX LAN entries (reveals private peering IP space on IX fabrics)
+curl -s "https://api.peeringdb.com/api/netixlan?net_id=${NET_ID}" | \
+  jq '.data[] | {ix_name: .name, ipaddr4, ipaddr6, speed, status}'
+  </code></pre>
+
+      <h3>3.3 DNS Authority &amp; Structural Mapping</h3>
+
+<pre><code class="language-bash"># Full DNS delegation trace (touches root, TLD, and target authoritative NS)
+dig +trace +nodnssec target.com
+
+# Identify authoritative nameservers only
+dig +short NS target.com
+
+# Attempt zone transfer against each authoritative NS (structural goldmine)
+for ns in $(dig +short NS target.com); do
+    echo "[*] Trying AXFR against $ns..."
+    dig @$ns target.com AXFR
+done
+
+# Nmap DNS zone transfer script (alternative)
+nmap --script dns-zone-transfer --script-args dns-zone-transfer.domain=target.com
+
+# DNSSEC validation chain extraction (identify absence = cache poisoning opportunity)
+dig +dnssec +multi DNSKEY target.com
+dig +dnssec +multi DS target.com
+
+# Extract MX records (often bypass WAF/CDN and point to unprotected mail gateways)
+dig +short MX target.com
+host -t MX target.com
+</code></pre>
+
+      <h3>3.4 Certificate Transparency &amp; Origin IP Discovery</h3>
+
+<pre><code class="language-bash"># Pull all certificate entries for domain and subdomains from crt.sh
+curl -s "https://crt.sh/?q=%.target.com&output=json" | \
+  jq -r '.[].name_value' | sort -u > ct_domains.txt
+
+# Resolve candidate origin subdomains (often non-proxied by CDN)
+grep -iE "^(origin|direct|cdn[0-9]|ftp|mail|webmail|cpanel|web[0-9]|dev|stage)" ct_domains.txt | \
+  while read domain; do
+    host "$domain"
+  done | grep "has address" | awk '{print $4}' | sort -u > potential_origins.txt
+
+# Verify if origin IP responds with target content using correct Host header
+for ip in $(cat potential_origins.txt); do
+  STATUS=$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 3 -H "Host: target.com" "http://$ip/")
+  if [ "$STATUS" == "200" ] || [ "$STATUS" == "301" ] || [ "$STATUS" == "302" ]; then
+    echo "[+] ORIGIN CANDIDATE: $ip (HTTP $STATUS)"
+  fi
+done
+</code></pre>
+
+      <h3>3.5 Macro-Geolocation Clustering</h3>
+
+<pre><code class="language-bash"># Resolve primary domain
+get_domain_ip --domain target.com
+
+# Geolocate resolved IP
+get_ip_geolocation --ip_address "203.0.113.45"
+
+# For larger netblocks, cluster IPs by country/region to find facility concentrations
+# (Assuming you have a list of live hosts from prior reconnaissance)
+while read ip; do
+  get_ip_geolocation --ip_address "$ip" | grep -E "country|region|city"
+done &lt; live_hosts.txt | sort | uniq -c | sort -rn
+</code></pre>
+</section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 4: MAP COMMON INTERNET-STRUCTURE EXPOSURES           -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="exposures">
+      <h2 id="exposures">4. Map Common Internet-Structure Exposures &amp; Misconfigurations</h2>
+
+      <p>
+        <strong>Adversary Goals:</strong> High-value intelligence at the routing, DNS, and peering layers.
+      </p>
+
+      <h3>4.1 BGP &amp; Routing Registry Weaknesses</h3>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table">
+          <thead>
+            <tr>
+              <th>Exposure</th>
+              <th>Detection Method</th>
+              <th>Adversarial Value</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Missing RPKI / Invalid ROA</td>
+              <td>RIPE Stat API RPKI check</td>
+              <td>Indicates susceptibility to route hijacking or leak (simulation potential)</td>
+            </tr>
+            <tr>
+              <td>Stale IRR Objects</td>
+              <td><code>whois -h whois.radb.net "!gAS..."</code> vs live BGP table</td>
+              <td>Reveals orphaned prefixes; upstream may still accept bogus announcements</td>
+            </tr>
+            <tr>
+              <td>Leaked AS-SET Members</td>
+              <td><code>whois -h whois.radb.net "!iAS-TARGET,1"</code></td>
+              <td>Enumerate customer ASNs of target (supply chain mapping)</td>
+            </tr>
+            <tr>
+              <td>Inconsistent Origin AS</td>
+              <td>Team Cymru bulk lookup vs advertised ASN</td>
+              <td>Prefix squatting, BGP tampering, or shadow M&amp;A infrastructure</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>Adversarial Command:</p>
+
+      <pre><code class="language-bash"># Check RPKI validity for a target prefix via RIPE Stat
+curl -s "https://stat.ripe.net/data/rpki-validation/data.json?resource=AS12345&prefix=203.0.113.0/24" | \
+  jq '.data.status, .data.validator'
+# "invalid" or "unknown" = target has weak routing hygiene</code></pre>
+
+      <h3>4.2 DNS Authority &amp; Hierarchy Misconfigurations</h3>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table">
+          <thead>
+            <tr>
+              <th>Exposure</th>
+              <th>Detection</th>
+              <th>Adversarial Value</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Zone Transfer (AXFR)</td>
+              <td><code>dig @ns.target.com target.com AXFR</code></td>
+              <td>Complete instant map of all hosts, MX, TXT records</td>
+            </tr>
+            <tr>
+              <td>Missing DNSSEC</td>
+              <td><code>dig +dnssec</code> returns no RRSIG</td>
+              <td>Enables DNS cache poisoning, redirecting VPN/mail endpoints</td>
+            </tr>
+            <tr>
+              <td>Orphaned NS Delegation</td>
+              <td>Authoritative NS in WHOIS but unresponsive</td>
+              <td>Can indicate expired domains available for takeover</td>
+            </tr>
+            <tr>
+              <td>Wildcard CNAME to External</td>
+              <td><code>*.target.com CNAME vendor-app.io</code></td>
+              <td>Subdomain takeover on third-party SaaS</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>4.3 CDN / WAF Bypass via Structural Intelligence</h3>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table">
+          <thead>
+            <tr>
+              <th>Vector</th>
+              <th>Method</th>
+              <th>Payoff</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Historical DNS A-records</td>
+              <td><code>curl</code> to SecurityTrails/crt.sh + IP correlation</td>
+              <td>Find pre-CDN origin IPs still accepting direct connections</td>
+            </tr>
+            <tr>
+              <td>SNI / Certificate Mismatch</td>
+              <td>Censys cert search for CN=target.com on non-CDN IPs</td>
+              <td>Identify forgotten direct-connect assets</td>
+            </tr>
+            <tr>
+              <td>SMTP Banner Exposure</td>
+              <td><code>telnet</code> to MX IP 25 or <code>nmap -sV -p25</code></td>
+              <td>MX often bypasses HTTP CDN; reveals true network perimeter</td>
+            </tr>
+            <tr>
+              <td>SSL Certificate Subject CN</td>
+              <td><code>sslscan</code> or <code>nmap --script ssl-cert</code></td>
+              <td>Internal cert names (e.g., <code>origin.target.local</code>) leaked externally</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>4.4 Peering &amp; Physical Infrastructure Exposure</h3>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table">
+          <thead>
+            <tr>
+              <th>Data Source</th>
+              <th>Extract</th>
+              <th>Adversarial Value</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>PeeringDB Facilities</td>
+              <td>Datacenter names, addresses</td>
+              <td>Physical intrusion targeting, supply chain intercept</td>
+            </tr>
+            <tr>
+              <td>Peering LAN IPs</td>
+              <td><code>netixlan</code> IP ranges</td>
+              <td>Often reachable from compromised IXP participants; soft internal perimeter</td>
+            </tr>
+            <tr>
+              <td>Upstream Providers</td>
+              <td><code>bgpq4</code> or HE BGP adjacency</td>
+              <td>Social engineering pretexting as "upstream support"</td>
+            </tr>
+            <tr>
+              <td>Submarine Cable Landings</td>
+              <td>TeleGeography / manual research</td>
+              <td>Geopolitical chokepoint analysis (APT-level simulation)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 5: AUTOMATE INGESTION VIA API PIPELINES              -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="api-pipeline">
+      <h2 id="api-pipeline">5. Automate Ingestion via API Pipelines</h2>
+
+      <p>
+        <strong>Adversary Goals:</strong> From global routing tables to operational target maps. Manual WHOIS
+        and DNS queries do not scale across multi-continental organizations. Internet-structure data must be
+        normalized into a relational or graph database for pivot analysis.
+      </p>
+
+      <h3>5.1 RIPE Stat + PeeringDB Ingestion Pipeline</h3>
+
+<pre><code class="language-python">#!/usr/bin/env python3
+# Conceptual adversary tool: Internet structure ingestion pipeline
+import requests
+import sqlite3
+
+DB = "internet_structure.db"
+conn = sqlite3.connect(DB)
+c = conn.cursor()
+
+# Schema: Macro-level internet presence
+c.execute('''CREATE TABLE IF NOT EXISTS asn_prefixes (
+                id INTEGER PRIMARY KEY, asn TEXT, prefix TEXT, rir TEXT,
+                source TEXT, first_seen TEXT, rpki_status TEXT)''')
+
+c.execute('''CREATE TABLE IF NOT EXISTS peering (
+                id INTEGER PRIMARY KEY, asn TEXT, ix_name TEXT,
+                peering_ip TEXT, speed_mbps INTEGER, facility_city TEXT)''')
+
+def ingest_ripe_announced(asn):
+    url = f"https://stat.ripe.net/data/announced-prefixes/data.json?resource=AS{asn}&starttime=2024-01-01T00:00:00"
+    r = requests.get(url, timeout=20).json()
+    for prefix_data in r.get("data", {}).get("prefixes", []):
+        prefix = prefix_data.get("prefix")
+        c.execute("INSERT INTO asn_prefixes (asn, prefix, source, first_seen) VALUES (?,?,?,?)",
+                  (asn, prefix, "ripe-stat", prefix_data.get("timelines", [{}])[0].get("starttime")))
+    conn.commit()
+
+def ingest_peeringdb(asn):
+    net_url = f"https://api.peeringdb.com/api/net?asn={asn}"
+    net_resp = requests.get(net_url, timeout=20).json()
+    if not net_resp.get("data"):
+        return
+    net_id = net_resp["data"][0]["id"]
+    net_name = net_resp["data"][0]["name"]
+
+    ixlan_url = f"https://api.peeringdb.com/api/netixlan?net_id={net_id}"
+    ixlan_resp = requests.get(ixlan_url, timeout=20).json()
+    for entry in ixlan_resp.get("data", []):
+        c.execute("INSERT INTO peering (asn, ix_name, peering_ip, speed_mbps) VALUES (?,?,?,?)",
+                  (asn, entry.get("name"), entry.get("ipaddr4"), entry.get("speed", 0)))
+    conn.commit()
+
+TARGET_ASNS = ["12345", "67890"]
+for asn in TARGET_ASNS:
+    ingest_ripe_announced(asn)
+    ingest_peeringdb(asn)
+
+conn.close()
+</code></pre>
+
+      <h3>5.2 Automated Origin-IP Hunter (CDN Bypass)</h3>
+
+<pre><code class="language-python">#!/usr/bin/env python3
+# Conceptual adversary tool: Origin IP discovery via certificate transparency
+import subprocess
+import requests
+import json
+
+def hunt_origins(domain):
+    # Phase 1: crt.sh extraction
+    url = f"https://crt.sh/?q=%.{domain}&output=json"
+    r = requests.get(url, timeout=30).json()
+    subdomains = list({entry["name_value"] for entry in r})
+
+    # Phase 2: Filter high-fidelity origin candidates
+    keywords = ["origin", "direct", "cdn", "mail", "ftp", "webmail", "cpanel", "web", "dev", "stage", "app", "api"]
+    candidates = [s for s in subdomains if any(k in s for k in keywords)]
+
+    origins = []
+    for cand in candidates:
+        # Resolve via system host command
+        try:
+            ip = subprocess.check_output(["dig", "+short", cand], text=True).strip().split("\n")[0]
+            if ip:
+                origins.append({"subdomain": cand, "ip": ip})
+        except Exception:
+            continue
+
+    # Phase 3: Verify with Host header injection (OPSEC: route through proxy/VPS)
+    verified = []
+    for item in origins:
+        try:
+            resp = requests.get(f"http://{item['ip']}/", headers={"Host": domain}, timeout=5, allow_redirects=False)
+            if resp.status_code in [200, 301, 302, 401, 403] and domain.lower() in resp.text.lower():
+                item["status"] = resp.status_code
+                item["verified"] = True
+                verified.append(item)
+        except Exception:
+            continue
+
+    with open(f"{domain}_origins.json", "w") as f:
+        json.dump(verified, f, indent=2)
+
+hunt_origins("target.com")
+</code></pre>
+
+      <h3>5.3 RIR RDAP Bulk Normalization</h3>
+
+<pre><code class="language-bash">#!/bin/bash
+# Bulk query ARIN RDAP for Org handles and associated CIDRs
+for asn in $(cat target_asns.txt); do
+  echo "[*] Querying RDAP for AS${asn}"
+  curl -s "https://rdap.arin.net/registry/autnum/${asn}" | \
+    jq -r '.entities[]? | select(.roles[]? == "registrant") | .handle' >> arin_handles.txt
+done
+
+# For each Org handle, pull associated networks
+for handle in $(cat arin_handles.txt | sort -u); do
+  curl -s "https://rdap.arin.net/registry/entity/${handle}" | \
+    jq -r '.networks[]?.cidr0_cidrs // empty | .[] | .v4prefix // .v6prefix' >> target_cidrs.txt
+done
+</code></pre>
+</section>
+
+        <!-- ============================================================ -->
+    <!-- SECTION 6: BREACH LANDSCAPE — MID-2026 REALITY               -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="breach-landscape">
+      <h2 id="breach-landscape">6. Breach Landscape: Operational Reality in Mid‑2026</h2>
+
+      <p>
+        <strong>Adversary Goals:</strong> Understand the active breach landscape to prioritize intelligence
+        gathering, map compromised supply chains, and mitigate credential and session-token exposure.
+      </p>
+
+      <ul>
+        <li>
+          <strong>SaaS and Cloud Campaign Dominance:</strong> Coordinated extortion clusters continue to 
+          prioritize corporate software platforms and identity providers, proving that attackers are logging 
+          in with stolen access, often session cookies and tokens rather than breaking traditional perimeters. 
+          Expect stealer logs and infostealer telemetry to remain the primary source of initial access broker 
+          inventory.
+        </li>
+        <br>
+        <li>
+          <strong>Have I Been Pwned (HIBP) and Stealer‑Log Ingestion:</strong> Continuous high‑volume indexing 
+          of stealer logs and aggregated dumps persists through 2026, reinforcing the need for real‑time 
+          identity‑exposure monitoring. Raw password counts alone are becoming less meaningful as passkey 
+          adoption grows; monitor for <em>session token</em>, <em>corporate SSO cookie</em>, and 
+          <em>API‑key</em> exposure alongside traditional credentials.
+        </li>
+        <br>
+        <li>
+          <strong>Vendor Blast Radius Amplification:</strong> Breaches targeting central third‑party platforms 
+          (healthcare, fintech, education, and critical SaaS intermediaries) continue to cause cascading 
+          exposure down the supply chain. Verify assets continuously rather than assuming trusted‑vendor status.
+        </li>
+        <br>
+        <li>
+          <strong>AI‑Augmented Parsing and Targeting:</strong> Adversaries are increasingly using automated 
+          tooling to parse multi‑gigabyte stealer dumps at scale, prioritizing high‑value corporate VPN and 
+          VDI endpoints. Defenders should assume that any credential appearing in a stealer log will be 
+          tested against corporate edge services within hours, not weeks.
+        </li>
+        <br>
+      </ul>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 7: TOR & ANONYMITY — MID-2026 PLATFORM NOTES          -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="tor-anonymity">
+      <h2 id="tor-anonymity">7. TOR &amp; Anonymity: Platform Notes</h2>
+
+      <p>
+        The Tor Project’s migration from legacy C components to the Rust‑based <strong>Arti</strong> stack 
+        remains an ongoing priority through 2026. Stable releases of Tor Browser continue to ship with 
+        anti‑fingerprinting improvements, channel‑security updates, and incremental deprecation of older 
+        protocol features. Mobile privacy offerings (including Arti‑based VPN/split‑tunnel tooling on Android) 
+        have moved beyond early beta for many users, though feature parity and platform support continue to 
+        evolve.
+      </p>
+
+      <p>
+        For operators, this means Tor should be used deliberately and with clear operational boundaries. 
+        During C2 or anonymity simulations, route Tor traffic through controlled infrastructure, document 
+        session identifiers, and avoid mixing operational traffic with personal browsing or unrelated recon. 
+        Expect additional circuit‑behaviour updates and feature deprecations as the transition to Arti 
+        progresses.
+      </p>
+
+      <div class="reminder-lightblue">
+        <strong>Note:</strong><br> 
+		Tor is lawful to use in many jurisdictions, but interacting with illicit content 
+        or conducting crime over Tor remains prosecutable. Always follow legal boundaries and written rules 
+        of engagement.
+      </div>
+
+      <div class="reminder">
+        <strong>Operational Note:</strong><br> 
+		During C2 or anonymity simulations, route Tor traffic through 
+        controlled infrastructure, document session identifiers, and avoid mixing operational traffic with 
+        personal browsing or unrelated recon.
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 8: VERIFY AND TRIAGE SAFELY (OPSEC)                  -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="opsec">
+      <h2 id="opsec">8. Verify and Triage Safely (OPSEC)</h2>
+
+      <p>
+        <strong>Adversary Goals:</strong> Internet-structure reconnaissance is predominantly passive, but poor
+        OPSEC here exposes the operation during the earliest phase.
+      </p>
+
+      <h3>8.1 RIR &amp; WHOIS OPSEC</h3>
+
+      <ul>
+        <li>RIR WHOIS daemons (port 43) log source IPs and are subject to rate-limiting. Favor RDAP (HTTPS REST APIs); they are less likely to trigger abuse alerts and are easier to proxy.</li>
+        <li>Bulk queries: Spread WHOIS requests across time or use multiple egress IPs. Team Cymru allows bulk submissions via TCP/43, but still tag your source.</li>
+        <li>IRR queries (RADb): Generally unrestricted, but repeated <code>!iAS-SET</code> expansions can be logged.</li>
+      </ul>
+
+<pre><code class="language-bash"># Use RDAP over legacy WHOIS for attribution hygiene
+curl -s --proxy socks5h://127.0.0.1:9050 https://rdap.arin.net/registry/autnum/15169 | jq '.'
+</code></pre>
+
+      <h3>8.2 DNS Authority Chain OPSEC</h3>
+
+      <ul>
+        <li><code>dig +trace</code> queries the target's authoritative nameservers directly during the final iteration. Your source IP appears in their DNS query logs.</li>
+        <li>Mitigation: Use public resolvers (Google, Cloudflare) for non-recursive queries, but note that <code>+trace</code> inherently bypasses them. If strict passive reconnaissance is required, rely on archived DNS data (e.g., SecurityTrails, VirusTotal) rather than live traces.</li>
+      </ul>
+
+<pre><code class="language-bash"># Use public resolver to avoid direct NS contact where possible
+dig @8.8.8.8 +short NS target.com
+
+# If trace is mandatory, route through engagement VPS
+proxychains4 dig +trace target.com
+</code></pre>
+
+      <h3>8.3 PeeringDB &amp; Platform Attribution</h3>
+
+      <ul>
+        <li>PeeringDB requires user accounts for API access beyond basic queries. Create engagement-specific burner accounts with no link to your organization or real identity.</li>
+        <li>API keys should be rotated post-engagement.</li>
+      </ul>
+
+      <h3>8.4 Origin IP Verification (Active)</h3>
+
+      <p>Probing candidate origin IPs with spoofed Host headers is active contact with target infrastructure. This may:</p>
+      <ul>
+        <li>Trigger WAF origin-protection alerts.</li>
+        <li>Log your IP on the target's origin server.</li>
+        <li>Expose your operation if the origin is instrumented.</li>
+      </ul>
+
+      <p><strong>Mitigation:</strong> Route all verification traffic through disposable VPS nodes or proxy pools.</p>
+
+<pre><code class="language-bash"># OPSEC-hardened origin probe
+curl -s --connect-timeout 4 \
+  --proxy http://disposable-vps-ip:3128 \
+  -H "Host: target.com" \
+  -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64)" \
+  http://CANDIDATE_IP/
+</code></pre>
+
+      <h3>8.5 Cross-Check for Data Staleness</h3>
+
+      <p>Routing registry data (IRR) is often stale compared to live BGP. An AS may no longer announce a prefix listed in RADb.</p>
+
+      <p><strong>Validation:</strong> Cross-reference RIR-registered prefixes against live BGP tables via RIPE Stat or a looking glass before reporting them as current assets.</p>
+
+<pre><code class="language-bash"># Verify a prefix is currently announced in the global routing table
+curl -s "https://stat.ripe.net/data/routing-status/data.json?resource=203.0.113.0/24" | \
+  jq '.data.announced'
+</code></pre>
+
+      <h3>8.6 OPSEC Checklist for Internet-Structure Operations</h3>
+
+      <ul>
+        <li>✅ All RIR RDAP queries routed through engagement proxies or Tor (<code>--proxy socks5h://</code>)</li>
+        <li>✅ Legacy WHOIS port-43 queries minimized in favor of HTTPS RDAP</li>
+        <li>✅ DNS <code>+trace</code> executed from isolated VPS, not operator home/business network</li>
+        <li>✅ PeeringDB API authenticated with burner account (no personal/organizational linkage)</li>
+        <li>✅ Origin-IP active probes (<code>curl</code> with <code>Host:</code> header) conducted exclusively through disposable egress nodes</li>
+        <li>✅ IRR/RADb data cross-checked against live BGP announcements before operational reporting</li>
+        <li>✅ Geolocation results correlated against known target facility disclosures to avoid chasing stale CDN nodes</li>
+      </ul>
+    </section>
+
+        <!-- ============================================================ -->
+    <!-- SECTION 9: PRACTICAL CHANGES TO RECON & HYGIENE WORKFLOWS    -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="workflow-changes">
+      <h2 id="workflow-changes">9. Practical Changes to Your Recon &amp; Hygiene Workflows (Actionable)</h2>
+
+      <ul>
+        <li>
+          <strong>Automate breach and session-token monitoring:</strong><br>
+          Integrate API‑based breach monitoring (HIBP, DeHashed, IntelligenceX) and
+          <em>stealer‑log telemetry</em> into CI/CD, identity hygiene, and SOC hand‑off
+          workflows. In mid‑2026, exposure is increasingly about <strong>session cookies,
+          SSO tokens, and API keys</strong> rather than static passwords alone. Automation
+          should flag credential <em>and</em> session artefacts the moment they appear in
+          fresh infostealer dumps or dark‑web markets.
+        </li>
+        <br>
+        <li>
+          <strong>Triangulate breach leads before acting:</strong><br>
+          When an identity or credential surfaces in a dump, treat it as a lead, not a
+          confirmed incident. Cross‑verify using HIBP, vendor advisories, CTI feeds,
+          <em>and automated dark‑web enumeration</em>. This helps distinguish:
+          <ul>
+            <li>Mass credential‑stuffing lists and recycled old breaches</li>
+            <li><strong>AI‑generated synthetic dumps</strong> (fabricated lists used for
+              SEO, reputation attacks, or scam leverage)</li>
+            <li>Legitimate, high‑risk compromise with fresh session tokens or MFA bypass data</li>
+          </ul>
+          Proper correlation prevents false escalations and focuses incident response where
+          active exploitation is likely.
+        </li>
+        <br>
+        <li>
+          <strong>Instrument anonymous recon infrastructure with OPSEC rigour:</strong><br>
+          When using Tor, VPN splits, or anti‑detect browsers for anonymous recon or C2
+          simulation, route traffic through dedicated, controlled infrastructure. Log
+          connection times, circuit IDs, operator keys, and campaign identifiers so your
+          traffic is clearly distinguishable from real‑world malicious actors. With the
+          Tor Project’s ongoing Arti migration and mobile split‑tunnel betas maturing in
+          2026, expect platform changes that affect fingerprinting and exit‑node behaviour —
+          review tooling quarterly rather than relying on static playbooks.
+        </li>
+        <br>
+        <li>
+          <strong>Prioritise healthcare, SaaS supply chains, and AI/ML infrastructure:</strong><br>
+          Persistent targeting of healthcare, health‑tech SaaS platforms, and EMR ecosystems
+          continues through 2026, often cascading through third‑party MSPs and identity
+          brokers. Additionally, <strong>AI/ML supply chains</strong> (training‑data
+          repositories, model‑serving endpoints, and vector‑DB exposure) have become high‑value
+          recon targets. Treat any findings involving patient data, critical SaaS
+          intermediaries, or AI pipeline assets as high severity, and escalate with breach‑
+          notification timelines in mind.
+        </li>
+        <br>
+      </ul>
+
+      <div class="reminder">
+        <strong>Mid‑2026 Note:</strong><br>
+		Passkey adoption is rising, but the transitional 
+        landscape means most enterprises still manage large legacy password estates alongside 
+        FIDO2/WebAuthn rollouts. Hygiene workflows must cover <em>both</em> paradigms 
+        until passwordless coverage is universal.
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 10: QUICK REFERENCE — ADVERSARIAL INTERNET-STRUCTURE  -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="quickref">
+      <h2 id="quickref">10. Quick Reference: Adversarial Internet-Structure Quick Sheet</h2>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table" style="width:100%; border-collapse:collapse; border:1px solid rgba(255,255,255,0.1); margin:1em 0; font-size:0.95rem;">
+          <thead>
+            <tr>
+              <th>Objective</th>
+              <th>Command / Tool</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>ASN to CIDR (RADB)</td>
+              <td><code>whois -h whois.radb.net "!gAS12345"</code></td>
+            </tr>
+            <tr>
+              <td>ASN to CIDR (RIPE)</td>
+              <td><code>whois -h whois.ripe.net -i origin AS12345</code></td>
+            </tr>
+            <tr>
+              <td>IP to ASN (bulk)</td>
+              <td><code>nc whois.cymru.com 43</code> with bulk input</td>
+            </tr>
+            <tr>
+              <td>ARIN RDAP ASN</td>
+              <td><code>curl -s https://rdap.arin.net/registry/autnum/12345</code></td>
+            </tr>
+            <tr>
+              <td>PeeringDB IX lookup</td>
+              <td><code>curl -s "https://api.peeringdb.com/api/netixlan?asn=12345"</code></td>
+            </tr>
+            <tr>
+              <td>RPKI validity</td>
+              <td><code>curl -s "https://stat.ripe.net/data/rpki-validation/data.json?resource=AS12345&prefix=203.0.113.0/24"</code></td>
+            </tr>
+            <tr>
+              <td>DNS zone transfer</td>
+              <td><code>dig @ns.target.com target.com AXFR</code></td>
+            </tr>
+            <tr>
+              <td>DNSSEC check</td>
+              <td><code>dig +dnssec +multi DNSKEY target.com</code></td>
+            </tr>
+            <tr>
+              <td>CT log extraction</td>
+              <td><code>curl -s "https://crt.sh/?q=%.target.com&output=json"</code></td>
+            </tr>
+            <tr>
+              <td>Origin candidate resolution</td>
+              <td><code>host origin.target.com</code></td>
+            </tr>
+            <tr>
+              <td>IP geolocation</td>
+              <td><code>get_ip_geolocation --ip_address "203.0.113.1"</code></td>
+            </tr>
+            <tr>
+              <td>Domain IP mapping</td>
+              <td><code>get_domain_ip --domain target.com</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 11: DEFENSIVE COUNTERMEASURES                        -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="defense">
+      <h2 id="defense">11. Defensive Countermeasures &amp; Threat Mapping</h2>
+
+      <p>
+        Translating adversarial internet-structure reconnaissance into defense requires
+        <strong>routing hygiene</strong>, <strong>DNS hardening</strong>, and
+        <strong>continuous external monitoring</strong>.
+      </p>
+
+      <h3>Defensive Best Practices</h3>
+
+      <ul>
+        <li><strong>RPKI/ROA Validation:</strong> Deploy RPKI ROAs for all announced prefixes to prevent route hijacking.</li>
+        <li><strong>IRR Hygiene:</strong> Keep RADb/RIPE route objects current; remove stale prefixes immediately.</li>
+        <li><strong>DNSSEC:</strong> Implement DNSSEC on all zones to prevent cache poisoning and integrity attacks.</li>
+        <li><strong>Zone Transfer Restriction:</strong> Explicitly deny AXFR except from known secondary nameserver IPs.</li>
+        <li><strong>Origin Protection:</strong> Ensure origin servers do not accept direct HTTP requests without proper Host headers; use ACLs.</li>
+        <li><strong>Certificate Transparency Monitoring:</strong> Subscribe to CT log monitors (e.g., CertStream) for unauthorized certs.</li>
+        <li><strong>External Attack Surface Management:</strong> Weekly automated checks against PeeringDB, RIPE Stat, and Shodan/Censys for your netblocks.</li>
+      </ul>
+
+      <h3>Consolidated Adversary TTP → Defensive Control Matrix</h3>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table" style="width:100%; border-collapse:collapse; border:1px solid rgba(255,255,255,0.1); margin:1em 0; font-size:0.95rem;">
+          <thead>
+            <tr>
+              <th>Adversary Technique</th>
+              <th>Observable Indicator</th>
+              <th>Defensive Action / Detection</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>ASN/prefix enumeration (RADb/RIPE)</td>
+              <td>None (purely passive OSINT)</td>
+              <td>Monitor for typo-squats; use brand-protection services</td>
+            </tr>
+            <tr>
+              <td>DNS zone transfer attempts</td>
+              <td>AXFR requests in DNS logs from unauthorized sources</td>
+              <td>Disable AXFR; alert on zone-transfer attempts; use TSIG</td>
+            </tr>
+            <tr>
+              <td>Certificate transparency harvesting</td>
+              <td>Unauthorized certs in CT logs</td>
+              <td>Subscribe to CT log monitors for your domains; automate revocation</td>
+            </tr>
+            <tr>
+              <td>Origin IP discovery via crt.sh</td>
+              <td>No direct logs (uses historical certificate data)</td>
+              <td>Ensure origin servers reject direct requests; use CDN origin shielding</td>
+            </tr>
+            <tr>
+              <td>PeeringDB facility enumeration</td>
+              <td>No direct logs (third-party platform)</td>
+              <td>Limit facility disclosure; use proxy contacts in PeeringDB</td>
+            </tr>
+            <tr>
+              <td>BGP route hijacking simulation</td>
+              <td>Prefix announcements from unauthorized ASNs</td>
+              <td>Deploy RPKI/ROA; monitor BGP announcements; use ROV</td>
+            </tr>
+            <tr>
+              <td>Stale IRR object exploitation</td>
+              <td>Prefix in RADb not announced in live BGP</td>
+              <td>Audit IRR objects quarterly; remove stale route objects</td>
+            </tr>
+            <tr>
+              <td>MX exposure bypassing CDN</td>
+              <td>SMTP banner from direct MX IPs</td>
+              <td>Route MX through CDN/mail gateway; restrict direct SMTP access</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 12: SUPPORTING RESOURCES                             -->
+    <!-- ============================================================ -->
+
+    <section class="resources" aria-label="Supporting resources">
+      <h2 id="resources">12. Supporting Resources &amp; Recommended Reading</h2>
+
+      <ul>
+        <li>
+          <a href="https://www.ibm.com/reports/data-breach" target="_blank" rel="noopener">
+            IBM: Cost of a Data Breach Report 2025
+          </a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">
+            Path: Global breach trends, AI-driven risks, and cost analysis. Latest edition available as of mid-2026.
+          </small>
+        </li>
+        <li>
+          <a href="https://www.verizon.com/business/resources/reports/dbir/" target="_blank" rel="noopener">
+            Verizon: 2026 Data Breach Investigations Report (DBIR)
+          </a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">
+            Path: Authoritative analysis of 31,000+ incidents, vulnerability-exploitation trends, and third-party compromise data.
+          </small>
+        </li>
+        <li>
+          <a href="https://www.enisa.europa.eu/publications/enisa-threat-landscape-2025" target="_blank" rel="noopener">
+            ENISA Threat Landscape 2025
+          </a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">
+            Path: EU-centric threat analysis (July 2024 – June 2025); latest comprehensive annual edition as of mid-2026.
+          </small>
+        </li>
+        <li>
+          <a href="https://www.huntress.com/blog/biggest-data-breaches" target="_blank" rel="noopener">
+            Huntress: Biggest Data Breaches in History
+          </a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">
+            Path: Living summary of major breach events with operational lessons learned.
+          </small>
+        </li>
+        <li>
+          <a href="https://www.brightdefense.com/resources/recent-data-breaches/" target="_blank" rel="noopener">
+            BrightDefense: Recent Data Breaches
+          </a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">
+            Path: Curated, continuously updated list of global breach incidents and analysis.
+          </small>
+        </li>
+        <li>
+          <a href="https://asimily.com/blog/the-top-internet-of-things-iot-cybersecurity-breaches-in-2026/" target="_blank" rel="noopener">
+            Asimily: IoT Cybersecurity Breaches (2026)
+          </a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">
+            Path: Review of IoT-related breaches, medical-device exposure, and structural weaknesses across 2026.
+          </small>
+        </li>
+        <li>
+          <a href="https://arxiv.org/abs/2509.10755" target="_blank" rel="noopener">
+            Luo et al. DDoS Attacks on the Tor Directory Protocol (2025)
+          </a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">
+            Path: Foundational academic analysis of Tor directory-protocol resilience and low-cost DoS vulnerabilities.
+          </small>
+        </li>
+        <li>
+          <a href="https://arxiv.org/abs/2510.11804" target="_blank" rel="noopener">
+            Cui et al. Website Fingerprinting Attacks &amp; Defenses in Tor (2025)
+          </a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">
+            Path: Comprehensive survey of fingerprinting techniques and Tor anonymity challenges under realistic conditions.
+          </small>
+        </li>
+        <li>
+          <a href="https://www.cisa.gov/known-exploited-vulnerabilities-catalog" target="_blank" rel="noopener">
+            CISA: Known Exploited Vulnerabilities (KEV) Catalog
+          </a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">
+            Path: Authoritative, continuously updated catalog of CVEs under active exploitation.
+          </small>
+        </li>
+        <li>
+          <a href="https://haveibeenpwned.com/API/v3" target="_blank" rel="noopener">
+            Have I Been Pwned: API v3
+          </a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">
+            Path: Documentation for automating breach-exposure checks against aggregated dump and stealer-log data.
+          </small>
+        </li>
+        <li>
+          <a href="https://intelx.io/" target="_blank" rel="noopener">
+            IntelligenceX
+          </a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">
+            Path: Search engine and API for dark-web, leak, and OSINT intelligence aggregation.
+          </small>
+        </li>
+        <li>
+          <a href="https://blog.torproject.org/" target="_blank" rel="noopener">
+            Tor Project Blog
+          </a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">
+            Path: Official updates on Arti migration, stable releases, and platform security advisories.
+          </small>
+        </li>
+        <li>
+          <a href="https://www.peeringdb.com/" target="_blank" rel="noopener">PeeringDB</a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">
+            Path: Global peering and IXP intelligence database
+          </small>
+        </li>
+        <li>
+          <a href="https://stat.ripe.net/" target="_blank" rel="noopener">RIPE Stat</a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">
+            Path: Routing statistics, RPKI validation, and announced prefixes
+          </small>
+        </li>
+        <li>
+          <a href="https://crt.sh/" target="_blank" rel="noopener">crt.sh</a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">
+            Path: Certificate Transparency log search engine
+          </small>
+        </li>
+      </ul>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 13: CHAPTER SUMMARY                                  -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="chapter-summary">
+      <h2 id="chapter-summary">13. Chapter Summary</h2>
+
+      <p>
+        By completing this chapter you should now be able to:
+      </p>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin: 20px 0;">
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Map target ASN and netblocks via RIR/RADb.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;">WHOIS, RIPE Stat, bgpq4, and PeeringDB enumeration.</span></span>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Analyze DNS authority chains and test for zone transfers.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;">dig +trace, AXFR, DNSSEC validation.</span></span>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Discover origin servers behind CDNs via CT logs.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;">crt.sh, subdomain filtering, Host header verification.</span></span>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Understand the 2025 breach landscape and Tor platform updates.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;">Healthcare breaches, HIBP, IntelligenceX, Tor Browser 15.x, Arti.</span></span>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Apply OPSEC to internet-structure reconnaissance.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;">RDAP over WHOIS, proxied DNS traces, data staleness checks.</span></span>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Implement defensive countermeasures.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;">RPKI/ROA, DNSSEC, zone transfer restriction, origin protection.</span></span>
+        </div>
+
+      </div>
+
+      <div class="info-remember" style="margin: 15px 0;">
+        <strong>Why This Matters:</strong>
+        <span style="display: block; margin-top: 5px;">
+          Internet-structure reconnaissance provides the geopolitical and topological map of the target.
+          You understand where they connect to the internet, who they trust for transit, and where their
+          physical footprint exists. Stale IRR objects and DNS misconfigurations yield precise netblocks
+          and host lists for scanning. PeeringDB facility data enables physical-social engineering pretexts.
+          This is the foundation upon which all other network and human-layer OSINT rests.
+        </span>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 14: KEY TAKEAWAYS                                    -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="takeaways">
+      <h2 id="takeaways">14. Key Takeaways</h2>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table" style="width:100%; border-collapse:collapse; border:1px solid rgba(255,255,255,0.1); margin:1em 0; font-size:0.95rem;">
+          <thead>
+            <tr>
+              <th>Concept</th>
+              <th>Why It Matters</th>
+              <th>Security Impact</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Internet-Structure Recon Is Passive and Low-Risk</strong></td>
+              <td>Generates zero packets to the target's edge; highest-return, lowest-risk phase of reconnaissance.</td>
+              <td>Adversaries map your entire global footprint without touching your infrastructure.</td>
+            </tr>
+            <tr>
+              <td><strong>ASN/WHOIS Data Reveals Global Presence</strong></td>
+              <td>Enumerates owned netblocks, subsidiaries, and M&amp;A activity.</td>
+              <td>Forgotten prefixes and acquired companies create unmonitored attack surface.</td>
+            </tr>
+            <tr>
+              <td><strong>DNS Zone Transfers Are Structural Goldmines</strong></td>
+              <td>Instantly reveals every host, MX, and TXT record in a domain.</td>
+              <td>A single misconfigured NS exposes the entire infrastructure map.</td>
+            </tr>
+            <tr>
+              <td><strong>Certificate Transparency Bypasses CDNs</strong></td>
+              <td>crt.sh reveals subdomains and origin IPs behind WAF/CDN.</td>
+              <td>Origin servers often accept direct connections; bypasses all layer-7 protection.</td>
+            </tr>
+            <tr>
+              <td><strong>PeeringDB Exposes Physical Facilities</strong></td>
+              <td>Reveals datacenter locations, IXP presence, and private peering IPs.</td>
+              <td>Physical intrusion targeting, supply chain intercept, and social engineering opportunities.</td>
+            </tr>
+            <tr>
+              <td><strong>RPKI/ROA Weaknesses Enable Route Hijacking</strong></td>
+              <td>Missing ROAs mean prefixes can be hijacked or leaked.</td>
+              <td>BGP tampering can redirect traffic for MITM or DDoS simulation.</td>
+            </tr>
+            <tr>
+              <td><strong>Stale IRR Objects Are Adversary Resources</strong></td>
+              <td>Orphaned prefixes still listed in RADb but not announced.</td>
+              <td>Upstream may still accept bogus announcements; shadow infrastructure risk.</td>
+            </tr>
+            <tr>
+              <td><strong>TOR Anonymity Must Be Operationalized</strong></td>
+              <td>Tor Browser 15.x and Arti introduce new capabilities and risks.</td>
+              <td>Session logging, circuit behaviour, and platform deprecations require constant awareness.</td>
+            </tr>
+            <tr>
+              <td><strong>Breach Data Must Be Triangulated</strong></td>
+              <td>Public dumps contain mass credential stuffing lists and outdated material.</td>
+              <td>Proper correlation prevents false positives and focuses action on genuine compromises.</td>
+            </tr>
+            <tr>
+              <td><strong>Healthcare Sector Is High-Severity</strong></td>
+              <td>2025 healthcare breaches dominate reporting; strict notification requirements.</td>
+              <td>Findings involving medical facilities require heightened scrutiny and escalation.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 15: KNOWLEDGE CHECK                                  -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="knowledge-check">
+      <h2 id="knowledge-check">15. Knowledge Check</h2>
+
+      <p>
+        Before moving on to the next section, take a moment to reflect on the key concepts
+        covered in this chapter.
+      </p>
+
+      <div class="card">
+        <h3>Reflection Questions</h3>
+        <ol>
+          <li>
+            <strong>Why is internet-structure reconnaissance considered the highest-return, lowest-risk phase of external reconnaissance?</strong>
+            <br>
+            <span style="color: #aaa; font-size: 0.9rem;">
+              Consider the passive nature of the techniques and the intelligence value of ASN, DNS, and peering data.
+            </span>
+          </li>
+          <li>
+            <strong>How can an adversary use certificate transparency logs to discover origin servers behind CDNs?</strong>
+            <br>
+            <span style="color: #aaa; font-size: 0.9rem;">
+              Think about crt.sh, subdomain filtering, Host header verification, and active probing.
+            </span>
+          </li>
+          <li>
+            <strong>What is the significance of a successful DNS zone transfer (AXFR) to an adversary?</strong>
+            <br>
+            <span style="color: #aaa; font-size: 0.9rem;">
+              Consider the complete host map, MX records, and internal naming conventions revealed.
+            </span>
+          </li>
+          <li>
+            <strong>Why should RPKI/ROA validation be a priority for defenders?</strong>
+            <br>
+            <span style="color: #aaa; font-size: 0.9rem;">
+              Think about route hijacking, BGP leaks, and traffic interception risks.
+            </span>
+          </li>
+          <li>
+            <strong>What OPSEC considerations apply to DNS <code>+trace</code> queries?</strong>
+            <br>
+            <span style="color: #aaa; font-size: 0.9rem;">
+              Consider direct authoritative NS contact, source IP logging, and proxy mitigation.
+            </span>
+          </li>
+        </ol>
+      </div>
+
+      <div class="card">
+        <h3>Scenario-Based Question</h3>
+        <p>
+          <strong>Scenario:</strong> You are a Red Team operator tasked with mapping the global internet
+          presence of a large financial services organisation with subsidiaries in three continents.
+          You have been authorized to perform passive reconnaissance only. The organisation uses Cloudflare
+          for DNS and has a mix of on-premise data centers, AWS, and Azure.
+        </p>
+        <p><strong>Task:</strong> Design a complete internet-structure reconnaissance workflow using
+        the techniques covered in this chapter.</p>
+      </div>
+
+      <div class="info-remember" style="margin: 15px 0;">
+        <strong>Suggested Approach:</strong>
+        <ul>
+          <li><strong>Phase 1:</strong> ASN enumeration via RIR RDAP and RADb to identify all owned and subsidiary ASNs.</li>
+          <li><strong>Phase 2:</strong> Prefix expansion via RIPE Stat and Team Cymru for each ASN.</li>
+          <li><strong>Phase 3:</strong> PeeringDB facility and IXP enumeration for physical location mapping.</li>
+          <li><strong>Phase 4:</strong> DNS authority chain mapping with <code>dig +trace</code> and DNSSEC validation.</li>
+          <li><strong>Phase 5:</strong> Certificate transparency extraction via crt.sh for all domains and subdomains.</li>
+          <li><strong>Phase 6:</strong> Origin IP discovery by filtering CT results for non-proxied subdomains and verifying with Host headers.</li>
+          <li><strong>Phase 7:</strong> IP geolocation clustering to identify data center concentrations and shadow regions.</li>
+          <li><strong>Phase 8:</strong> Cross-check all findings against live BGP announcements and route registry data.</li>
+        </ul>
+      </div>
+
+      <div class="reminder-lightblue">
+        <strong>Gateway Criteria:</strong><br>
+        <span>Move on to the next module when you can confidently answer
+        all five reflection questions and explain your rationale for the scenario-based question.
+        If any concept is unclear, revisit the relevant sections above before moving on.</span>
+      </div>
+
+      <div class="info-remember" style="margin: 15px 0;">
+        <em>RedOps Reminder:</em> Internet-structure reconnaissance is the foundation upon which all other
+        network and human-layer OSINT rests. Execute this methodology with strict adherence to Rules of
+        Engagement. While largely passive, active origin verification and aggressive DNS probing are direct
+        target interactions requiring explicit authorization. Structural OSINT data often intersects with
+        telecommunications regulation and third-party peering agreements—handle with appropriate operational
+        discretion.
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- FLOATING NAVIGATION                                           -->
+    <!-- ============================================================ -->
+
+    <div class="lesson-nav-container">
+      <a href="https://iscsecurity.org/content/1-ethical-hacking/2-open-source-intelligence/16-reconnaissance-tools" class="nav-link-btn">👈 Back</a>
+      <a href="https://iscsecurity.org/content/1-ethical-hacking/2-open-source-intelligence/18-online-breach-data-and-leaks-resources" class="nav-link-btn">Next 👉</a>
+    </div>
+
+    </article>
+  </main>
+</body>
+</html>

@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>OSINT Recon Cheat Sheet | ISCSECURITY Master Class Series</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="/css/styles.css?v=2026_PRODUCTION_FINAL" />
+  
+  <!-- MemberSpace -->
+  <script>
+    window.MemberSpace = window.MemberSpace || { subdomain: "iscsecurity" };
+    (function(d){
+      var s = d.createElement("script");
+      s.src = "https://cdn.memberspace.com/scripts/widgets.js";
+      s.async = true;
+      d.head.appendChild(s);
+    })(document);
+  </script>
+  
+</head>
+
+<body class="page-lesson">
+
+<div class="site-topbar" role="note" aria-label="Legal notice">
+  <small class="topbar-note">
+    © 2026 ISCSECURITY · Authorization-first training. All testing must be lawful, scoped, and approved in writing.
+  </small>
+	<nav class="topbar-links" aria-label="Topbar links">
+      <a href="https://iscsecurity.org/index">Home</a>
+      <a href="https://iscsecurity.org/content/index">Content</a>
+	  <a href="https://iscsecurity.org/content/1-ethical-hacking/2-open-source-intelligence/index">OSINT</a>
+      <a href="https://iscsecurity.org/contact">Contact</a>
+    </nav>
+</div>
+
+  <main class="page modules-page no-shift" id="ethical-hacking-training-content" data-ms-content="members-only">
+  <article class="lesson-content overlay" tabindex="0" aria-label="Lesson content: OSINT Recon Cheat Sheet">
+
+    <p class="breadcrumb">
+      <a href="https://iscsecurity.org/index">Home</a> →
+        <a href="https://iscsecurity.org/content/index">Content</a> →
+        <a href="https://iscsecurity.org/content/1-ethical-hacking/2-open-source-intelligence/index">OSINT</a> →
+      <span aria-current="page">Page 20</span>
+    </p>
+
+    <h1>OSINT Recon Cheat Sheet (2026)</h1>
+	
+	<div class="reminder-auth">
+  <strong>🚨 AUTHORIZED USE ONLY:</strong>
+  <span>
+        All content in this document is for educational and defensive training purposes only. 
+        The adversarial techniques described are derived from real-world tradecraft but 
+        are documented exclusively for <strong>defensive analysis, detection engineering, 
+        and authorized security testing</strong>. Unauthorized deployment of any technique 
+        described may constitute a criminal offense under applicable national and 
+        international cybercrime laws. Always obtain <strong>explicit written authorization</strong> 
+        from the system owner or authorized legal entity before testing, executing, or 
+        simulating any of the techniques outlined in this document.
+    </span>
+	</div>
+
+    <div class="reminder-comp">
+  <strong>🌍 INTERNATIONAL COMPLIANCE NOTICE:</strong>
+  <span>
+    Cybercrime laws vary significantly by jurisdiction. It is your sole responsibility 
+    to understand and comply with the laws applicable to your location, the location 
+    of any target systems, and your organization's policies. When in doubt, 
+    <strong>consult a qualified legal professional</strong> before testing, executing, 
+    or simulating any technique described in this document.
+  </span>
+</div>
+
+<!-- ============================================================ -->
+    <!-- LAB ENVIRONMENT DISCLAIMER & SETUP GUIDANCE                  -->
+    <!-- ============================================================ -->
+
+    <div class="reminder-lab">
+      <strong>🧪 LAB ENVIRONMENT NOTICE:</strong>
+      <span>
+        All practical examples, command-line executions, and scenario-based exercises in this document are demonstrated within the <strong>ISCSEC internal training laboratory</strong>. 
+        This is a controlled, isolated environment that exists solely for educational and defensive training purposes.
+      </span>
+      <br><br>
+      <span>
+        <strong>You do not have access to the ISCSEC lab.</strong> As a learner, you are expected to build and maintain your own isolated lab environment, 
+        replicating the documented topology, IP schemes, and hostname conventions. The ISCSEC lab serves as a <strong>canonical reference topology</strong> 
+        for this training, not a shared or remotely accessible resource.
+      </span>
+      <br><br>
+      <span>
+        <strong>Lab requirements:</strong>
+        <ul>
+          <li>Isolated virtualised environment (e.g., VMware Workstation, VirtualBox, or Hyper-V)</li>
+          <li>Attacker operator platform (e.g., Kali Linux or equivalent)</li>
+          <li>Target Windows host (e.g., CLIENT01 at 172.16.5.60)</li>
+          <li>Internal network with domain controller (DC01 at 172.16.5.25), SQL server (SQL01 at 172.16.5.20), web server (WEB01 at 172.16.5.30), and application server (APP01 at 172.16.5.40)</li>
+          <li>All testing must be conducted within your own isolated network with <strong>explicit written authorization</strong> for any systems involved</li>
+        </ul>
+      </span>
+    </div>
+
+    <p>
+      The following cheat sheet consolidates key acronyms, tools, and workflows from the
+      OSINT &amp; recon sections. It is grouped by theme so you can jump straight to what
+      you need during an engagement. This covers the full adversarial OSINT toolkit
+      including infrastructure, identity, dark web, cryptocurrency, facial recognition,
+      browser automation, and vulnerability correlation.
+    </p>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 1: PEOPLE & IDENTITY OSINT                            -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="osint-identities">
+      <h2 id="osint-identities">1. People &amp; Identity OSINT (Emails, Usernames &amp; Images)</h2>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table">
+          <thead>
+            <tr>
+              <th>Concept / Acronym</th>
+              <th>Meaning</th>
+              <th>Example Usage</th>
+              <th>Key Tools</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>OSINT</td>
+              <td>Open-Source Intelligence, information from publicly available sources.</td>
+              <td>Profiling a company's staff using LinkedIn, blogs, and public breach data.</td>
+              <td>theHarvester, SpiderFoot, Maltego, Blackbird</td>
+            </tr>
+            <tr>
+              <td>Email pattern discovery</td>
+              <td>Identifying corporate email formats to guess or validate addresses.</td>
+              <td><code>first.last@company.com</code>, <code>flast@company.com</code>.</td>
+              <td>Hunter.io, Email-Format.com, LinkedIn search, Google dorks</td>
+            </tr>
+            <tr>
+              <td>Breach checking</td>
+              <td>Checking if emails / usernames appear in historical data breaches.</td>
+              <td>Confirm if <code>alice@company.com</code> is present in stealer logs.</td>
+              <td>Have I Been Pwned (HIBP), DeHashed, IntelligenceX, LeakPeek</td>
+            </tr>
+            <tr>
+              <td>Account enumeration</td>
+              <td>Linking an email or username to multiple online services.</td>
+              <td>Map a handle across forums, social platforms, and developer portals.</td>
+              <td>Blackbird, WhatsMyName, Sherlock, Knowem</td>
+            </tr>
+            <tr>
+              <td>Image-based OSINT</td>
+              <td>Extracting information from images and avatars (metadata and content).</td>
+              <td>Derive GPS and timestamp from a staff photo; confirm if it was staged.</td>
+              <td>ExifTool, Forensically, TinEye, Google Images, PimEyes</td>
+            </tr>
+            <tr>
+              <td>EXIF</td>
+              <td>Exchangeable Image File Format metadata: camera, time, sometimes GPS.</td>
+              <td>Confirm where and when a "leaked" office photo was actually taken.</td>
+              <td>ExifTool, online EXIF viewers</td>
+            </tr>
+            <tr>
+              <td>Sock puppet</td>
+              <td>Fake online identity used for influence, infiltration, or deception.</td>
+              <td>Create a believable researcher persona for engagement pretexting.</td>
+              <td>Manual OPSEC, browser isolation, Blackbird (to avoid collisions)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="reminder-lightblue">
+        <strong>Note:</strong><br> 
+		Treat identity OSINT as dual-use. The same data that enables highly targeted
+        phishing also lets defenders harden profiles, enforce unique credentials, and reduce unnecessary
+        public exposure.
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 2: INFRASTRUCTURE & NETWORK INTELLIGENCE              -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="infra-intel">
+      <h2 id="infra-intel">2. Infrastructure &amp; Network Intelligence (IP, DNS, IoT, FTP)</h2>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table">
+          <thead>
+            <tr>
+              <th>Concept / Acronym</th>
+              <th>Meaning</th>
+              <th>Example Usage</th>
+              <th>Key Tools</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>IP (Internet Protocol) address</td>
+              <td>Numeric identifier for a host or device on a network.</td>
+              <td>Pivot from a web server's IP to nearby hosts in the same range.</td>
+              <td>WHOIS, ipinfo.io, ARIN/RIPE/APNIC, Nmap, Masscan</td>
+            </tr>
+            <tr>
+              <td>Private IP (RFC1918)</td>
+              <td>Non-routable internal ranges (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16).</td>
+              <td>Confirm an internal pivot host is only reachable over VPN / tunnel.</td>
+              <td><code>ip addr</code>, Nmap, routing tables</td>
+            </tr>
+            <tr>
+              <td>DNS (Domain Name System)</td>
+              <td>Maps domain names to IPs and other records (MX, TXT, NS, etc.).</td>
+              <td>Enumerate <code>dev.example.com</code>, MX records, and TXT-based security policies.</td>
+              <td>dig, nslookup, dnsenum, DNSrecon, Fierce</td>
+            </tr>
+            <tr>
+              <td>MX / SPF / DKIM / DMARC</td>
+              <td>Mail-exchange and email-authentication records that describe mail flows.</td>
+              <td>Clone mail behaviour for phishing; defenders enforce strict DMARC.</td>
+              <td>MXToolbox, dig, DNSDumpster, SecurityTrails</td>
+            </tr>
+            <tr>
+              <td>ASN / BGP</td>
+              <td>Autonomous System Number and Border Gateway Protocol routing domain.</td>
+              <td>Map which IP ranges belong to the same organisation or ISP.</td>
+              <td>bgp.he.net, PeeringDB, RADb, ipinfo.io</td>
+            </tr>
+            <tr>
+              <td>IoT search</td>
+              <td>Internet-wide scanning and indexing of banners, ports and protocols.</td>
+              <td>Find exposed cameras, VPNs, and OT gateways tied to a target ASN.</td>
+              <td>Shodan, Censys, ZoomEye, BinaryEdge, FOFA</td>
+            </tr>
+            <tr>
+              <td>FTP exposure</td>
+              <td>Publicly indexed "index of /" style FTP directories.</td>
+              <td>Locate misconfigured FTP servers holding backups or config files.</td>
+              <td>Google dorks (<code>inurl:ftp intitle:"index of"</code>), NAPALM/SearchFTPS</td>
+            </tr>
+            <tr>
+              <td>IP geolocation</td>
+              <td>Translating IPs to physical locations (city, country, lat/long).</td>
+              <td>Map target infrastructure to data centers or regional offices.</td>
+              <td><code>get_ip_geolocation</code>, ipinfo.io, MaxMind</td>
+            </tr>
+            <tr>
+              <td>Domain to IP</td>
+              <td>Resolve current A/AAAA record for a domain.</td>
+              <td>Find the current hosting IP of a target web property.</td>
+              <td><code>get_domain_ip</code>, dig, host</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="reminder-lightblue">
+        <strong>Note:</strong><br> 
+		IP and DNS data are your map of the target's terrain. For Red Teams, they
+        reveal forgotten services and flat networks. For Blue Teams, they drive asset inventory, segmentation,
+        and anomaly detection.
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 3: SEARCH & ARCHIVE INTELLIGENCE                     -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="search-archive">
+      <h2 id="search-archive">3. Search &amp; Archive Intelligence (Dorks, Regions, Historic Snapshots)</h2>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table">
+          <thead>
+            <tr>
+              <th>Concept / Acronym</th>
+              <th>Meaning</th>
+              <th>Example Usage</th>
+              <th>Key Tools / Platforms</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Google Dorking</td>
+              <td>Advanced search operators to locate exposed content.</td>
+              <td><code>site:example.com filetype:pdf "confidential"</code></td>
+              <td>Google, DuckDuckGo, Startpage, custom search engines</td>
+            </tr>
+            <tr>
+              <td>Region-aware search</td>
+              <td>Simulate queries from different countries / languages.</td>
+              <td>Compare what shows for EU vs US when searching a brand + leak keywords.</td>
+              <td>isearchfrom.com, VPN endpoints, local browser profiles</td>
+            </tr>
+            <tr>
+              <td>Archive snapshots</td>
+              <td>Historical captures of websites and documents.</td>
+              <td>Recover old admin portals or API docs that are no longer linked.</td>
+              <td>Wayback Machine, archive.today, Memento (timetravel.mementoweb.org)</td>
+            </tr>
+            <tr>
+              <td>CT logs</td>
+              <td>Certificate Transparency logs tracking issued TLS certificates.</td>
+              <td>Extract subdomains from <code>*.example.com</code> certificates.</td>
+              <td>crt.sh, Censys certificates view, SecurityTrails</td>
+            </tr>
+            <tr>
+              <td>Programmable search / APIs</td>
+              <td>Automated querying of search indexes and OSINT platforms.</td>
+              <td>Script subdomain expansion via CSE + CT + DNS APIs before each test.</td>
+              <td>Google CSE JSON API, SerpAPI, Exa.ai, Shodan/Censys APIs</td>
+            </tr>
+            <tr>
+              <td>WHOIS / RDAP</td>
+              <td>Domain registration details, expiry dates, registrar pivoting.</td>
+              <td>Identify domain ownership, registration dates, and contact info.</td>
+              <td><code>whois</code>, ARIN/RIPE RDAP, DomainTools</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="reminder-lightblue">
+        <strong>Note:</strong><br> 
+		Search intelligence is your "open book exam" phase. Capture every query,
+        timestamp, and interesting hit so that your findings are reproducible for reports and future re-tests.
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 4: RECON TOOLING & AUTOMATION                        -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="recon-tools">
+      <h2 id="recon-tools">4. Recon Tooling &amp; Automation</h2>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table">
+          <thead>
+            <tr>
+              <th>Tool</th>
+              <th>Primary Role</th>
+              <th>Quick Example</th>
+              <th>Phase Fit</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>subfinder</code></td>
+              <td>Fast passive subdomain enumeration from public sources.</td>
+              <td><code>subfinder -d example.com -all -o subs.txt</code></td>
+              <td>Initial recon / attack-surface mapping</td>
+            </tr>
+            <tr>
+              <td>Amass</td>
+              <td>Comprehensive passive &amp; active asset discovery.</td>
+              <td>Enumerate domains via CT logs, DNS, APIs, and active probing.</td>
+              <td>Deep recon, pre-engagement mapping</td>
+            </tr>
+            <tr>
+              <td>theHarvester</td>
+              <td>Email, host and subdomain harvesting.</td>
+              <td><code>theharvester -d example.com -b google</code></td>
+              <td>People &amp; infra correlation, phishing prep</td>
+            </tr>
+            <tr>
+              <td>Recon-ng</td>
+              <td>Modular OSINT framework (Metasploit-like).</td>
+              <td>Chain modules for domains → contacts → credentials, export to reports.</td>
+              <td>Structured, repeatable recon workflows</td>
+            </tr>
+            <tr>
+              <td>SpiderFoot</td>
+              <td>Automated multi-source OSINT collection and correlation.</td>
+              <td>Point at a domain; collect results from dozens of OSINT sources.</td>
+              <td>Baseline mapping, leak correlation</td>
+            </tr>
+            <tr>
+              <td>Maltego</td>
+              <td>Graphical link analysis and pivoting.</td>
+              <td>Visualise relationships between people, IPs, domains and documents.</td>
+              <td>Reporting, high-level investigations</td>
+            </tr>
+            <tr>
+              <td>Nmap / Masscan</td>
+              <td>Port scanning and service enumeration.</td>
+              <td>Scan discovered IP ranges for live services.</td>
+              <td>Transition from OSINT into technical scanning</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="reminder-lightblue">
+        <strong>Note:</strong><br> 
+		Tools change, Methodology does not. Keep one or two favourites per category,
+        script the glue with Python/Bash, and always log inputs, outputs, and scope.
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 5: BREACH & LEAK INTELLIGENCE                        -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="breach-intel">
+      <h2 id="breach-intel">5. Breach &amp; Leak Intelligence (2026-Oriented)</h2>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table">
+          <thead>
+            <tr>
+              <th>Platform</th>
+              <th>Focus</th>
+              <th>Typical Red Team Use</th>
+              <th>Typical Blue Team Use</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Have I Been Pwned (HIBP)</td>
+              <td>Public breach-checking and notification.</td>
+              <td>Check if in-scope accounts appear in known breaches (with approval).</td>
+              <td>Enterprise-wide credential hygiene and monitoring via API.</td>
+            </tr>
+            <tr>
+              <td>DeHashed</td>
+              <td>Enriched breach-search and deep-web indexing.</td>
+              <td>Pivot on emails/usernames for plain-text passwords and historical leaks.</td>
+              <td>Digital forensics, incident response, and targeted remediation.</td>
+            </tr>
+            <tr>
+              <td>IntelligenceX</td>
+              <td>Surface + dark web + archives (pastes, Tor, Telegram, leaks).</td>
+              <td>Trace where sensitive data has propagated across ecosystems.</td>
+              <td>Track data exposure, validate extortion claims, evidence collection.</td>
+            </tr>
+            <tr>
+              <td>LeakPeek / Leak-Lookup</td>
+              <td>Lightweight email / hash lookup portals.</td>
+              <td>Quick pre-check for targeted identities before deeper investigation.</td>
+              <td>Initial triage; all hits re-validated with primary sources.</td>
+            </tr>
+            <tr>
+              <td>GhostProject / community mirrors</td>
+              <td>Community-run searchable breach indexes.</td>
+              <td>Last-resort pivoting for obscure or old dumps (with strong legal caution).</td>
+              <td>Rarely used; mainly for validation under legal guidance.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="reminder-lightblue">
+        <strong>Note:</strong><br> 
+		Breach data is powerful but radioactive. Work only within written scope, log
+        every query, and treat all retrieved data as sensitive evidence, not trophy material.
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 6: ANONYMITY, TOR & OPSEC                            -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="tor-opsec">
+      <h2 id="tor-opsec">6. Anonymity, TOR &amp; Operational Security</h2>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table">
+          <thead>
+            <tr>
+              <th>Concept / Acronym</th>
+              <th>Meaning</th>
+              <th>OSINT / Red Team Angle</th>
+              <th>Defensive Considerations</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>TOR (The Onion Router)</td>
+              <td>An overlay network that routes traffic through multiple encrypted relays.</td>
+              <td>Safe access to .onion services and dark web leaks during authorised work.</td>
+              <td>Detect TOR exit nodes in logs; decide whether to block, allow, or flag.</td>
+            </tr>
+            <tr>
+              <td>.onion services</td>
+              <td>Hidden services accessible only via TOR.</td>
+              <td>Investigate leak sites, ransom portals, or whistleblower endpoints.</td>
+              <td>Threat intel on extortion pages and data-leak dumps involving your org.</td>
+            </tr>
+            <tr>
+              <td>Arti</td>
+              <td>Modern Rust-based TOR implementation used in new tools (incl. VPN beta).</td>
+              <td>Leverage updated clients for more reliable, scriptable TOR access.</td>
+              <td>Stay aware of protocol changes affecting detection and blocking rules.</td>
+            </tr>
+            <tr>
+              <td>OPSEC</td>
+              <td>Operational Security: protecting your own infrastructure &amp; identity.</td>
+              <td>Segregate C2, recon, and personal traffic. Avoid reusing browsers or accounts.</td>
+              <td>Detect when adversaries misuse privacy tools and separate them from legitimate users.</td>
+            </tr>
+            <tr>
+              <td><code>run_darkdump</code></td>
+              <td>Native dark web query engine for target mentions.</td>
+              <td>Search markets, forums, and leak sites for target exposure.</td>
+              <td>Monitor for your own organisation's mentions in dark web sources.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="reminder-lightblue">
+        <strong>Note:</strong><br>
+		Anonymity tooling protects both good and bad actors. For ethical hackers,
+        disciplined OPSEC means every TOR session, VPN hop, and proxy chain is documented and attributable
+        inside the engagement, not outside it.
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 7: PHONE NUMBER & GEOLOCATION OSINT                  -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="phone-geo">
+      <h2 id="phone-geo">7. Phone Number &amp; Geolocation OSINT</h2>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table">
+          <thead>
+            <tr>
+              <th>Concept</th>
+              <th>Description</th>
+              <th>Key Tools</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Phone basic info</td>
+              <td>Carrier, region, line type from phone number.</td>
+              <td><code>phone_basic_info</code>, Truecaller</td>
+            </tr>
+            <tr>
+              <td>Reverse phone lookup</td>
+              <td>Owner details, address, coordinates (with legal consent).</td>
+              <td><code>get_phone_details</code>, Truecaller, Spokeo</td>
+            </tr>
+            <tr>
+              <td>IP geolocation</td>
+              <td>City, country, lat/long from IP address.</td>
+              <td><code>get_ip_geolocation</code>, ipinfo.io, MaxMind</td>
+            </tr>
+            <tr>
+              <td>Domain to IP</td>
+              <td>Resolve current A/AAAA record for a domain.</td>
+              <td><code>get_domain_ip</code>, dig, host</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 8: VEHICLE & ASSET OSINT                             -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="vehicle-osint">
+      <h2 id="vehicle-osint">8. Vehicle &amp; Asset OSINT</h2>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table">
+          <thead>
+            <tr>
+              <th>Concept</th>
+              <th>Description</th>
+              <th>Key Tools</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>VIN decoding</td>
+              <td>Make, model, year, plant, vehicle type from VIN.</td>
+              <td><code>vin_lookup</code> (NHTSA API)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 9: FACIAL RECOGNITION & SOCIAL MEDIA IMAGERY         -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="facial-osint">
+      <h2 id="facial-osint">9. Facial Recognition &amp; Social Media Imagery</h2>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table">
+          <thead>
+            <tr>
+              <th>Concept</th>
+              <th>Description</th>
+              <th>Key Tools</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Reverse face search</td>
+              <td>Find matches across the internet using facial recognition.</td>
+              <td><code>facesearch</code>, PimEyes, FaceCheck.ID</td>
+            </tr>
+            <tr>
+              <td>Instagram profile</td>
+              <td>Bio, followers, profile pic URL from username.</td>
+              <td><code>instagram_user_info</code></td>
+            </tr>
+            <tr>
+              <td>Instagram pic extract</td>
+              <td>Direct image URL for face search pipeline.</td>
+              <td><code>instagram_profile_pic</code></td>
+            </tr>
+            <tr>
+              <td>Image EXIF analysis</td>
+              <td>GPS, camera, timestamp, software from image metadata.</td>
+              <td><code>image_exif</code>, ExifTool</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 10: WEB APP & SSL DEEP DIVE                          -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="webapp-ssl">
+      <h2 id="webapp-ssl">10. Web Application &amp; SSL Intelligence</h2>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table">
+          <thead>
+            <tr>
+              <th>Concept</th>
+              <th>Description</th>
+              <th>Key Tools</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Web fingerprinting</td>
+              <td>Server type, tech stack, headers identification.</td>
+              <td><code>web_fingerprint</code>, httpx, WhatWeb</td>
+            </tr>
+            <tr>
+              <td>WordPress scan</td>
+              <td>Plugins, users, vulnerabilities in WordPress installations.</td>
+              <td><code>web_wpscan</code>, WPScan</td>
+            </tr>
+            <tr>
+              <td>SSL vulnerability</td>
+              <td>Protocols, ciphers, certificate details, downgrade exposure.</td>
+              <td><code>sslscan</code>, testssl.sh</td>
+            </tr>
+            <tr>
+              <td>Subdomain discovery</td>
+              <td>Fast passive enumeration of subdomains.</td>
+              <td><code>subfinder</code>, Amass, Sublist3r</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 11: DARK WEB SEARCH (NATIVE)                         -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="darkweb-native">
+      <h2 id="darkweb-native">11. Dark Web Search (Native)</h2>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table">
+          <thead>
+            <tr>
+              <th>Concept</th>
+              <th>Description</th>
+              <th>Key Tools</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Dark web mentions</td>
+              <td>Search markets, forums, leaks, and chatter for target keywords.</td>
+              <td><code>run_darkdump</code> (via torsocks)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 12: VULNERABILITY CORRELATION                        -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="vuln-correlation">
+      <h2 id="vuln-correlation">12. Vulnerability &amp; Exploit Correlation</h2>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table">
+          <thead>
+            <tr>
+              <th>Concept</th>
+              <th>Description</th>
+              <th>Key Tools</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>CVE lookup</td>
+              <td>Details for a known vulnerability ID.</td>
+              <td><code>cve_fetcher</code>, NVD API</td>
+            </tr>
+            <tr>
+              <td>Product/version CVE</td>
+              <td>Search NVD for affected software by product and version.</td>
+              <td><code>cve_search</code> (needs version)</td>
+            </tr>
+            <tr>
+              <td>Exploit retrieval</td>
+              <td>Fetch PoC scripts / README logic for known CVEs.</td>
+              <td><code>cve_exploit_fetcher</code>, Exploit-DB</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 13: CRYPTOCURRENCY & BLOCKCHAIN OSINT                -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="crypto-osint">
+      <h2 id="crypto-osint">13. Cryptocurrency &amp; Blockchain OSINT</h2>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table">
+          <thead>
+            <tr>
+              <th>Concept</th>
+              <th>Description</th>
+              <th>Key Tools</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Token analysis</td>
+              <td>General info + security risk score for a token.</td>
+              <td><code>analyze_token</code></td>
+            </tr>
+            <tr>
+              <td>ETH wallet analysis</td>
+              <td>Balance, tokens, transaction history.</td>
+              <td><code>get_wallet_analysis</code></td>
+            </tr>
+            <tr>
+              <td>ETH transactions</td>
+              <td>Detailed tx list (inflow/outflow) for a wallet.</td>
+              <td><code>get_eth_transactions</code></td>
+            </tr>
+            <tr>
+              <td>Bitcoin analysis</td>
+              <td>Balance, total sent/received, USD value.</td>
+              <td><code>get_bitcoin_wallet_analysis</code></td>
+            </tr>
+            <tr>
+              <td>BTC transactions</td>
+              <td>Latest wallet tx hashes and amounts.</td>
+              <td><code>get_btc_wallet_latest_transactions</code></td>
+            </tr>
+            <tr>
+              <td>Solana analysis</td>
+              <td>Token balances, risk scores.</td>
+              <td><code>get_solana_wallet_analysis</code></td>
+            </tr>
+            <tr>
+              <td>Sanctions check</td>
+              <td>OFAC / embargo list screening for addresses.</td>
+              <td><code>is_address_sanctioned</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 14: BROWSER AUTOMATION & INTERACTION                 -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="browser-automation">
+      <h2 id="browser-automation">14. Browser Automation &amp; Interaction</h2>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table">
+          <thead>
+            <tr>
+              <th>Concept</th>
+              <th>Description</th>
+              <th>Key Tools</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Navigate &amp; interact</td>
+              <td>Click, extract, wait, refresh in a headless browser.</td>
+              <td><code>navigation_engine_execute_instruction</code></td>
+            </tr>
+            <tr>
+              <td>JavaScript execution</td>
+              <td>DOM manipulation, XSS testing, client-side analysis.</td>
+              <td><code>execute_javascript</code></td>
+            </tr>
+            <tr>
+              <td>Session inspection</td>
+              <td>URL, title, text content, console logs from browser session.</td>
+              <td><code>inspect_browser_session</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 15: QUICK COMMAND REFERENCE                          -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="quick-commands">
+      <h2 id="quick-commands">15. Quick Command Reference</h2>
+
+      <div class="quick-commands">
+        <p><strong>Identity &amp; People:</strong></p>
+        <ul>
+          <li><code>theHarvester -d target.com -b all -f results.html</code></li>
+          <li><code>emailbook --domain target.com --max-results 200</code></li>
+          <li><code>leaks_search --query "user@target.com"</code></li>
+          <li><code>sherlock username --timeout 10</code></li>
+          <li><code>holehe user@target.com</code></li>
+        </ul>
+
+        <p><strong>Infrastructure &amp; DNS:</strong></p>
+        <ul>
+          <li><code>whois -h whois.radb.net "!gAS12345"</code></li>
+          <li><code>dig +short AXFR target.com</code></li>
+          <li><code>subfinder -d target.com -all -o subs.txt</code></li>
+          <li><code>shodan search --fields ip_str,port "org:\"Target\""</code></li>
+          <li><code>curl -s https://crt.sh/?q=%.target.com</code></li>
+        </ul>
+
+        <p><strong>Dark Web &amp; TOR:</strong></p>
+        <ul>
+          <li><code>torsocks run_darkdump --query "target.com" --amount 20</code></li>
+          <li><code>curl --socks5-hostname 127.0.0.1:9050 http://service.onion/</code></li>
+          <li><code>proxychains4 nmap -sT -Pn target.onion</code></li>
+        </ul>
+
+        <p><strong>Images &amp; Metadata:</strong></p>
+        <ul>
+          <li><code>exiftool -r -gpslatitude -gpslongitude image.jpg</code></li>
+          <li><code>facesearch --url https://target.com/ceo.jpg</code></li>
+          <li><code>instagram_user_info --username target_employee</code></li>
+          <li><code>instagram_profile_pic --username target_employee</code></li>
+        </ul>
+
+        <p><strong>Web &amp; SSL Intelligence:</strong></p>
+        <ul>
+          <li><code>web_fingerprint --url https://target.com</code></li>
+          <li><code>web_wpscan --url https://target.com</code></li>
+          <li><code>sslscan --no-failed target.com:443</code></li>
+        </ul>
+
+        <p><strong>Vulnerability &amp; Exploits:</strong></p>
+        <ul>
+          <li><code>cve_fetcher --cve CVE-2024-12345</code></li>
+          <li><code>cve_search --product Apache --version 2.4.49</code></li>
+          <li><code>cve_exploit_fetcher --cve CVE-2024-12345</code></li>
+        </ul>
+
+        <p><strong>Cryptocurrency:</strong></p>
+        <ul>
+          <li><code>analyze_token --address 0x123...</code></li>
+          <li><code>get_wallet_analysis --address 0x123...</code></li>
+          <li><code>get_bitcoin_wallet_analysis --address bc1...</code></li>
+          <li><code>is_address_sanctioned --address 0x123...</code></li>
+        </ul>
+
+        <p><strong>Phone &amp; Geolocation:</strong></p>
+        <ul>
+          <li><code>phone_basic_info --phone_number "+1-512-555-0199"</code></li>
+          <li><code>get_phone_details --phone_number "+1-512-555-0199"</code></li>
+          <li><code>get_ip_geolocation --ip_address "203.0.113.45"</code></li>
+          <li><code>get_domain_ip --domain target.com</code></li>
+        </ul>
+
+        <p><strong>Browser Automation:</strong></p>
+        <ul>
+          <li><code>navigation_engine_execute_instruction --instruction "click #login"</code></li>
+          <li><code>execute_javascript --script "document.querySelector('h1').innerText"</code></li>
+          <li><code>inspect_browser_session --session-id abc123</code></li>
+        </ul>
+
+        <p><strong>WHOIS &amp; Registration:</strong></p>
+        <ul>
+          <li><code>whois target.com</code></li>
+          <li><code>curl -s https://rdap.arin.net/registry/domain/target.com</code></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 16: SUPPORTING RESOURCES                             -->
+    <!-- ============================================================ -->
+
+    <section class="resources" aria-label="Supporting resources">
+      <h2 id="resources">16. Supporting Resources &amp; Recommended Reading</h2>
+
+      <ul>
+        <li>
+          <a href="https://osintframework.com/" target="_blank" rel="noopener">
+            OSINT Framework
+          </a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: Curated index of OSINT tools by category (people, domains, IPs, leaks, etc.).</small>
+        </li>
+        <li>
+          <a href="https://www.shodan.io/" target="_blank" rel="noopener">
+            Shodan
+          </a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: Internet-wide device search; banners, ports, and protocol fingerprints.</small>
+        </li>
+        <li>
+          <a href="https://censys.io/" target="_blank" rel="noopener">
+            Censys
+          </a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: Certificate and host search for attack surface mapping and TLS intelligence.</small>
+        </li>
+        <li>
+          <a href="https://haveibeenpwned.com/" target="_blank" rel="noopener">
+            Have I Been Pwned (HIBP)
+          </a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: Breach-checking service and APIs for enterprise credential hygiene.</small>
+        </li>
+        <li>
+          <a href="https://www.torproject.org/" target="_blank" rel="noopener">
+            The Tor Project
+          </a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: Official documentation for Tor Browser, Arti, and anonymity best practices.</small>
+        </li>
+        <li>
+          <a href="https://archive.org/web/" target="_blank" rel="noopener">
+            Internet Archive: Wayback Machine
+          </a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: Historic snapshots of websites for deleted paths, docs, and legacy portals.</small>
+        </li>
+        <li>
+          <a href="https://crt.sh/" target="_blank" rel="noopener">
+            crt.sh (Certificate Transparency Search)
+          </a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: Extract subdomains and TLS usage data from CT logs for recon.</small>
+        </li>
+        <li>
+          <a href="https://www.dehashed.com/" target="_blank" rel="noopener">
+            DeHashed
+          </a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: Commercial breach-search platform for enriched credential intelligence.</small>
+        </li>
+        <li>
+          <a href="https://intelx.io/" target="_blank" rel="noopener">
+            Intelligence X
+          </a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: Surface, deep, and darknet indexing including pastes and historical leak archives.</small>
+        </li>
+        <li>
+          <a href="https://nvd.nist.gov/" target="_blank" rel="noopener">
+            NIST NVD
+          </a>
+          <small class="resource-path" style="display: block; color: #888; font-size: 0.85rem;">Path: National Vulnerability Database — CVE reference for vulnerability correlation.</small>
+        </li>
+      </ul>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- REDOPS REMINDER                                               -->
+    <!-- ============================================================ -->
+
+    <div class="info-remember">
+      <em>RedOps Reminder:</em> Use OSINT to narrow the field, not to over-collect. Map identities,
+      infrastructure, search trails, and breach data just far enough to support safe, authorised testing
+      and clear, defensible reporting. The cheat sheet is a reference — not a replacement for methodology,
+      OPSEC, or legal review.
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- FLOATING NAVIGATION                                           -->
+    <!-- ============================================================ -->
+
+    <div class="lesson-nav-container">
+      <a href="https://iscsecurity.org/content/1-ethical-hacking/2-open-source-intelligence/19-tor-network-operations-dark-web-osint" class="nav-link-btn">👈 Back</a>
+      <a href="https://iscsecurity.org/content/1-ethical-hacking/index" class="nav-link-btn">Module Index</a>
+    </div>
+
+    </article>
+  </main>
+</body>
+</html>

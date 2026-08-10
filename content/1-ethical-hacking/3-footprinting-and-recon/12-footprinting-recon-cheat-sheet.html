@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Footprinting &amp; Recon Cheat Sheet | ISCSECURITY Master Class Series</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="/css/styles.css?v=2026_PRODUCTION_FINAL" />
+  
+  <!-- MemberSpace -->
+  <script>
+    window.MemberSpace = window.MemberSpace || { subdomain: "iscsecurity" };
+    (function(d){
+      var s = d.createElement("script");
+      s.src = "https://cdn.memberspace.com/scripts/widgets.js";
+      s.async = true;
+      d.head.appendChild(s);
+    })(document);
+  </script>
+  
+</head>
+
+<body class="page-lesson">
+
+<div class="site-topbar" role="note" aria-label="Legal notice">
+  <small class="topbar-note">
+    © 2026 ISCSECURITY · Authorization-first training. All testing must be lawful, scoped, and approved in writing.
+  </small>
+	<nav class="topbar-links" aria-label="Topbar links">
+      <a href="https://iscsecurity.org/index">Home</a>
+      <a href="https://iscsecurity.org/content/index">Content</a>
+	  <a href="https://iscsecurity.org/content/1-ethical-hacking/3-footprinting-and-recon/index">Footprinting &amp; Recon</a>
+      <a href="https://iscsecurity.org/contact">Contact</a>
+    </nav>
+</div>
+
+  <main class="page modules-page no-shift" id="ethical-hacking-training-content" data-ms-content="members-only">
+  <article class="lesson-content overlay" tabindex="0" aria-label="Lesson content: Footprinting &amp; Recon Cheat Sheet">
+
+    <p class="breadcrumb">
+      <a href="https://iscsecurity.org/index">Home</a> →
+        <a href="https://iscsecurity.org/content/index">Content</a> →
+        <a href="https://iscsecurity.org/content/1-ethical-hacking/3-footprinting-and-recon/index">Footprinting &amp; Recon</a> →
+      <span aria-current="page">Page 12</span>
+    </p>
+
+    <h1>Footprinting &amp; Recon Cheat Sheet</h1>
+	
+	<div class="reminder-auth">
+  <strong>🚨 AUTHORIZED USE ONLY:</strong>
+  <span>
+        All content in this document is for educational and defensive training purposes only. 
+        The adversarial techniques described are derived from real-world tradecraft but 
+        are documented exclusively for <strong>defensive analysis, detection engineering, 
+        and authorized security testing</strong>. Unauthorized deployment of any technique 
+        described may constitute a criminal offense under applicable national and 
+        international cybercrime laws. Always obtain <strong>explicit written authorization</strong> 
+        from the system owner or authorized legal entity before testing, executing, or 
+        simulating any of the techniques outlined in this document.
+    </span>
+	</div>
+
+    <div class="reminder-comp">
+  <strong>🌍 INTERNATIONAL COMPLIANCE NOTICE:</strong>
+  <span>
+    Cybercrime laws vary significantly by jurisdiction. It is your sole responsibility 
+    to understand and comply with the laws applicable to your location, the location 
+    of any target systems, and your organization's policies. When in doubt, 
+    <strong>consult a qualified legal professional</strong> before testing, executing, 
+    or simulating any technique described in this document.
+  </span>
+</div>
+
+<!-- ============================================================ -->
+    <!-- LAB ENVIRONMENT DISCLAIMER & SETUP GUIDANCE                  -->
+    <!-- ============================================================ -->
+
+    <div class="reminder-lab">
+      <strong>🧪 LAB ENVIRONMENT NOTICE:</strong>
+      <span>
+        All practical examples, command-line executions, and scenario-based exercises in this document are demonstrated within the <strong>ISCSEC internal training laboratory</strong>. 
+        This is a controlled, isolated environment that exists solely for educational and defensive training purposes.
+      </span>
+      <br><br>
+      <span>
+        <strong>You do not have access to the ISCSEC lab.</strong> As a learner, you are expected to build and maintain your own isolated lab environment, 
+        replicating the documented topology, IP schemes, and hostname conventions. The ISCSEC lab serves as a <strong>canonical reference topology</strong> 
+        for this training, not a shared or remotely accessible resource.
+      </span>
+      <br><br>
+      <span>
+        <strong>Lab requirements:</strong>
+        <ul>
+          <li>Isolated virtualised environment (e.g., VMware Workstation, VirtualBox, or Hyper-V)</li>
+          <li>Attacker operator platform (e.g., Kali Linux or equivalent)</li>
+          <li>Target Windows host (e.g., CLIENT01 at 172.16.5.60)</li>
+          <li>Internal network with domain controller (DC01 at 172.16.5.25), SQL server (SQL01 at 172.16.5.20), web server (WEB01 at 172.16.5.30), and application server (APP01 at 172.16.5.40)</li>
+          <li>All testing must be conducted within your own isolated network with <strong>explicit written authorization</strong> for any systems involved</li>
+        </ul>
+      </span>
+    </div>
+
+    <p class="info-remember" style="margin-bottom: 20px;">
+      <strong>Validation Note:</strong> This cheat sheet maps directly to the Countermeasures and Footprinting module path we re-edited. Each block includes adversarial context (what the attacker sees), Blue Team counters (what detects or disrupts it), and concise command references validated against the section narrative.
+    </p>
+
+    <p>
+      This cheat sheet summarizes the key concepts, techniques, and tools from the Footprinting &amp; Recon section. Each block focuses on a specific area of reconnaissance with a short introduction and a compact reference table you can use during labs, internal assessments, or exams.
+    </p>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 1: CORE FOOTPRINTING CONCEPTS                        -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="core-concepts">
+      <h2 id="core-concepts">1. Core Footprinting Concepts</h2>
+
+      <p>
+        Footprinting is the preparatory phase where you map what exists before you test what is vulnerable. The goal is to identify assets, technologies, and relationships without (yet) exploiting anything. Think of this section as your high-level vocabulary for the entire recon process.
+      </p>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table">
+          <thead>
+            <tr>
+              <th>Concept</th>
+              <th>Attacker Value</th>
+              <th>Blue Team Win</th>
+              <th>Key Tools</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Footprinting</strong><br><small>(TA0043)</small></td>
+              <td>Organisational map built before exploitation; reveals trust relationships and weakest links.</td>
+              <td>Baseline public exposure; track what is normal vs. anomalous.</td>
+              <td>theHarvester, Recon-ng, Maltego</td>
+            </tr>
+            <tr>
+              <td><strong>Passive recon</strong></td>
+              <td>Zero direct contact with target infrastructure; virtually undetectable.</td>
+              <td>Monitor CT logs, cache leakage, and dark-web mentions as proxy indicators.</td>
+              <td>crt.sh, Google Cache, Netcraft, Censys</td>
+            </tr>
+            <tr>
+              <td><strong>Active recon</strong></td>
+              <td>Direct interaction generates accurate, real-time data but risks detection.</td>
+              <td>Detect via DNS query anomalies, 404 spikes, and connection-rate thresholds.</td>
+              <td>dig, nslookup, traceroute, Nmap</td>
+            </tr>
+            <tr>
+              <td><strong>Attack surface mapping</strong></td>
+              <td>Complete inventory of ingress points for phishing, cred-stuffing, and exploitation.</td>
+              <td>Continuous discovery of your own shadow IT and orphaned cloud assets.</td>
+              <td>Subfinder, Amass, DNSdumpster, httpx</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 2: FOOTPRINTING VIA SEARCH ENGINES                   -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="search-engines">
+      <h2 id="search-engines">2. Footprinting via Search Engines</h2>
+
+      <p>
+        Search engines continuously crawl and index public content. As a tester, you can treat their index as a rich OSINT database that reveals technology stacks, portals, documents, and historic snapshots without touching the target directly.
+      </p>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table">
+          <thead>
+            <tr>
+              <th>Concept</th>
+              <th>Attacker Value</th>
+              <th>Blue Team Win</th>
+              <th>Key Tools / Operators</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Search engine indexing</strong></td>
+              <td>Discovers forgotten admin panels, directory listings, and cached configs even after live removal.</td>
+              <td>Use <code>noarchive</code> robots meta; request cache removal; monitor indexed surface.</td>
+              <td>Google, Bing, DuckDuckGo</td>
+            </tr>
+            <tr>
+              <td><strong>Advanced search operators</strong></td>
+              <td>Precision extraction of sensitive files and exposed endpoints using logical filters.</td>
+              <td>Alert on repetitive suspicious query patterns (if queryable via proxy logs); block directory listings.</td>
+              <td><code>site:</code>, <code>filetype:</code>, <code>intitle:</code>, <code>inurl:</code></td>
+            </tr>
+            <tr>
+              <td><strong>Cached / archived pages</strong></td>
+              <td>Recovers removed VPN guides, org charts, and press releases with internal details.</td>
+              <td>Proactive removal requests to Wayback/Google; monitor archive references to your domain.</td>
+              <td>Google Cache, Wayback Machine, archive.today</td>
+            </tr>
+            <tr>
+              <td><strong>Document discovery</strong></td>
+              <td>Harvests metadata (author, printer path, internal hostname) from PDFs and Office files.</td>
+              <td>Pre-publication metadata scrubbing; DLP on outbound documents; CI/CD ExifTool gates.</td>
+              <td>Google dorks, FOCA, ExifTool</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <pre><code class="expected-output"># Quick dork validation
+site:iscsecurity.org filetype:pdf "confidential"
+site:iscsecurity.org inurl:admin | inurl:login | inurl:portal
+site:iscsecurity.org intitle:"index of" "config"
+cache:iscsecurity.org/vpn-setup-guide.pdf
+</code></pre>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 3: INTERNET RESEARCH SERVICES                        -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="internet-research-services">
+      <h2 id="internet-research-services">3. Internet Research Services</h2>
+
+      <p>
+        Internet research services aggregate data from registries, business directories, CT logs, and OSINT feeds. They are ideal for understanding how an organisation presents itself externally and which external providers and infrastructures it relies on.
+      </p>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table">
+          <thead>
+            <tr>
+              <th>Concept</th>
+              <th>Attacker Value</th>
+              <th>Blue Team Win</th>
+              <th>Key Tools</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Business intelligence OSINT</strong></td>
+              <td>Identifies subsidiaries, acquisitions, and funding rounds that expand the target surface.</td>
+              <td>Monitor for new entities that may inherit your security policy; track post-merger shadow IT.</td>
+              <td>Crunchbase, OpenCorporates, ZoomInfo</td>
+            </tr>
+            <tr>
+              <td><strong>Subdomain discovery via CT logs</strong></td>
+              <td>Reveals <code>vpn</code>, <code>dev</code>, <code>api</code> hosts regardless of current DNS secrecy.</td>
+              <td>Monitor certificate transparency for unauthorised or rogue certificates issued for your domains.</td>
+              <td>crt.sh, Censys, Rapid7 OpenData</td>
+            </tr>
+            <tr>
+              <td><strong>Technology stack profiling</strong></td>
+              <td>Pinpoints vulnerable CDN versions, WAF types, and hosting regions for targeted exploits.</td>
+              <td>Minimise version-specific headers; use generic error pages; virtual patching for known stacks.</td>
+              <td>Netcraft, BuiltWith, Wappalyzer</td>
+            </tr>
+            <tr>
+              <td><strong>Historic infrastructure analysis</strong></td>
+              <td>Finds legacy hosts and old configurations still reachable under different domains or IPs.</td>
+              <td>Audit historic DNS for stale records; decommission or isolate legacy environments.</td>
+              <td>Wayback Machine, SecurityTrails, DNS history services</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 4: SOCIAL NETWORKING FOOTPRINTING                    -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="social-networking">
+      <h2 id="social-networking">4. Social Networking Footprinting</h2>
+
+      <p>
+        Social platforms expose people, culture, and technology details that rarely appear on official websites. From a Red Team view, this enables targeted phishing and realistic pretexts. From a Blue Team view, it highlights where staff overshare and how to tune awareness training.
+      </p>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table">
+          <thead>
+            <tr>
+              <th>Concept</th>
+              <th>Attacker Value</th>
+              <th>Blue Team Win</th>
+              <th>Key Tools</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Employee enumeration</strong></td>
+              <td>Builds org charts and identifies sysadmins, executives, and finance staff for spear-phishing.</td>
+              <td>Limit role specificity on public profiles; train staff on connection-request risks.</td>
+              <td>LinkedIn, Facebook, X (Twitter)</td>
+            </tr>
+            <tr>
+              <td><strong>Username correlation</strong></td>
+              <td>Maps corporate handles to personal GitHub, Reddit, or forums where technical leakage occurs.</td>
+              <td>Proactive username / brand monitoring across platforms; secret-scanning GitHub repos.</td>
+              <td>Sherlock, Blackbird, WhatsMyName</td>
+            </tr>
+            <tr>
+              <td><strong>Profile metadata</strong></td>
+              <td>Extracts geo-locations, working hours, and device types from images and check-ins.</td>
+              <td>Disable geo-tagging on corporate devices; policy against posting badge/whiteboard photos.</td>
+              <td>PimEyes, Google Images, Social Searcher, ExifTool</td>
+            </tr>
+            <tr>
+              <td><strong>Spear-phishing target discovery</strong></td>
+              <td>Identifies individuals with privileged access who are most likely to execute malicious attachments.</td>
+              <td>MFA (FIDO2 preferred); external-sender banners; verification callbacks for finance/HR requests.</td>
+              <td>theHarvester, custom OSINT scripts, Hunter.io</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="reminder">
+        <strong>Case Study Tie-In:</strong><br>
+        The Twitter 2020 hack succeeded because attackers used public job postings and employee tweets to craft credible vishing pretexts. Social media hygiene is not optional—it is perimeter control.
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 5: WHOIS FOOTPRINTING                                -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="whois-footprinting">
+      <h2 id="whois-footprinting">5. Whois Footprinting</h2>
+
+      <p>
+        Whois and RDAP records reveal domain ownership, registration dates, and often hints about hosting providers and email infrastructures. Combined with RIR lookups, they help you move from a single hostname to a full external IP footprint.
+      </p>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table">
+          <thead>
+            <tr>
+              <th>Concept</th>
+              <th>Attacker Value</th>
+              <th>Blue Team Win</th>
+              <th>Key Tools</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Whois / RDAP lookup</strong></td>
+              <td>Registrar, creation date, and abuse contacts reveal organisational maturity and escalation paths.</td>
+              <td>Enable domain privacy / WHOIS redaction; monitor for privacy-lapse notifications.</td>
+              <td>whois, RDAP, ICANN Lookup</td>
+            </tr>
+            <tr>
+              <td><strong>NetRange discovery</strong></td>
+              <td>Maps entire IP allocations (e.g., <code>/24</code> blocks) owned by the target or its cloud provider.</td>
+              <td>Audit RIR registrations for unauthorised netblock announcements or hijacks.</td>
+              <td>ARIN, RIPE, APNIC web lookups, BGPTables</td>
+            </tr>
+            <tr>
+              <td><strong>Nameserver enumeration</strong></td>
+              <td>Naming conventions (<code>ns1.dev-example.com</code>) leak internal environment structure.</td>
+              <td>Use generic NS names; split internal vs. external naming; DNSSEC.</td>
+              <td>whois, dig ns</td>
+            </tr>
+            <tr>
+              <td><strong>Registrar &amp; contact history</strong></td>
+              <td>Tracks ownership changes, migrations, and lapses that may coincide with infrastructure gaps.</td>
+              <td>Alert on unauthorised transfer requests; maintain registrar access with MFA.</td>
+              <td>DomainTools, Whoisology</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <pre><code class="expected-output"># WHOIS + RIR pivot example
+(root@iscsec)-[~]$ whois iscsecurity.org | grep -E "Registrar|Name Server|Creation Date"
+Registrar: Example Registrar, Inc.
+Name Server: ns-1234.awsdns-12.org
+Creation Date: 2015-03-12T08:00:00Z
+
+(root@iscsec)-[~]$ whois 203.0.113.45 | grep -E "NetRange|OrgName"
+NetRange:       203.0.112.0 - 203.0.113.255
+OrgName:        CloudProvider Inc.
+</code></pre>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 6: DNS FOOTPRINTING                                  -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="dns-footprinting">
+      <h2 id="dns-footprinting">6. DNS Footprinting</h2>
+
+      <p>
+        DNS is the phone book of the Internet. Careful interrogation of DNS records reveals hostnames, mail routing, cloud providers, and sometimes entire zone contents if misconfigured. This is one of the highest-value recon channels for both Red and Blue teams.
+      </p>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table">
+          <thead>
+            <tr>
+              <th>Record / Technique</th>
+              <th>Attacker Value</th>
+              <th>Blue Team Win</th>
+              <th>Key Tools</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>A / AAAA records</strong></td>
+              <td>Direct IP resolution for ingress points and cloud endpoints.</td>
+              <td>Monitor for unauthorised A-record changes (DNS hijacking indicator).</td>
+              <td>dig A, dig AAAA, nslookup</td>
+            </tr>
+            <tr>
+              <td><strong>MX records</strong></td>
+              <td>Identifies cloud email gateways and internal mail topology for spoofing assessment.</td>
+              <td>Restrict MX to authorised gateways; monitor for unauthorised MX additions.</td>
+              <td>dig MX, host</td>
+            </tr>
+            <tr>
+              <td><strong>TXT / SPF / DKIM / DMARC</strong></td>
+              <td>SPF over-permissions reveal valid sender IPs; DMARC absence allows spoofing.</td>
+              <td>Enforce DMARC p=reject; SPF strict mode; monitor for TXT record tampering.</td>
+              <td>dig TXT, DMARC analyzers, MXToolbox</td>
+            </tr>
+            <tr>
+              <td><strong>Zone transfer (AXFR)</strong></td>
+              <td>Full host enumeration in a single query if the NS is misconfigured.</td>
+              <td>Restrict AXFR/IXFR to secondary NS only; alert on AXFR attempts in DNS logs.</td>
+              <td>dig AXFR @ns1.example.com example.com</td>
+            </tr>
+            <tr>
+              <td><strong>Reverse DNS (PTR)</strong></td>
+              <td>Hostname enumeration across an IP range revealing internal naming conventions.</td>
+              <td>Limit PTR records to necessary IPs; monitor for bulk PTR lookups.</td>
+              <td>dnsrecon, dnsenum, dig -x</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <pre><code class="expected-output"># AXFR test (should fail on hardened target)
+(root@iscsec)-[~]$ dig AXFR @ns1.iscsecurity.org iscsecurity.org
+;; ->>HEADER<<- opcode: QUERY, status: REFUSED, id: 12345
+
+# Detection opportunity: Log entry on authoritative NS
+Nov 11 14:22:10 ns1 named[1234]: client 198.51.100.77#42145: zone transfer 'iscsecurity.org/AXFR' denied
+</code></pre>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 7: NETWORK FOOTPRINTING                              -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="network-footprinting">
+      <h2 id="network-footprinting">7. Network Footprinting</h2>
+
+      <p>
+        Network footprinting identifies how traffic reaches the target and which IP ranges are in play. It focuses on paths, routers, and allocation data rather than full port scanning. This view is crucial when planning pivot routes and identifying edge devices.
+      </p>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table">
+          <thead>
+            <tr>
+              <th>Technique</th>
+              <th>Attacker Value</th>
+              <th>Blue Team Win</th>
+              <th>Key Tools</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Traceroute / tracert</strong></td>
+              <td>Maps router paths, identifies ISP/cloud boundaries, and discovers proxy gaps.</td>
+              <td>Block or rate-limit ICMP/TCP traceroute responses at border firewalls; log anomalous path probes.</td>
+              <td>traceroute, tracert, tcptraceroute</td>
+            </tr>
+            <tr>
+              <td><strong>Ping sweeps</strong></td>
+              <td>Identifies live hosts within a range before deeper port scanning.</td>
+              <td>Rate-limit ICMP echo; deploy honeypots in unused ranges to detect sweeps.</td>
+              <td>fping, nmap -sn</td>
+            </tr>
+            <tr>
+              <td><strong>ASN mapping</strong></td>
+              <td>Links target IPs to cloud regions, ISPs, and peering relationships.</td>
+              <td>Monitor BGP announcements for hijacks; verify netblock ownership.</td>
+              <td>BGPTables, Hurricane Electric, CAIDA AS Rank</td>
+            </tr>
+            <tr>
+              <td><strong>TTL &amp; path heuristics</strong></td>
+              <td>TTL values provide rough OS family estimates (128 = Windows; 64 = Unix-like).</td>
+              <td>Normalise TTL at border firewalls; do not rely on TTL alone for OS detection.</td>
+              <td>Nmap, hping3</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 8: EMAIL FOOTPRINTING                                -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="email-footprinting">
+      <h2 id="email-footprinting">8. Email Footprinting</h2>
+
+      <p>
+        Email systems expose addressing schemes, infrastructure, and sometimes sensitive metadata. From a Red Team angle, they feed password spraying, phishing, and BEC scenarios. From a Blue Team angle, they highlight where misconfigurations leak internal topology.
+      </p>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table">
+          <thead>
+            <tr>
+              <th>Concept</th>
+              <th>Attacker Value</th>
+              <th>Blue Team Win</th>
+              <th>Key Tools</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Email pattern discovery</strong></td>
+              <td>Establishes the format for password spraying and phishing address lists.</td>
+              <td>Use role-based addresses for public-facing contacts; obfuscate formats on websites.</td>
+              <td>Hunter.io, Email-Format, LinkedIn search</td>
+            </tr>
+            <tr>
+              <td><strong>Email header analysis</strong></td>
+              <td>Extracts internal relay names, mail gateway brands, and routing paths.</td>
+              <td>Strip internal hostnames from outbound headers; standardise gateway naming.</td>
+              <td>MXToolbox, mail client header viewers</td>
+            </tr>
+            <tr>
+              <td><strong>SPF/DKIM/DMARC review</strong></td>
+              <td>Overly permissive SPF or missing DMARC enables spoofing and phishing.</td>
+              <td>DMARC p=reject; aligned DKIM; reject NDRs to non-existent addresses.</td>
+              <td>dig TXT, DMARC analyzers</td>
+            </tr>
+            <tr>
+              <td><strong>Breach exposure checking</strong></td>
+              <td>Validates whether employee emails or password hashes exist in stealer logs.</td>
+              <td>Dark-web monitoring; forced reset on leak detection; block password reuse.</td>
+              <td>Have I Been Pwned, DeHashed, IntelligenceX</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 9: SOCIAL ENGINEERING FOOTPRINTING                   -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="social-engineering">
+      <h2 id="social-engineering">9. Social Engineering Footprinting</h2>
+
+      <p>
+        Social engineering-based footprinting focuses on people and processes rather than technical services. The aim is to collect policy, technology, and contact details directly from human sources while still operating within the legal and authorised scope of your engagement.
+      </p>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table">
+          <thead>
+            <tr>
+              <th>Technique</th>
+              <th>Attacker Value</th>
+              <th>Blue Team Win</th>
+              <th>Key Tools / Controls</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Pretexting</strong></td>
+              <td>Crafted story elicits VPN URLs, software versions, and escalation procedures.</td>
+              <td>Verification callbacks; clear "verify before trust" policy; staff empowerment to challenge.</td>
+              <td>Manual OPSEC, VOIP platforms, vishing scripts</td>
+            </tr>
+            <tr>
+              <td><strong>Dumpster diving</strong></td>
+              <td>Recovers physical diagrams, asset tags, and decommissioned credentials from waste.</td>
+              <td>Shred-all policy; secure disposal bins; clean-desk enforcement.</td>
+              <td>Manual physical process (requires explicit legal authorisation)</td>
+            </tr>
+            <tr>
+              <td><strong>Impersonation</strong></td>
+              <td>Posing as trusted technician, auditor, or delivery driver to gain physical/network access.</td>
+              <td>Visitor escort requirements; badge challenge culture; identity verification at all entry points.</td>
+              <td>Physical security playbooks; reception training</td>
+            </tr>
+            <tr>
+              <td><strong>Contact &amp; username harvesting</strong></td>
+              <td>Direct dials, shift patterns, and tool names collected from casual conversation.</td>
+              <td>Limit directory exposure; generic role-based phone trees; security awareness on oversharing.</td>
+              <td>theHarvester, Email Spider, manual note-taking</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="reminder">
+        <strong>Legal Note:</strong><br>
+        Physical social engineering and dumpster diving require explicit written authorisation, site-specific legal review, and often physical presence insurance. Never attempt without engagement-contract coverage.
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 10: AUTOMATION & AI FOOTPRINTING TOOLS               -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="automation-ai">
+      <h2 id="automation-ai">10. Automation &amp; AI Footprinting Tools</h2>
+
+      <p>
+        Automation orchestrates multiple data sources, and AI helps you triage and correlate results. Used correctly, these tools compress days of manual recon into minutes, while still requiring human judgment to validate risks and reduce noise.
+      </p>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table">
+          <thead>
+            <tr>
+              <th>Tool / Category</th>
+              <th>Attacker Value</th>
+              <th>Blue Team Win</th>
+              <th>Key Tools</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Graph-based OSINT</strong></td>
+              <td>Visualises shortest-path relationships between breached accounts, domains, and infrastructure.</td>
+              <td>Use the same graphs to identify weak links (single points of exposure) and prioritise monitoring.</td>
+              <td>Maltego, SpiderFoot HX</td>
+            </tr>
+            <tr>
+              <td><strong>Automated recon frameworks</strong></td>
+              <td>Scheduled, repeatable pipelines that scale across hundreds of targets for bug bounty or IAB operations.</td>
+              <td>Self-recon automation to find exposure before adversaries; CI/CD security gates.</td>
+              <td>Recon-ng, SpiderFoot, custom Python pipelines</td>
+            </tr>
+            <tr>
+              <td><strong>AI-assisted query expansion</strong></td>
+              <td>Generates dorks, correlation hypotheses, and social-engineering scripts at machine speed.</td>
+              <td>Train staff on AI-generated phishing indicators; deploy deepfake-detection where feasible.</td>
+              <td>LLM assistants (DorkGPT, etc.), custom prompt-driven scripts</td>
+            </tr>
+            <tr>
+              <td><strong>Bulk metadata analysis</strong></td>
+              <td>Extracts recurring usernames, software versions, and internal paths from hundreds of documents.</td>
+              <td>Automated metadata stripping in publishing pipelines; pre-commit hooks.</td>
+              <td>ExifTool, FOCA, MAT2</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="info-remember">
+        <strong>OPSEC Note:</strong><br>
+        Never embed API keys (Shodan, Hunter, Maltego) in scripts without secret management. Assume AI prompts are logged; do not upload client data to third-party LLM services without contractual data-processing agreements.
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 11: FOOTPRINTING COUNTERMEASURES                     -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="countermeasures">
+      <h2 id="countermeasures">11. Footprinting Countermeasures</h2>
+
+      <p>
+        Countermeasures aim to reduce what an attacker can learn passively, increase the cost of deeper recon, and generate early-warning signals. Red Teams use this knowledge to build realistic scenarios; Blue Teams use it to harden, monitor, and continuously review exposure.
+      </p>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table">
+          <thead>
+            <tr>
+              <th>Control Area</th>
+              <th>Attacker Impact</th>
+              <th>Implementation / Detection</th>
+              <th>Key Tools / Practices</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>DNS hardening</strong></td>
+              <td>Prevents full host enumeration via AXFR; obscures internal naming.</td>
+              <td>Restrict zone transfers; split DNS; DNSSEC; alert on AXFR attempts.</td>
+              <td>Bind9, AWS Route 53, Cloudflare</td>
+            </tr>
+            <tr>
+              <td><strong>Web server hardening</strong></td>
+              <td>Removes version banners and directory listings that simplify exploit selection.</td>
+              <td>Server tokens off; custom error pages; WAF rules; anomaly detection.</td>
+              <td>Apache/Nginx hardening templates, ModSecurity</td>
+            </tr>
+            <tr>
+              <td><strong>Identity &amp; content hygiene</strong></td>
+              <td>Forces adversaries to purchase expensive data brokers or engage in high-risk social engineering.</td>
+              <td>Metadata scrubbing; content-review workflows; social-media policy; DLP.</td>
+              <td>ExifTool, clean-desk policy, external-sender banners</td>
+            </tr>
+            <tr>
+              <td><strong>Rate limiting &amp; bot controls</strong></td>
+              <td>Slows automated recon; forces proxy costs; creates detectable patterns.</td>
+              <td>Progressive delays; CAPTCHA on auth paths; geo-blocking; API quotas.</td>
+              <td>Cloud WAF, Fail2ban, API gateways</td>
+            </tr>
+            <tr>
+              <td><strong>Recon monitoring &amp; deception</strong></td>
+              <td>Exposes attacker infrastructure via honeypot interaction and enumeration patterns.</td>
+              <td>SIEM rules for 404 spikes / DNS brute force; honeypots; honeytokens.</td>
+              <td>Cowrie, T-Pot, Splunk/ELK, Wazuh</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <pre><code class="expected-output"># Quick self-recon validation (run monthly)
+subfinder -d iscsecurity.org -silent | httpx -status-code -title
+theHarvester -d iscsecurity.org -b all -l 100
+dig AXFR @ns1.iscsecurity.org iscsecurity.org    # Expect REFUSED
+
+# SIEM detection logic (pseudocode)
+alert_if (unique_404s_from_src_ip > 50 in 60s) OR
+         (dns_nxdomain_queries > 200 in 60s) OR
+         (honeypot_login_attempt > 0)
+</code></pre>
+
+      <div class="reminder">
+        <strong>Note:</strong><br>
+        Used together, these controls do not eliminate footprinting, but they do reduce what is exposed, increase attacker effort, and give Blue Teams more time to respond.
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 12: MITRE ATT&CK QUICK MAP                           -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="mitre-quick-map">
+      <h2 id="mitre-quick-map">12. Quick Reference: MITRE ATT&amp;CK Mapping</h2>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table">
+          <thead>
+            <tr>
+              <th>Technique ID</th>
+              <th>Name</th>
+              <th>Cheat Sheet Section</th>
+              <th>Blue Team Detection</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><code>TA0043</code></td><td>Reconnaissance</td><td>All</td><td>Baseline public exposure; anomaly detection.</td></tr>
+            <tr><td><code>T1590.001</code></td><td>Gather Victim Network Info: Domain Properties</td><td>5, 6</td><td>AXFR denial logging; CT log monitoring.</td></tr>
+            <tr><td><code>T1593.002</code></td><td>Search Open Websites/Domains: Search Engines</td><td>2</td><td>Cache removal; robots.txt review.</td></tr>
+            <tr><td><code>T1594.001</code></td><td>Search Victim-Owned Websites: Client Applications</td><td>2, 10</td><td>WAF rules; version-banner removal.</td></tr>
+            <tr><td><code>T1589.002</code></td><td>Gather Victim Identity Info: Email Addresses</td><td>8</td><td>DMARC p=reject; dark-web monitoring.</td></tr>
+            <tr><td><code>T1589.003</code></td><td>Gather Victim Identity Info: Employee Names</td><td>4</td><td>Social-media policy; awareness training.</td></tr>
+            <tr><td><code>T1596.005</code></td><td>Search Open Technical Databases: Malware Repositories</td><td>8</td><td>Breach alerting; forced password reset.</td></tr>
+            <tr><td><code>T1200</code></td><td>Hardware Additions</td><td>9 (Physical)</td><td>USB port disablement; endpoint DLP.</td></tr>
+            <tr><td><code>T1598</code></td><td>Phishing for Information</td><td>4, 9</td><td>MFA; verification callbacks; training.</td></tr>
+            <tr><td><code>T1046</code></td><td>Network Service Scanning</td><td>7</td><td>Rate limiting; honeypots; ICMP thresholds.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 13: SUPPORTING RESOURCES & RECOMMENDED READING       -->
+    <!-- ============================================================ -->
+
+    <section class="resources" aria-label="Supporting resources">
+      <h2>13. Supporting Resources &amp; Recommended Reading</h2>
+      <ul>
+        <li>
+          <a href="https://www.nist.gov/cyberframework" target="_blank" rel="noopener">NIST Cybersecurity Framework (CSF) 2.0</a>
+          <small class="resource-path">Path: High-level industry guidance for mapping recon exposure to governance and technical controls.</small>
+        </li>
+        <li>
+          <a href="https://owasp.org/www-project-web-security-testing-guide/latest/" target="_blank" rel="noopener">OWASP Web Security Testing Guide (WSTG)</a>
+          <small class="resource-path">Path: The definitive guide for web footprinting, information disclosure testing, and attack surface review.</small>
+        </li>
+        <li>
+          <a href="https://attack.mitre.org/matrices/enterprise/" target="_blank" rel="noopener">MITRE ATT&amp;CK Framework</a>
+          <small class="resource-path">Path: Reference framework for mapping reconnaissance techniques (TA0043) to real-world adversary behaviour.</small>
+        </li>
+        <li>
+          <a href="https://www.first.org" target="_blank" rel="noopener">FIRST.org Incident Response Resources</a>
+          <small class="resource-path">Path: Best practices for monitoring, triage, and responding to suspicious recon events.</small>
+        </li>
+        <li>
+          <a href="https://www.iana.org/domains/root/db" target="_blank" rel="noopener">IANA Root Zone Database</a>
+          <small class="resource-path">Path: Authoritative reference for DNS TLDs, record standards, and naming conventions relevant to DNS footprinting.</small>
+        </li>
+        <li>
+          <a href="https://asrank.caida.org/" target="_blank" rel="noopener">CAIDA AS Rank</a>
+          <small class="resource-path">Path: Research dataset for ASN mapping, upstream providers, network topology, and Internet path inference.</small>
+        </li>
+        <li>
+          <a href="https://tools.ietf.org/html/rfc1918" target="_blank" rel="noopener">IETF RFC 1918 – Private Address Allocation</a>
+          <small class="resource-path">Path: Baseline IP addressing reference for understanding internal vs external range identification.</small>
+        </li>
+        <li>
+          <a href="https://www.cisa.gov/known-exploited-vulnerabilities-catalog" target="_blank" rel="noopener">CISA KEV Catalog</a>
+          <small class="resource-path">Path: Helps compare discovered services against actively exploited vulnerabilities during recon analysis.</small>
+        </li>
+        <li>
+          <a href="https://securitytrails.com/blog" target="_blank" rel="noopener">SecurityTrails Research Blog</a>
+          <small class="resource-path">Path: High-quality research on DNS history, subdomain exposure, and OSINT correlations used in modern recon.</small>
+        </li>
+        <li>
+          <a href="https://www.netcraft.com" target="_blank" rel="noopener">Netcraft Internet Data</a>
+          <small class="resource-path">Path: Industry-recognised service for enumerating hosting providers, technology stacks, and historical infrastructure.</small>
+        </li>
+      </ul>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- FLOATING NAVIGATION                                           -->
+    <!-- ============================================================ -->
+
+    <div class="lesson-nav-container">
+      <a href="https://iscsecurity.org/content/1-ethical-hacking/3-footprinting-and-recon/11-footprinting-countermeasures" class="nav-link-btn">👈 Back</a>
+      <a href="https://iscsecurity.org/content/1-ethical-hacking/3-footprinting-and-recon/index" class="nav-link-btn">Module Index</a>
+    </div>
+  </article>
+</main>
+</body>
+</html>

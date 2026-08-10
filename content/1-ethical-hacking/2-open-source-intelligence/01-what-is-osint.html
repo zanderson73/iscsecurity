@@ -1,0 +1,1128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>What Is OSINT? | ISCSECURITY Master Class Series</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="/css/styles.css?v=2026_PRODUCTION_FINAL" />
+</head>
+
+<body class="page-lesson">
+
+<div class="site-topbar" role="note" aria-label="Legal notice">
+  <small class="topbar-note">
+    © 2026 ISCSECURITY · Authorization-first training. All testing must be lawful, scoped, and approved in writing.
+  </small>
+	<nav class="topbar-links" aria-label="Topbar links">
+      <a href="https://iscsecurity.org/index">Home</a>
+      <a href="https://iscsecurity.org/content/index">Content</a>
+	  <a href="https://iscsecurity.org/content/1-ethical-hacking/2-open-source-intelligence/index">OSINT</a>
+      <a href="https://iscsecurity.org/contact">Contact</a>
+    </nav>
+</div>
+
+  <main class="page modules-page" id="main-content">  
+  <article class="lesson-content overlay" tabindex="0" aria-label="Lesson content: What Is OSINT?">
+
+    <p class="breadcrumb">
+      <a href="https://iscsecurity.org/index">Home</a> →
+        <a href="https://iscsecurity.org/content/index">Content</a> →
+        <a href="https://iscsecurity.org/content/1-ethical-hacking/2-open-source-intelligence/index">OSINT</a> →
+      <span aria-current="page">Page 1</span>
+    </p>
+
+    <h1>What Is OSINT?</h1>
+
+    <div class="reminder-auth">
+  <strong>🚨 AUTHORIZED USE ONLY:</strong>
+  <span>
+        All content in this document is for educational and defensive training purposes only. 
+        The adversarial techniques described are derived from real-world tradecraft but 
+        are documented exclusively for <strong>defensive analysis, detection engineering, 
+        and authorized security testing</strong>. Unauthorized deployment of any technique 
+        described may constitute a criminal offense under applicable national and 
+        international cybercrime laws. Always obtain <strong>explicit written authorization</strong> 
+        from the system owner or authorized legal entity before testing, executing, or 
+        simulating any of the techniques outlined in this document.
+    </span>
+	</div>
+
+    <div class="reminder-comp">
+  <strong>🌍 INTERNATIONAL COMPLIANCE NOTICE:</strong>
+  <span>
+    Cybercrime laws vary significantly by jurisdiction. It is your sole responsibility 
+    to understand and comply with the laws applicable to your location, the location 
+    of any target systems, and your organization's policies. When in doubt, 
+    <strong>consult a qualified legal professional</strong> before testing, executing, 
+    or simulating any technique described in this document.
+  </span>
+</div>
+
+<!-- ============================================================ -->
+    <!-- LAB ENVIRONMENT DISCLAIMER & SETUP GUIDANCE                  -->
+    <!-- ============================================================ -->
+
+    <div class="reminder-lab">
+      <strong>🧪 LAB ENVIRONMENT NOTICE:</strong>
+      <span>
+        All practical examples, command-line executions, and scenario-based exercises in this document are demonstrated within the <strong>ISCSEC internal training laboratory</strong>. 
+        This is a controlled, isolated environment that exists solely for educational and defensive training purposes.
+      </span>
+      <br><br>
+      <span>
+        <strong>You do not have access to the ISCSEC lab.</strong> As a learner, you are expected to build and maintain your own isolated lab environment, 
+        replicating the documented topology, IP schemes, and hostname conventions. The ISCSEC lab serves as a <strong>canonical reference topology</strong> 
+        for this training, not a shared or remotely accessible resource.
+      </span>
+      <br><br>
+      <span>
+        <strong>Lab requirements:</strong>
+        <ul>
+          <li>Isolated virtualised environment (e.g., VMware Workstation, VirtualBox, or Hyper-V)</li>
+          <li>Attacker operator platform (e.g., Kali Linux or equivalent)</li>
+          <li>Target Windows host (e.g., CLIENT01 at 172.16.5.60)</li>
+          <li>Internal network with domain controller (DC01 at 172.16.5.25), SQL server (SQL01 at 172.16.5.20), web server (WEB01 at 172.16.5.30), and application server (APP01 at 172.16.5.40)</li>
+          <li>All testing must be conducted within your own isolated network with <strong>explicit written authorization</strong> for any systems involved</li>
+        </ul>
+      </span>
+    </div>
+
+<!-- ============================================================ -->
+<!-- EXECUTIVE SUMMARY                                             -->
+<!-- ============================================================ -->
+
+    <section class="module-section" id="executive-summary">
+      <h2>1. Executive Summary</h2>
+      <p>
+        <strong>Operational Premise:</strong> Open Source Intelligence (OSINT) is the disciplined practice of
+        collecting, validating, and analysing information that is freely available.
+        Sources include websites, public records, social media, technical telemetry,
+        leaked datasets, and specialised search engines. OSINT turns publicly visible
+        data into context that security teams can act on.
+      </p>
+      <p>
+        For Red Teamers, OSINT reduces uncertainty and focuses effort on realistic
+        attack paths. For defenders, the same techniques reveal exposure and noisy
+        blind spots. This section teaches practical, lawful OSINT that supports both
+        assessment and remediation.
+      </p>
+
+      <ul class="learning-objectives">
+        <li><strong>Objective 1:</strong> Understand what OSINT is and who uses it in security contexts.</li>
+        <li><strong>Objective 2:</strong> Differentiate between passive and active OSINT techniques.</li>
+        <li><strong>Objective 3:</strong> Apply OSINT in the Cyber Kill Chain for offensive and defensive purposes.</li>
+      </ul>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table" aria-label="Level progression">
+          <thead>
+            <tr>
+              <th>Level</th>
+              <th>Mindset Shift</th>
+              <th>Key Focus Areas</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Beginner</strong></td>
+              <td>From "searching" to "intelligence gathering"</td>
+              <td>Definitions, who uses OSINT, passive vs active taxonomy</td>
+            </tr>
+            <tr>
+              <td><strong>Intermediate</strong></td>
+              <td>From "collecting data" to "validating intelligence"</td>
+              <td>OSINT in the kill chain, tooling, Red/Blue applications</td>
+            </tr>
+            <tr>
+              <td><strong>Advanced</strong></td>
+              <td>From "gathering" to "adversary emulation"</td>
+              <td>Adversary mindset, operational payloads, OPSEC countermeasures</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+<!-- ============================================================ -->
+<!-- 🟢 BEGINNER LEVEL                                             -->
+<!-- ============================================================ -->
+
+    <section class="module-section" id="beginner-level">
+      <h2>2. Beginner Level</h2>
+      <p>
+        Foundational concepts for practitioners new to OSINT. Assume zero prior knowledge of intelligence gathering or open-source research.
+      </p>
+
+      <h3>Introduction</h3>
+      <p>
+        <strong>Open Source Intelligence (OSINT)</strong> is the disciplined practice of
+        collecting, validating, and analysing information that is freely available.
+        Sources include websites, public records, social media, technical telemetry,
+        leaked datasets, and specialised search engines. OSINT turns publicly visible
+        data into context that security teams can act on.
+      </p>
+	  
+	        <p>
+        <strong>OSINT is distinct from related disciplines.</strong> SOCMINT (Social Media Intelligence) 
+        focuses on platform-specific interactions; GEOINT relies on imagery and geospatial data; 
+        SIGINT involves intercepted signals. OSINT is broader — it encompasses any freely available 
+        source, provided it is collected and analyzed systematically rather than casually searched.
+      </p>
+	  
+      <p>
+        For Red Teamers, OSINT reduces uncertainty and focuses effort on realistic
+        attack paths. For defenders, the same techniques reveal exposure and noisy
+        blind spots. This section teaches practical, lawful OSINT that supports both
+        assessment and remediation.
+      </p>
+
+      <h3># Who Uses OSINT?</h3>
+      <p><strong>OSINT is a toolset, not an audience.</strong> Anyone who systematically
+        collects and reasons about public information is conducting OSINT. Common
+        professional consumers include:</p>
+
+      <h4>IT &amp; Security Teams</h4>
+      <ul>
+        <li>Red Teams and penetration testers use OSINT to prioritise targets, craft realistic lures, and reduce noisy scanning.</li>
+        <li>Blue Teams and defenders use OSINT to discover external exposure and feed detection rules.</li>
+        <li>Security researchers surface novel exposures, misconfigurations, and supply-chain risks.</li>
+      </ul>
+
+      <h4>Government &amp; Law Enforcement</h4>
+      <ul>
+        <li>Analysts and investigators use OSINT for attribution, trend monitoring, and incident context.</li>
+        <li>They combine open sources with classified intelligence where available to build richer hypotheses.</li>
+      </ul>
+
+      <h4>Investigators &amp; Business Teams</h4>
+      <ul>
+        <li>Corporate investigators, fraud teams, and competitive intelligence groups use OSINT for verification and discovery.</li>
+        <li>Marketing, HR, and procurement use targeted OSINT to validate vendors, roles, and public claims.</li>
+      </ul>
+
+      <p>
+        The difference between casual searching and professional OSINT is the method.
+        Well-defined collection goals, repeatable queries, and documented evidence.
+      </p>
+
+      <h3># Why OSINT Matters in Penetration Testing</h3>
+      <p>
+        In commercial engagements, the reconnaissance phase commonly determines the
+        outcome. Poor recon equals wasted effort. OSINT delivers three practical
+        benefits:
+      </p>
+      <ul>
+        <li><strong>Focus:</strong> It identifies high-value targets (key personnel, forgotten services, vendor portals) so subsequent scanning is precise and efficient.</li>
+        <li><strong>Opportunity Discovery:</strong> Public leaks, exposed credentials, and misconfigurations often provide faster, lower-risk access than noisy exploitation.</li>
+        <li><strong>Reporting Value:</strong> Evidence-backed OSINT demonstrates how trivial exposure led to risk, making remediation clear and actionable.</li>
+      </ul>
+	  
+	  <div class="reminder-lightblue">
+        <p>
+		<strong>Example: One Hour of Passive OSINT</strong>
+		</p>
+        <ul>
+          <li>Query <code>crt.sh</code> for <code>%.target.com</code> → discovers forgotten subdomain <code>dev.target.com</code>.</li>
+          <li>Search archive.org for that subdomain → finds an exposed <code>config.json</code> from 18 months ago.</li>
+          <li>Use <code>theHarvester</code> → collects 12 staff emails matching the pattern <code>firstname.lastname@target.com</code>.</li>
+          <li>Cross-reference one email against a breach dataset → credential previously exposed in a third-party app leak.</li>
+        </ul>
+        <p>
+          <strong>Result:</strong> A validated list of targets, a probable entry vector, and zero packets sent to the client’s firewall.
+        </p>
+      </div>
+
+      <div class="info-remember">
+        <strong>Key Principle:</strong> The best assessments treat OSINT as both a filter for technical testing and a source 
+		of defensible findings in the final report.
+      </div>
+
+      <h3># Types of OSINT: A Practical Taxonomy</h3>
+      <p>
+        We organise OSINT by two useful axes: <strong>offensive vs defensive</strong>
+        (intent) and <strong>passive vs active</strong> (visibility). Choosing the
+        right mode keeps activity efficient and compliant.
+      </p>
+
+      <h4>Offensive OSINT</h4>
+      <p><strong>Purpose:</strong> Discovering exploitable information, identifying weak points, and building realistic social-engineering pretexts for authorised red team or penetration testing operations.</p>
+      <p><strong>Key objectives:</strong></p>
+      <ul>
+        <li>Define the attack surface; domains, subdomains, infrastructure, cloud assets, and overlooked services.</li>
+        <li>Collect human-centric intelligence to craft believable phishing or pretexting scenarios.</li>
+        <li>Identify leaked credentials, secrets, or misconfigurations to accelerate Initial Access.</li>
+      </ul>
+      <p><strong>Common offensive OSINT activities:</strong></p>
+      <ul>
+        <li>Harvesting staff contact details, job roles, and public profiles to build targeted phishing personas.</li>
+        <li>Using Shodan, Censys, and certificate transparency logs to uncover exposed hosts, forgotten services, or shadow IT.</li>
+        <li>Scanning public repositories, developer projects, and CI/CD pipelines for leaked API keys, secrets, and configuration files.</li>
+        <li>Reviewing OSINT leaks, breach data, and credential dumps for accounts that can be used for password spraying.</li>
+      </ul>
+
+      <div class="reminder" style="margin-top: 15px;">
+        <strong>Operator Note:</strong> Offensive OSINT is most effective when combined with Passive and Active OSINT findings. It forms the foundation for credible pretexts, realistic attack paths, and early-stage footholds during authorised engagements.
+      </div>
+
+      <h4>Defensive OSINT</h4>
+      <p><strong>Purpose:</strong> Identifying what information about your organisation is already exposed publicly, enabling proactive hardening, early-warning detection, and rapid response to attacker reconnaissance.</p>
+      <p><strong>Key objectives:</strong></p>
+      <ul>
+        <li>Reduce unnecessary external exposure and limit attacker reconnaissance opportunities.</li>
+        <li>Identify leaked assets, credentials, repositories, cloud buckets, and sensitive data.</li>
+        <li>Detect look-alike domains and early phishing infrastructure targeting your brand.</li>
+        <li>Feed external intelligence into security operations for monitoring and correlation.</li>
+      </ul>
+      <p><strong>Common defensive OSINT activities:</strong></p>
+      <ul>
+        <li>Monitoring paste sites, breach forums, and code repositories for exposed credentials or secrets.</li>
+        <li>Identifying spoofed or typosquatted domains used for phishing or credential harvesting.</li>
+        <li>Tracking third-party scans (Shodan, Censys, ZoomEye) for externally visible misconfigurations.</li>
+        <li>Feeding indicators (domains, IPs, hashes) into SIEM, SOAR, and CTI pipelines for alerts and correlation.</li>
+      </ul>
+
+      <div class="info-remember" style="margin: 15px 0;">
+        <strong>Note:</strong> Defensive OSINT helps organisations understand themselves as attackers see them. 
+		The goal is simple; reduce visibility, detect exposure early, and tighten the external footprint before 
+		adversaries exploit it.
+      </div>
+
+      <h4>Active OSINT</h4>
+      <p><strong>Definition:</strong> Active OSINT techniques involve <em>directly interacting</em> with a target in ways that can be logged, monitored, or traced. These actions must be carefully controlled and fully authorised in writing.</p>
+      <p><strong>Key characteristics:</strong></p>
+      <ul>
+        <li>Generates logs or telemetry on the target side.</li>
+        <li>May trigger security alerts, rate limits, or abuse detection.</li>
+        <li>Must be limited to clearly defined, authorised scenarios.</li>
+        <li>Requires detailed documentation of each action taken.</li>
+      </ul>
+      <p><strong>Examples in an authorised assessment:</strong></p>
+      <ul>
+        <li>Submitting low-risk test requests to web forms or APIs.</li>
+        <li>Creating a low-privilege user account to observe flows and UX.</li>
+        <li>Sending controlled phishing simulations or test emails.</li>
+        <li>Probing application features to confirm earlier passive findings.</li>
+        <li>WHOIS and DNS queries, validated against client rules.</li>
+        <li>Lightweight form submissions to map workflows (only if permitted).</li>
+      </ul>
+
+      <div class="reminder" style="margin-top: 15px;">
+        <strong>Operator Note:</strong> Always keep active OSINT within the approved scope and Rules of Engagement (RoE), and log every step so it can be explained to stakeholders or incident responders afterwards.
+      </div>
+
+      <h4>Passive OSINT</h4>
+      <p><strong>Definition:</strong> Passive OSINT relies entirely on <em>third-party, cached, or mirrored data sources</em>, ensuring that no network traffic ever reaches the target organisation. This makes it the safest and least detectable form of intelligence gathering.</p>
+      <p><strong>Key characteristics:</strong></p>
+      <ul>
+        <li>Generates no direct traffic toward the target and is generally difficult to detect.</li>
+        <li>Uses mirrored or historic datasets rather than live systems.</li>
+        <li>Ideal for building a baseline profile during the earliest recon phase.</li>
+        <li>Safe to perform before written authorisation (general OSINT only).</li>
+      </ul>
+      <p><strong>Common sources / examples:</strong></p>
+      <ul>
+        <li>Certificate Transparency (CT) logs to discover domains and subdomains.</li>
+        <li>Archive.org snapshots to review historical site structure and exposed data.</li>
+        <li>Third-party scans from services like Shodan, Censys, and ZoomEye.</li>
+        <li>Breach datasets, public leaks, and credential dumps for exposed accounts.</li>
+        <li>Job listings, press releases, and documentation to infer technology stack and internal changes.</li>
+      </ul>
+
+      <div class="reminder">
+        <strong>Operator Note:</strong> OSINT is not about collecting the most information. It is about collecting the right 
+		information, validating its accuracy, and transforming it into actionable intelligence that improves both offensive 
+		assessments and defensive security.
+      </div>
+
+      <p>
+        Practical rule: <strong>start passive, escalate to active only with clear intent and written permission</strong>.
+      </p>
+
+      <h3># Core Principles &amp; Ethics</h3>
+
+      <h4>Law, Contract and Ethics</h4>
+      <p>
+        Always operate within the law and the client's rules of engagement. Legal
+        compliance is the floor. Ethical practice means minimising harm, protecting
+        privacy, and avoiding publication of sensitive personal data.
+      </p>
+      <ul>
+        <li>Do not expose data that could place a person at risk or break contractual terms.</li>
+        <li>Understand applicable privacy frameworks (e.g., GDPR in the EU, CCPA in California, UK DPA 2018) 
+            before collecting or retaining personal data.</li>
+        <li>When processing EU subjects’ data, ensure you have a lawful basis and document your retention period.</li>
+        <li>Escalate any discovery that suggests imminent harm (e.g., safety or abuse evidence) to the client immediately.</li>
+        <li>Follow data-protection and local computer misuse guidance at all times.</li>
+      </ul>
+
+      <h4>Purpose-Driven Collection</h4>
+      <p>
+        Define intelligence questions before you begin. Collecting everything is
+        expensive and unsafe, collect only what answers the assessment objectives.
+      </p>
+      <ul>
+        <li>Write clear collection requirements and record why each query matters.</li>
+        <li>Use confidence levels on findings and cite original sources.</li>
+      </ul>
+	  
+	        <h4>Source Evaluation & Confidence Ratings</h4>
+      <p>
+        Not all public data is equally trustworthy. Professional OSINT requires 
+        assessing source reliability before it informs any assessment or report.
+      </p>
+      <ul>
+        <li><strong>Triangulation:</strong> Corroborate critical facts across at least two independent sources before recording them as high-confidence.</li>
+        <li><strong>Primary vs. Secondary:</strong> Favor primary sources (regulatory filings, official job posts) over secondary aggregators (unverified forums, reposted leaks).</li>
+        <li><strong>Source Bias:</strong> Recognize that corporate blogs, marketing copy, and disgruntled reviews present selective truths.</li>
+        <li><strong>Confidence Levels:</strong> Tag findings as High, Medium, or Low confidence based on source independence and verification depth.</li>
+      </ul>
+
+      <h4>Minimisation &amp; Secure Handling</h4>
+      <p>
+        Limit data retention, encrypt exports, and agree deletion timelines with the client.
+      </p>
+      <ul>
+        <li>Only store personal data when necessary and with a documented justification.</li>
+        <li>Use secure, access-controlled storage and ephemeral research environments.</li>
+      </ul>
+
+      <h4>Accuracy &amp; Auditability</h4>
+      <p>
+        Verify what you find. False positives reduce trust and can cause unnecessary remediation work.
+      </p>
+      <ul>
+        <li>Corroborate facts across independent sources.</li>
+        <li>Keep an audit trail of tools, queries, accounts, and timestamps.</li>
+      </ul>
+
+      <h4>Operational Security (OPSEC)</h4>
+      <p>
+        Protect your research posture and your client's safety by separating accounts and using hardened browsing environments.
+      </p>
+      <ul>
+        <li>Use lab VMs, secure VPNs, and dedicated research identities.</li>
+        <li>Coordinate potentially noisy activities with the client and log approvals.</li>
+      </ul>
+
+      <div class="reminder-lightblue">
+        <strong>Self-Check:</strong> Ask yourself this: would you be comfortable with your notes being shared with the client or a public regulator? If not, review your data collection and retention practices.
+      </div>
+    </section>
+
+<!-- ============================================================ -->
+<!-- 🟡 INTERMEDIATE LEVEL                                         -->
+<!-- ============================================================ -->
+
+    <section class="module-section" id="intermediate-level">
+      <h2>3. Intermediate Level</h2>
+      <p>
+        Hands-on application of OSINT in real environments. This section covers OSINT in the Cyber Kill Chain, key tools, and Red/Blue Team perspectives.
+      </p>
+
+      <h3># OSINT in the Cyber Kill Chain</h3>
+      <p>
+        OSINT maps cleanly onto the kill chain. Heavy at the start, but relevant at
+        every stage. Below is a compact, operator-focused mapping you can use during
+        collection planning or to brief stakeholders.
+      </p>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table" aria-label="OSINT in the Cyber Kill Chain">
+          <thead>
+            <tr>
+              <th>Kill Chain Stage</th>
+              <th>Description</th>
+              <th>How OSINT Fits</th>
+              <th>Typical Tools / Techniques</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Reconnaissance</strong></td>
+              <td>Profile the target and the external footprint.</td>
+              <td>Discover domains, subdomains, people, suppliers, and public leaks to narrow targets.</td>
+              <td>CT logs, Shodan, crt.sh, theHarvester, Google Dorking</td>
+            </tr>
+            <tr>
+              <td><strong>Weaponisation</strong></td>
+              <td>Crafting the lure or payload to match the target.</td>
+              <td>Use tech stacks, versions, and personnel context to make phishing and exploits credible.</td>
+              <td>Metadata analysis, social-network profiling, repo &amp; CI inspection</td>
+            </tr>
+            <tr>
+              <td><strong>Delivery</strong></td>
+              <td>Move the lure to the target through chosen channels.</td>
+              <td>OSINT determines which channels (email, messaging apps, partner portals) are most likely to succeed.</td>
+              <td>Email enumeration, paste sites, forum reconnaissance</td>
+            </tr>
+            <tr>
+              <td><strong>Exploitation</strong></td>
+              <td>Execute the selected technique or payload.</td>
+              <td>OSINT informs whether an exploit is likely to succeed and which vector is least noisy.</td>
+              <td>CVE lookups, exploit DB, vendor advisories</td>
+            </tr>
+            <tr>
+              <td><strong>Installation</strong></td>
+              <td>Establish persistence and maintain stealth.</td>
+              <td>Historical incident data shows which persistence techniques are detectable or commonly missed.</td>
+              <td>Incident reports, threat-intel write-ups</td>
+            </tr>
+            <tr>
+              <td><strong>Command &amp; Control (C2)</strong></td>
+              <td>Channels used for remote control and data exfiltration.</td>
+              <td>Use passive DNS, WHOIS, and intelligence feeds to detect and block C2 infrastructure.</td>
+              <td>Passive DNS, WHOIS, threat-intel feeds</td>
+            </tr>
+            <tr>
+              <td><strong>Actions on Objectives</strong></td>
+              <td>The final stage where the attacker collects value (data, disruption, extortion).</td>
+              <td>OSINT helps defenders find leaked data, and helps Red Teams validate exposure-based scenarios.</td>
+              <td>Leak monitoring, dark-web checks, security news sources</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="reminder" style="margin-top: 15px;">
+        <strong>Operator Note:</strong> Aligning OSINT with the kill chain gives you a collection plan that's reproducible, 
+		auditable, and useful for both tests and remediation. Keep notes of sources, timestamps, and confidence levels.
+      </div>
+
+      <h3># Key Tools Used in This Phase</h3>
+	  
+	  <div class="reminder-lightblue">
+        <p><strong>Tool Hygiene:</strong>
+          Always run OSINT tools from an isolated research environment (dedicated VM, clean browser profile, 
+          or container). Segregate API keys, avoid personal login sessions, and ensure geo/IP context 
+          matches the engagement’s OPSEC requirements before querying third-party services.
+        </p>
+      </div>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table" aria-label="Key OSINT tools">
+          <thead>
+            <tr>
+              <th>Tool Category</th>
+              <th>Specific Tools</th>
+              <th>Purpose</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Search Engines</strong></td>
+              <td>Google, Bing, DuckDuckGo</td>
+              <td>Broad data gathering and file type queries (e.g., <code>filetype:pdf</code>).</td>
+            </tr>
+            <tr>
+              <td><strong>Social Media</strong></td>
+              <td>LinkedIn, Twitter/X, Facebook</td>
+              <td>Identifying corporate personnel, trust relationships, and personal interests.</td>
+            </tr>
+            <tr>
+              <td><strong>People Search</strong></td>
+              <td>Spokeo, Pipl, BeenVerified</td>
+              <td>Aggregating personal location markers, history, and communication vectors.</td>
+            </tr>
+            <tr>
+              <td><strong>Domain Intelligence</strong></td>
+              <td>Whois Lookup, DNSDumpster</td>
+              <td>Finding administrative registration details, mail servers, and hidden subdomains.</td>
+            </tr>
+            <tr>
+              <td><strong>Image Search</strong></td>
+              <td>Google Images, TinEye, Yandex</td>
+              <td>Reverse image searching to map cross-platform profiles or extract geo-metadata.</td>
+            </tr>
+            <tr>
+              <td><strong>Breach Data</strong></td>
+              <td>HaveIBeenPwned, DeHashed</td>
+              <td>Verifying whether corporate credentials are already compromised in secondary leaks.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3># Red Team &amp; Blue Team Perspectives</h3>
+      <p>
+        OSINT is dual-purpose, it powers credible Red Team scenarios and provides Blue
+        Teams with a pragmatic route to reduce exposure.
+      </p>
+
+      <h4>Red Team Practical Uses</h4>
+      <ul>
+        <li>Create realistic personas and phishing narratives from public profiles.</li>
+        <li>Find overlooked services and vendor integrations worth targeted testing.</li>
+        <li>Use exposure evidence to craft low-noise, high-impact attack paths.</li>
+      </ul>
+
+      <h4>Blue Team Practical Uses</h4>
+      <ul>
+        <li>Maintain an external asset inventory that is demonstrably better than what an attacker can assemble.</li>
+        <li>Feed OSINT-derived indicators into detection rules and threat-hunting playbooks.</li>
+        <li>Prioritise remediation by exposure impact rather than by sheer CVE count.</li>
+      </ul>
+
+      <div class="reminder-lightblue">
+        <strong>Key Principle:</strong> When OSINT data reveals exposed credentials, infrastructure, or brand risks, deliver it promptly to the client's security team. Coordinated remediation prevents recurring exposures, strengthens the client's external posture, and ensures future assessments can focus on higher-value targets.
+      </div>
+    </section>
+
+<!-- ============================================================ -->
+<!-- 🔴 ADVANCED / OPERATOR LEVEL                                  -->
+<!-- ============================================================ -->
+
+    <section class="module-section" id="advanced-level">
+      <h2>4. Advanced / Operator Level</h2>
+      <p>
+        Deep technical detail for operators conducting authorized assessments. This level covers adversary mindset, operational payloads, and OPSEC countermeasures.
+      </p>
+
+      <h3># In the Eyes of an Adversary</h3>
+      
+	  <p>
+        In the context of an Adversary, whether nation-state actor, APT group, cybercriminal syndicate, or insider threat,  
+		OSINT is rarely just "Googling someone." It is the foundational layer of the Intelligence Cycle used to build the 
+		target profile before any active exploitation occurs.
+      </p>
+      
+	  <p>
+        Here is how adversaries utilize this specific phase, along with relevant examples, tools, and potential 
+		payloads/outputs.
+      </p>
+
+      <h4>The Adversary's Role: Building the Target Profile</h4>
+      
+	  <p>
+        When an adversary studies "What is OSINT," they are identifying passive reconnaissance opportunities. They want to 
+		gather data without touching your network (no IP scanning, no port scanning) to avoid detection by IDS/IPS systems.
+      </p>
+      
+	  <p><strong>Operational Parameters:</strong></p>
+      
+	  <ul>
+        <li><strong>Goal:</strong> Create a comprehensive profile of the target (Individual or Organization).</li>
+        <li><strong>Adversary Mindset:</strong> "I can find your email, your tech stack, your employees' names, and your recent projects without sending a single packet to your firewall."</li>
+      </ul>
+
+      <h3># Real-World Examples of Adversary Involvement</h3>
+
+      <h4>Example A: Corporate Espionage / Targeted Phishing (Spear Phishing)</h4> 
+      
+	  <p><strong>Scenario:</strong> An attacker wants to phish the CFO of "TechCorp Inc."</p>
+      <p><strong>OSINT Activity:</strong></p>
+     
+	 <ul>
+        <li>Search LinkedIn for "CFO TechCorp" to isolate the target's identity and photo.</li>
+        <li>Monitor Twitter/X streams for recent posts to identify specific interests (e.g., golf, conferences).</li>
+        <li>Audit Glassdoor review data and company press releases to uncover operational business pain points.</li>
+      </ul>
+
+      <div class="reminder" style="margin-top: 15px;">
+        <strong>Adversary Action:</strong> Crafts a highly personalized email ("Hi John, saw your post about the Miami Golf 
+		Tournament...") to aggressively increase click-through rates.
+      </div>
+
+      <h4>Example B: Pre-Exploitation Reconnaissance for Ransomware</h4>
+      
+	  <p><strong>Scenario:</strong> A ransomware gang targets a healthcare facility.</p>
+      <p><strong>OSINT Activity:</strong></p>
+     
+	 <ul>
+        <li>Query Shodan and Censys to discover internet-facing medical devices and open ports.</li>
+        <li>Analyze the hospital's primary web server source code to footprint the CMS engine (e.g., WordPress, Drupal).</li>
+        <li>Audit public GitHub repositories to locate leaked API keys or developer documentation left by former employees.</li>
+      </ul>
+
+      <div class="reminder" style="margin-top: 15px;">
+        <strong>Adversary Action:</strong> Identifies a specific vulnerable version of the active CMS and pre-configures a 
+		target exploit before launching any offensive interaction.
+      </div>
+
+      <h4>Example C: Identity Theft / Account Takeover</h4>
+      
+	  <p><strong>Scenario:</strong> An attacker targets an individual's administrative email account.</p>
+      <p><strong>OSINT Activity:</strong></p>
+      
+	  <ul>
+        <li>Locate the target's unique handle on multiple social platforms (Instagram, GitHub, Reddit).</li>
+        <li>Use discovered handles to enumerate associated recovery email strings or active phone numbers.</li>
+        <li>Cross-reference targets against dark-web breach logs (e.g., HaveIBeenPwned) to extract historical password hashes.</li>
+      </ul>
+
+      <div class="reminder" style="margin-top: 15px;">
+        <strong>Adversary Action:</strong> Performs automated credential stuffing attacks against organization portals using 
+		known password lists.
+      </div>
+
+      <div class="adversary-philosophy" style="background: rgba(244,67,54,0.05); border-left: 4px solid #f44336; padding: 18px 24px; margin: 24px 0; border-radius: 4px;">
+        <p style="margin: 0; font-style: italic; color: #cfd8dc;">
+          <strong>Inside the Adversary Mindset:</strong> Every public detail can become targeting data. Attackers combine 
+		  employee information, infrastructure intelligence, leaked credentials, and business context to build attack 
+		  paths long before they interact with a target system.
+        </p>
+      </div>
+
+      <h3># Potential Payloads &amp; Outputs</h3>
+      
+	  <p>
+        In the "What is OSINT" phase, the payload is rarely active malware. Instead, it manifests as tactical intelligence 
+		that enables subsequent exploit lifecycles.
+      </p>
+
+      <h3>A. Intelligence Reports (The Primary Output)</h3>
+      <ul>
+        <li>Generate a structured target profile dossier containing employee organizational mapping profiles.</li>
+        <li>Document underlying corporate infrastructure architectures (e.g., Microsoft 365 components, AWS buckets).</li>
+        <li>Map internal corporate email syntax conventions (e.g., <code>firstname.lastname@techcorp.com</code>).</li>
+      </ul>
+
+      <h3>B. Credential Dumps (From Breach Data)</h3>
+      <pre><code>email,password,hash
+john.doe@techcorp.com,P@ssw0rd1!,5f4dcc3b5aa765d61d8327deb882cf99
+jane.smith@techcorp.com,Summer2023!,e99a18c428cb38d5f260853678922e03</code></pre>
+
+      <h3>C. Phishing Payload (Preparation)</h3>
+      <ul>
+        <li>Construct a deceptive link built directly around target profile elements:
+          <pre><code>http://fake-login.microsoft.com?user=john.doe@techcorp.com</code></pre>
+        </li>
+        <li>This URL is crafted using OSINT data (correct username, correct company branding).</li>
+      </ul>
+
+      <h3># Tools, Apps &amp; Programs Used to Build Phishing Emails &amp; Infrastructure</h3>
+      <p>
+        Adversaries do not hand-craft every phishing email from scratch. They use dedicated frameworks to convert 
+		OSINT-derived dossiers into believable lure emails, cloned login portals, and credential-harvesting endpoints.
+      </p>
+
+      <h3># Phishing Campaign Frameworks</h3>
+      <ul>
+        <li><strong>Gophish:</strong> Open-source phishing framework used to create and manage email campaigns, track opens/clicks, and capture credentials via realistic landing pages in authorized assessments.</li>
+        <li><strong>Social-Engineer Toolkit (SET):</strong> TrustedSec framework that automates spear-phishing email generation, credential-harvester site cloning, and mass-email dispatch from attacker infrastructure.</li>
+        <li><strong>King Phisher:</strong> Tool for creating templated phishing campaigns with embedded tracking pixels, geolocation tags, and attachment/payload delivery mechanisms.</li>
+      </ul>
+
+      <h3># Reverse Proxy &amp; Session Hijacking Platforms</h3>
+      <ul>
+        <li><strong>Evilginx2:</strong> Standalone man-in-the-middle framework that proxies legitimate login pages (e.g., Microsoft 365, Okta) to harvest credentials <em>and</em> session cookies in real time, bypassing traditional credential-only detection.</li>
+        <li><strong>Modlishka:</strong> (Historical reference) Reverse proxy that cloned login portals dynamically in real-time, demonstrating how adversaries defeat MFA by proxying traffic rather than cloning static pages.</li>
+      </ul>
+
+      <h3># Site Cloning &amp; Credential Harvesting Utilities</h3>
+      <ul>
+        <li><strong>HTTrack / SiteSucker:</strong> Offline browser tools used to clone legitimate corporate login pages locally. Attackers modify form POST actions to exfiltrate submissions to an attacker-controlled server.</li>
+        <li><strong>SocialFish:</strong> Automated phishing page generator that clones popular platforms (Office 365, LinkedIn, GitHub) and provides a web dashboard for viewing captured credentials.</li>
+        <li><strong>BlackEye:</strong> Lightweight tool for generating localized phishing pages for numerous services, with built-in credential exfiltration over email or Telegram bot APIs.</li>
+      </ul>
+
+      <h3># Email Crafting, Spoofing &amp; Delivery Tools</h3>
+      <ul>
+        <li><strong>Swaks (Swiss Army Knife SMTP):</strong> Command-line SMTP utility used to forge sender addresses, customize headers, and send spear-phishing emails from spoofed or look-alike domains.</li>
+        <li><strong>SendEmail:</strong> Perl-based lightweight SMTP client for sending templated phishing messages through custom or compromised SMTP relays.</li>
+        <li><strong>Email Header Analyzer / MX Toolbox:</strong> Used adversarially to identify SPF/DMARC misconfigurations before a campaign, ensuring spoofed emails bypass basic sender-authentication checks.</li>
+      </ul>
+
+      <h3># Domain Typosquatting &amp; URL Obfuscation</h3>
+      <ul>
+        <li><strong>DNStwist:</strong> Generates permutations of the target domain (bit-flipping, homoglyphs, insertion) to discover existing typosquats or register new deceptive domains (e.g., <code>target-c0m.com</code>).</li>
+        <li><strong>URLCrazy:</strong> Similar domain-variation generator that helps adversaries identify visually deceptive domains for credential-harvesting campaigns.</li>
+        <li><strong>URL Shorteners (bit.ly, TinyURL, custom):</strong> Used to mask the true destination of phishing links in emails, often paired with branded or typosquatted redirectors.</li>
+      </ul>
+
+      <div class="reminder" style="margin-top: 15px;">
+        <strong>Defensive Note:</strong> Many of these frameworks leave identifiable fingerprints — Evilginx2 uses specific cookie names, SET credential harvesters use predictable form-action URLs, and cloned pages often retain original source artifacts. Blue Teams should hunt for these signatures alongside anomalies in email headers and new domain registrations.
+      </div>
+
+      <h3>D. Exploit Kit Targeting</h3>
+      <ul>
+        <li>Identify target web properties running outdated frameworks (e.g., legacy Apache Struts instances).</li>
+        <li>Staging a matching version exploit payload string (e.g., <code>exploit.sh</code>) to deploy immediately upon locating server entry points.</li>
+      </ul>
+
+      <h3># Adversary Countermeasures (What They Do to Avoid Detection)</h3>
+      <p><strong>OPSEC &amp; Evasion Tactics:</strong></p>
+      <ul>
+        <li><strong>Rotation of User-Agents:</strong> Altering browser fingerprints constantly to prevent queries from triggering target rate limits.</li>
+        <li><strong>Proxy Networks:</strong> Routing investigative traffic loops through distributed proxy nodes to hide true origin IP locations.</li>
+        <li><strong>Time-of-Day Variation:</strong> Distributing active scrapers irregularly across time bands to disrupt defensive anomaly pattern analysis.</li>
+        <li><strong>Multi-Source Correlation:</strong> Cross-referencing disparate datasets across LinkedIn, code repositories, and corporate blogs to assure verification bounds prior to launching attacks.</li>
+      </ul>
+
+      <div class="reminder-opsec">
+        <strong>Defender Perspective:</strong> Understanding adversary OPSEC helps defenders build more resilient detection strategies. If attackers rotate user-agents, defenders should monitor for anomalous patterns rather than specific strings.
+      </div>
+    </section>
+
+<!-- ============================================================ -->
+<!-- ⚫ ADVERSARIAL LEVEL                                          -->
+<!-- ============================================================ -->
+
+    <section class="module-section" id="adversarial-level">
+      <h2>5. Adversarial Level</h2>
+      <p>
+        Threat actor perspective. Advanced persistent threats, criminal groups, and red teams use OSINT as a foundational 
+		capability to build target profiles and execute campaigns.
+      </p>
+
+      <h3># Threat Actor Behavior</h3>
+
+      <h4>Target Profiling</h4>
+      <ul>
+        <li>Nation-state actors conduct long-term OSINT collection (months to years) before any active engagement.</li>
+        <li>Criminal syndicates automate OSINT collection to identify high-value targets for ransomware and fraud campaigns.</li>
+        <li>Hacktivists use OSINT to identify symbolic targets and publicize exposed data for political messaging.</li>
+      </ul>
+
+      <h4>Operational Planning</h4>
+      <ul>
+        <li>OSINT feeds directly into weaponization; crafting phishing lures, selecting exploit vectors, and identifying supply-chain entry points.</li>
+        <li>Adversaries monitor certificate transparency logs, DNS records, and public repositories for infrastructure changes and new attack surfaces.</li>
+        <li>Breach data and credential dumps are correlated with OSINT to identify password reuse and privileged accounts.</li>
+      </ul>
+
+      <h4>Defensive Evasion</h4>
+      <ul>
+        <li>Adversaries use OSINT to understand defensive tooling (EDR, SIEM, WAF) and tailor attacks to evade detection.</li>
+        <li>Public job postings and vendor announcements reveal technology stacks and security investments.</li>
+        <li>Social media activity of security staff can reveal tool preferences, operational rhythms, and defensive gaps.</li>
+      </ul>
+
+      <div class="reminder">
+          "OSINT turns noise into targeting data; the smarter your recon, the quieter your attack. Defenders must view 
+		  their own exposure through the same lens, or they will always be reacting to intelligence they never knew existed."
+        </p>
+      </div>
+    </section>
+
+<!-- ============================================================ -->
+<!-- ADVERSARIAL EXAMPLES — COMMANDS AND TOOLS                     -->
+<!-- ============================================================ -->
+
+    <section class="module-section" id="adversarial-examples">
+      <h2>6. Adversarial Examples — Commands and Tools</h2>
+      <p>Concrete command lines, tool syntax, and pseudo-code for OSINT collection. Keep these copy-paste friendly for authorized labs.</p>
+
+      <h3># Domain &amp; DNS Reconnaissance</h3>
+      
+      <pre><code class="language-bash"># Passive DNS enumeration using dnsrecon
+$ dnsrecon -d target.com -t brt
+
+# Comprehensive subdomain enumeration using amass
+$ amass enum -d target.com -o subdomains.txt
+
+# Certificate transparency subdomain discovery
+$ curl -s "https://crt.sh/?q=%.target.com&output=json" | jq -r '.[].name_value' | sort -u
+
+# WHOIS lookup for domain registration details
+$ whois target.com
+
+# DNS zone transfer attempt (authorized only)
+$ dig axfr @ns1.target.com target.com</code></pre>
+
+      <h3># Email &amp; Personnel Discovery</h3>
+      
+      <pre><code class="language-bash"># Email harvesting using theHarvester
+$ theHarvester -d target.com -b google,linkedin,bing -l 500
+
+# LinkedIn employee enumeration (manual + automated)
+$ linkedin2username -d target.com -o employees.txt
+
+# Email format validation and verification
+$ hunter.io -d target.com --output emails.csv
+
+# Breach data correlation
+$ curl -s "https://haveibeenpwned.com/api/v3/breachedaccount/test@target.com" -H "hibp-api-key: YOUR_KEY"</code></pre>
+
+      <h3># Infrastructure &amp; Service Discovery</h3>
+      
+      <pre><code class="language-bash"># Shodan search for exposed services
+$ shodan search "org:target company" --fields ip_str,port,org,hostnames
+
+# Censys search for certificate and service data
+$ censys search "services.service_name: HTTP and 80.http.response.body: target"
+
+# Wayback Machine for historical site data
+$ waybackurls target.com > historical_urls.txt
+
+# GitHub repository search for secrets and configuration
+$ github-search -q "target.com password" --output github_secrets.txt</code></pre>
+
+      <h3># OSINT Tool Reference Table</h3>
+      
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table" aria-label="OSINT tool table by category">
+          <thead>
+            <tr>
+              <th>Category</th>
+              <th>Tool</th>
+              <th>Purpose</th>
+              <th>Relevant Option</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Domain Intelligence</td>
+              <td>dnsrecon</td>
+              <td>DNS enumeration and zone transfers</td>
+              <td><code>-t brt</code></td>
+            </tr>
+            <tr>
+              <td>Domain Intelligence</td>
+              <td>amass</td>
+              <td>Passive subdomain enumeration</td>
+              <td><code>enum -d</code></td>
+            </tr>
+            <tr>
+              <td>Certificate Intelligence</td>
+              <td>crt.sh / curl</td>
+              <td>Certificate Transparency log discovery</td>
+              <td><code>?q=%.target.com</code></td>
+            </tr>
+            <tr>
+              <td>Email Intelligence</td>
+              <td>theHarvester</td>
+              <td>Email and subdomain discovery</td>
+              <td><code>-d target.com -b all</code></td>
+            </tr>
+            <tr>
+              <td>Infrastructure Scanning</td>
+              <td>Shodan CLI</td>
+              <td>Internet-facing device discovery</td>
+              <td><code>search</code> / <code>scan</code></td>
+            </tr>
+            <tr>
+              <td>Historical Data</td>
+              <td>waybackurls</td>
+              <td>Historical URL discovery</td>
+              <td><code>target.com</code></td>
+            </tr>
+            <tr>
+              <td>Source Code Intelligence</td>
+              <td>github-search</td>
+              <td>Public repository scanning</td>
+              <td><code>-q "target"</code></td>
+            </tr>
+            <tr>
+              <td>People Intelligence</td>
+              <td>linkedin2username</td>
+              <td>Employee username enumeration</td>
+              <td><code>-d target.com</code></td>
+            </tr>
+            <tr>
+              <td>Breach Intelligence</td>
+              <td>HaveIBeenPwned API</td>
+              <td>Leaked credential discovery</td>
+              <td><code>/api/v3/breachedaccount/</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      
+      <div class="reminder-lightblue">
+        <em><strong>Reminder:</strong></em> OSINT tools are force multipliers, not replacements for disciplined collection planning. 
+		Define your intelligence questions before running any tool. Document every query, source, and timestamp for 
+		auditability.
+      </div>
+    </section>
+
+<!-- ============================================================ -->
+<!-- KEY TAKEAWAYS                                                 -->
+<!-- ============================================================ -->
+
+    <section class="module-section" id="key-takeaways">
+      <h2>7. Key Takeaways</h2>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table" aria-label="Key takeaways">
+          <thead>
+            <tr>
+              <th>Concept</th>
+              <th>Why It Matters</th>
+              <th>Security Impact</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>OSINT Is Intelligence, Not Just Information</strong></td>
+              <td>Raw public data only becomes valuable when it is collected, validated, and analyzed.</td>
+              <td>Produces actionable intelligence that supports security decisions and risk reduction.</td>
+            </tr>
+            <tr>
+              <td><strong>Reconnaissance Shapes Assessment Success</strong></td>
+              <td>High-quality reconnaissance reduces wasted effort and identifies realistic attack paths.</td>
+              <td>Improves testing efficiency while increasing the likelihood of discovering meaningful findings.</td>
+            </tr>
+            <tr>
+              <td><strong>Attackers Depend on Public Information</strong></td>
+              <td>Employees, technologies, domains, credentials, and business processes often reveal valuable targeting data.</td>
+              <td>Public exposure frequently enables phishing, credential attacks, and infrastructure compromise.</td>
+            </tr>
+            <tr>
+              <td><strong>Passive OSINT Minimizes Detection Risk</strong></td>
+              <td>Passive collection allows intelligence gathering without directly interacting with the target.</td>
+              <td>Reduces visibility while building a detailed target profile.</td>
+            </tr>
+            <tr>
+              <td><strong>Active OSINT Requires Authorization</strong></td>
+              <td>Direct interaction with systems can generate logs, alerts, and security investigations.</td>
+              <td>Unauthorized activity may create operational, legal, and contractual risk.</td>
+            </tr>
+            <tr>
+              <td><strong>OSINT Supports Every Kill Chain Phase</strong></td>
+              <td>Intelligence gathered during reconnaissance influences targeting, delivery, exploitation, and post-compromise actions.</td>
+              <td>Understanding this relationship helps defenders disrupt attacks earlier.</td>
+            </tr>
+            <tr>
+              <td><strong>OSINT Has Both Offensive and Defensive Value</strong></td>
+              <td>Attackers use OSINT to discover opportunities, while defenders use it to identify exposure.</td>
+              <td>Organizations can reduce risk by viewing themselves through an adversary's perspective.</td>
+            </tr>
+            <tr>
+              <td><strong>Evidence and Validation Matter</strong></td>
+              <td>Reliable findings require source verification, confidence assessment, and proper documentation.</td>
+              <td>Reduces false positives and improves reporting credibility.</td>
+            </tr>
+            <tr>
+              <td><strong>Ethics and Privacy Must Guide Collection</strong></td>
+              <td>Not all accessible information should be collected, retained, or disclosed.</td>
+              <td>Protects individuals, supports compliance, and maintains professional integrity.</td>
+            </tr>
+            <tr>
+              <td><strong>OSINT Converts Visibility Into Risk Awareness</strong></td>
+              <td>Publicly exposed information often reveals weaknesses before attackers exploit them.</td>
+              <td>Enables earlier detection, faster remediation, and stronger security posture.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="reminder">
+        <em><strong>Note:</strong></em><br>
+		OSINT turns noise into targeting data, the smarter your recon, the quieter your attack. Defenders must view their 
+		own exposure through the same lens, or they will always be reacting to intelligence they never knew existed.
+      </div>
+    </section>
+
+<!-- ============================================================ -->
+<!-- ASSESSMENT & NEXT STEPS                                       -->
+<!-- ============================================================ -->
+
+<section class="module-section" id="assessment-next-steps">
+  <h2>8. Assessment &amp; Next Steps</h2>
+
+  <!-- Chapter Summary -->
+  <div style="margin-bottom: 30px;">
+    <h3>Chapter Summary</h3>
+    <p>
+      By completing this chapter you should now be able to:
+    </p>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin: 20px 0;">
+
+      <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+        <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+        <span><strong>Define OSINT and its role in security.</strong><br>
+        <span style="color: #aaa; font-size: 0.9rem;">Understanding the disciplined practice of collecting and analyzing public information.</span></span>
+      </div>
+
+      <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+        <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+        <span><strong>Differentiate between passive and active OSINT.</strong><br>
+        <span style="color: #aaa; font-size: 0.9rem;">Understanding the visibility and authorization requirements of each approach.</span></span>
+      </div>
+
+      <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+        <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+        <span><strong>Identify who uses OSINT and why.</strong><br>
+        <span style="color: #aaa; font-size: 0.9rem;">Red Teams, Blue Teams, investigators, and business functions all leverage OSINT.</span></span>
+      </div>
+
+      <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+        <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+        <span><strong>Map OSINT to the Cyber Kill Chain.</strong><br>
+        <span style="color: #aaa; font-size: 0.9rem;">Understanding how OSINT supports reconnaissance, weaponization, and every subsequent phase.</span></span>
+      </div>
+
+      <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+        <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+        <span><strong>Apply core OSINT principles and ethics.</strong><br>
+        <span style="color: #aaa; font-size: 0.9rem;">Lawfulness, purpose-driven collection, minimisation, accuracy, and OPSEC.</span></span>
+      </div>
+
+      <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+        <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+        <span><strong>Understand adversary OSINT tradecraft.</strong><br>
+        <span style="color: #aaa; font-size: 0.9rem;">How attackers use OSINT for targeting, phishing, and operational planning.</span></span>
+      </div>
+
+    </div>
+  </div>
+
+  <p>
+    Before advancing to the next section, confirm that you can differentiate between passive and active OSINT, 
+    understand how OSINT supports the kill chain, and articulate the ethical and legal boundaries of open-source 
+    collection.
+  </p>
+
+  <h3>Knowledge Check</h3>
+  <ol>
+    <li>What is the difference between passive and active OSINT, and why does that distinction matter for operational security?</li>
+    <li>How does OSINT support each phase of the Cyber Kill Chain, and where is it most critical?</li>
+    <li>What are the ethical and legal boundaries of OSINT collection in a security assessment?</li>
+    <li>Why is validation important in OSINT, and what methods can you use to validate findings?</li>
+    <li>How do adversaries use OSINT differently than security professionals, and why does that matter for defenders?</li>
+  </ol>
+
+  <h3>Practical Validation</h3>
+  <ul>
+    <li>Run a passive recon sweep against a lab target using Amass and document five discovered subdomains.</li>
+    <li>Use theHarvester to gather email addresses for a lab domain and validate them against LinkedIn profiles.</li>
+    <li>Query Shodan for a lab IP range and identify three exposed services that could represent attack surface.</li>
+    <li>Write a one-page OSINT collection plan for a fictional organization, including collection requirements, sources, and validation steps.</li>
+  </ul>
+
+  <h3>Gateway Criteria for OSINT Cycle Module</h3>
+  <p>Proceed when you can:</p>
+  <ol>
+    <li>Differentiate between <strong>passive and active</strong> OSINT techniques and explain when each is appropriate.</li>
+    <li>Map OSINT collection to at least <strong>three phases</strong> of the Cyber Kill Chain with specific examples.</li>
+    <li>Demonstrate that you can <strong>validate</strong> a finding using independent sources.</li>
+    <li>Explain why <strong>OPSEC matters</strong> in OSINT collection and list two countermeasures adversaries use.</li>
+    <li>State the <strong>legal and ethical consequence</strong> of collecting or retaining sensitive personal data without justification.</li>
+  </ol>
+
+  <h3>Recommended Reading</h3>
+  <ul>
+    <li><a href="https://osintframework.com" target="_blank" rel="noopener">OSINT Framework</a>: Curated collection of OSINT tools and resources.</li>
+    <li><a href="https://secjuice.com/the-value-of-the-intelligence-cycle/" target="_blank" rel="noopener">SecJuice OSINT Methodology</a>: Practical OSINT collection and analysis methodology.</li>
+    <li><a href="https://www.authentic8.com/blog/osint-for-penetration-testing" target="_blank" rel="noopener">OSINT for Penetration Testing</a>: How OSINT supports penetration testing engagements.</li>
+    <li><a href="https://www.sans.org/reading-room/whitepapers/threatintel/art-osint-38140" target="_blank" rel="noopener">SANS: The Art of OSINT</a>: Comprehensive OSINT whitepaper for security professionals.</li>
+  </ul>
+
+  <div class="reminder-lightblue" style="margin-top: 20px;">
+    <strong>Gateway Criteria:</strong>
+    <span style="display: block; margin-top: 5px;">
+      You are cleared to proceed to the OSINT Cycle module when you can confidently answer all five Knowledge Check questions 
+      and complete the Practical Validation tasks. If any concept is unclear, revisit the relevant sections above before moving on.
+    </span>
+  </div>
+
+      <div class="info-remember" style="margin: 15px 0;">
+        <em>RedOps Reminder:</em> OSINT is a discipline, not a tool. Define your intelligence questions, validate your findings, 
+		and always operate within legal and ethical boundaries. The best OSINT is the intelligence that drives action.
+      </div>
+    </section>
+
+<!-- ============================================================ -->
+<!-- FLOATING NAVIGATION                                           -->
+<!-- ============================================================ -->
+
+    <div class="lesson-nav-container">
+      <a href="https://iscsecurity.org/content/index" class="nav-link-btn">👈 Module Index</a>
+      <a href="https://iscsecurity.org/content/1-ethical-hacking/2-open-source-intelligence/02-open-source-intelligence-cycle" class="nav-link-btn">Next 👉</a>
+    </div>
+
+  </article>
+</main>
+</body>
+</html>

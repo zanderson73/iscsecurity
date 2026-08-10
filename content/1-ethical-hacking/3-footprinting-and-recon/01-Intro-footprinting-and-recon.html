@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Footprinting and Reconnaissance | ISCSECURITY Master Class Series</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="/css/styles.css?v=2026_PRODUCTION_FINAL" />
+</head>
+
+<body class="page-lesson">
+
+<div class="site-topbar" role="note" aria-label="Legal notice">
+  <small class="topbar-note">
+    © 2026 ISCSECURITY · Authorization-first training. All testing must be lawful, scoped, and approved in writing.
+  </small>
+	<nav class="topbar-links" aria-label="Topbar links">
+      <a href="https://iscsecurity.org/index">Home</a>
+      <a href="https://iscsecurity.org/content/index">Content</a>
+	  <a href="https://iscsecurity.org/content/1-ethical-hacking/3-footprinting-and-recon/index">Footprinting &amp; Recon</a>
+      <a href="https://iscsecurity.org/contact">Contact</a>
+    </nav>
+</div>
+
+  <main class="page modules-page" id="main-content">  
+  <article class="lesson-content overlay" tabindex="0" aria-label="Lesson content: Introduction to Footprinting and Reconnaissance">
+
+    <p class="breadcrumb">
+      <a href="https://iscsecurity.org/index">Home</a> →
+        <a href="https://iscsecurity.org/content/index">Content</a> →
+        <a href="https://iscsecurity.org/content/1-ethical-hacking/3-footprinting-and-recon/index">Footprinting &amp; Recon</a> →
+      <span aria-current="page">Page 1</span>
+    </p>
+
+    <h1>Introduction to Footprinting and Reconnaissance</h1>
+	
+	<div class="reminder-auth">
+  <strong>🚨 AUTHORIZED USE ONLY:</strong>
+  <span>
+        All content in this document is for educational and defensive training purposes only. 
+        The adversarial techniques described are derived from real-world tradecraft but 
+        are documented exclusively for <strong>defensive analysis, detection engineering, 
+        and authorized security testing</strong>. Unauthorized deployment of any technique 
+        described may constitute a criminal offense under applicable national and 
+        international cybercrime laws. Always obtain <strong>explicit written authorization</strong> 
+        from the system owner or authorized legal entity before testing, executing, or 
+        simulating any of the techniques outlined in this document.
+    </span>
+	</div>
+
+    <div class="reminder-comp">
+  <strong>🌍 INTERNATIONAL COMPLIANCE NOTICE:</strong>
+  <span>
+    Cybercrime laws vary significantly by jurisdiction. It is your sole responsibility 
+    to understand and comply with the laws applicable to your location, the location 
+    of any target systems, and your organization's policies. When in doubt, 
+    <strong>consult a qualified legal professional</strong> before testing, executing, 
+    or simulating any technique described in this document.
+  </span>
+</div>
+
+<!-- ============================================================ -->
+    <!-- LAB ENVIRONMENT DISCLAIMER & SETUP GUIDANCE                  -->
+    <!-- ============================================================ -->
+
+    <div class="reminder-lab">
+      <strong>🧪 LAB ENVIRONMENT NOTICE:</strong>
+      <span>
+        All practical examples, command-line executions, and scenario-based exercises in this document are demonstrated within the <strong>ISCSEC internal training laboratory</strong>. 
+        This is a controlled, isolated environment that exists solely for educational and defensive training purposes.
+      </span>
+      <br><br>
+      <span>
+        <strong>You do not have access to the ISCSEC lab.</strong> As a learner, you are expected to build and maintain your own isolated lab environment, 
+        replicating the documented topology, IP schemes, and hostname conventions. The ISCSEC lab serves as a <strong>canonical reference topology</strong> 
+        for this training, not a shared or remotely accessible resource.
+      </span>
+      <br><br>
+      <span>
+        <strong>Lab requirements:</strong>
+        <ul>
+          <li>Isolated virtualised environment (e.g., VMware Workstation, VirtualBox, or Hyper-V)</li>
+          <li>Attacker operator platform (e.g., Kali Linux or equivalent)</li>
+          <li>Target Windows host (e.g., CLIENT01 at 172.16.5.60)</li>
+          <li>Internal network with domain controller (DC01 at 172.16.5.25), SQL server (SQL01 at 172.16.5.20), web server (WEB01 at 172.16.5.30), and application server (APP01 at 172.16.5.40)</li>
+          <li>All testing must be conducted within your own isolated network with <strong>explicit written authorization</strong> for any systems involved</li>
+        </ul>
+      </span>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 1: MODULE INTRODUCTION & LEARNING JOURNEY             -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="module-intro">
+      <h2 id="module-intro">1. Module Introduction: Mapping the Battlefield</h2>
+
+      <p>
+        Before an ethical hacker sends a single packet or an adversary launches a single phishing campaign, there is a phase of 
+		quiet, structured information gathering. In military terms, this is <em>intelligence preparation of the battlefield</em>. 
+		In cybersecurity, we call it <strong>footprinting and reconnaissance</strong>.
+      </p>
+
+      <p>
+        Footprinting is the disciplined process of collecting publicly available data about a target organization, its people, and 
+		its technology stack. When done well, it produces a precise map that makes every subsequent phase; scanning, exploitation, 
+		lateral movement, and reporting more accurate, efficient, and defensible.
+      </p>
+
+      <p>
+        In this module, you will learn reconnaissance from two perspectives simultaneously: <strong>the adversary who weaponizes 
+		public data</strong>, and <strong>the defender who must harden that same attack surface</strong>. Each section pairs 
+		real-world case studies with hands-on toolchains, legal guardrails, and defensive countermeasures.
+      </p>
+
+      <p>
+        <strong>By the end of this module, you will be able to:</strong>
+      </p>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table learning-objectives">
+          <thead>
+            <tr>
+              <th>Learning Objective</th>
+              <th>What You Will Practice</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Footprinting Fundamentals</strong></td>
+              <td>Explain core reconnaissance concepts from both attacker and defender perspectives, and distinguish passive, 
+			  semi-active, and active techniques.</td>
+            </tr>
+            <tr>
+              <td><strong>Search Engine Recon</strong></td>
+              <td>Craft advanced queries and search-engine dorks to harvest exposed documents, APIs, and infrastructure metadata 
+			  without touching target systems.</td>
+            </tr>
+            <tr>
+              <td><strong>OSINT Gathering</strong></td>
+              <td>Collect and synthesize intelligence from public records, social networks, code repositories, and image metadata.</td>
+            </tr>
+            <tr>
+              <td><strong>Technical Footprinting</strong></td>
+              <td>Execute Whois, DNS, subdomain enumeration, SSL analysis, and IP geolocation to map domains, network ranges, and 
+			  cloud assets.</td>
+            </tr>
+            <tr>
+              <td><strong>Social Engineering Considerations</strong></td>
+              <td>Identify when human-targeting techniques cross into active interaction, and apply strict authorization and OPSEC 
+			  controls.</td>
+            </tr>
+            <tr>
+              <td><strong>Tooling &amp; Note-Taking</strong></td>
+              <td>Use automated tools to accelerate collection while maintaining structured, legally defensible notes for analysis 
+			  and reporting.</td>
+            </tr>
+            <tr>
+              <td><strong>Best Practices</strong></td>
+              <td>Apply a repeatable methodology that keeps reconnaissance lawful, ethical, and useful for both Red Team engagements and Blue Team hardening.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="reminder-lightblue">
+        <strong>Reminder:</strong><br>
+        A strong assessment starts long before you touch a live service. Footprinting is where you quietly map the terrain so every 
+		later move is informed, intentional, and defensible.
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 2: REAL-WORLD THREAT CONTEXT (WHY THIS MATTERS)      -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="threat-context">
+      <h2 id="threat-context">2. Real-World Threat Context</h2>
+
+      <p>
+        The techniques in this module are not theoretical. The case studies below illustrate how modern adversaries from ransomware 
+		gangs to nation-state actors, invest weeks in reconnaissance before their first malicious action. Understanding their 
+		workflow is essential to replicating it ethically and defending against it effectively.
+      </p>
+
+      <h3>Case Study 1: The Hospitality Heist: MGM / Caesars (2023)</h3>
+      <p>
+        The intrusion group <strong>Scattered Spider</strong> spent weeks mapping MGM and Caesars employees on LinkedIn. By 
+		identifying IT helpdesk staff and their reporting chains, the attackers impersonated employees via voice calls 
+		(vishing) to reset MFA tokens and VPN access. The breach cost MGM over <strong>$100 million</strong> in 
+		operational disruption.
+      </p>
+      <div class="reminder">
+        <strong>Learning Point:</strong> Professional-network reconnaissance directly enables social-engineering initial access. 
+		The weakest link is often the human, not the perimeter.
+      </div>
+
+      <h3>Case Study 2: The Cloud Data Tsunami: Snowflake (2024)</h3>
+      <p>
+        Threat actors (<strong>UNC5537</strong>) used prior stealer-log intelligence and tenant recon to identify accounts lacking 
+		MFA, specifically contractor and service accounts. They exfiltrated data from <strong>~165 customers</strong> including 
+		Ticketmaster and Santander. The attack was surgical because the adversary knew exactly which tenants were soft targets 
+		before authentication.
+      </p>
+      <div class="reminder">
+        <strong>Learning Point:</strong> Identity reconnaissance + breach-data cross-correlation = mass cloud compromise without 
+		vulnerability exploitation.
+      </div>
+
+      <h3>Case Study 3: The Tenant Trust Pivot: Midnight Blizzard / SVR (2024–2025)</h3>
+      <p>
+        Russian state actors performed sustained reconnaissance against Microsoft 365 tenants. By enumerating public Entra ID 
+		endpoints and OAuth app registrations, they identified trust relationships between organizations and Microsoft services. 
+		They then created malicious OAuth applications and tricked low-privilege users into granting consent pivoting from recon 
+		to persistent cloud access.
+      </p>
+      <div class="reminder">
+        <strong>Learning Point:</strong> Cloud configuration metadata is a first-class intelligence target. Trust relationships are 
+		the new attack surface.
+      </div>
+
+      <h3>Case Study 4: AI-Enhanced Social Engineering (2025–2026)</h3>
+      <p>
+        Adversaries now deploy LLM pipelines to ingest earnings calls, SEC filings, job postings (which enumerate EDR/SIEM versions)
+		and GitHub commit histories. This produces synthetic org charts, technology stack maps, and cloned executive voices. 
+		In 2025, a fintech firm was compromised after attackers used AI-generated audio trained on public conference recordings to 
+		authorize a fraudulent wire transfer.
+      </p>
+      <div class="reminder">
+        <strong>Learning Point:</strong> AI scales OSINT from "manual browsing" to automated corporate intelligence at nation-state 
+		fidelity.
+      </div>
+
+      <h3>Case Study 5: The Staging Environment Goldmine (Ongoing)</h3>
+      <p>
+        Certificate Transparency logs and passive DNS routinely expose <code>staging-api</code>, <code>dev-admin</code>, and <code>
+		legacy-backup</code> subdomains. These endpoints often lack WAFs, run outdated builds, and use weaker authentication. 
+		Multiple 2025 ransomware incidents traced initial access to a forgotten Jenkins instance discovered via subdomain 
+		enumeration.
+      </p>
+      <div class="reminder">
+        <strong>Learning Point:</strong> Production is hardened; staging and dev are where adversaries live for months undetected.
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 3: TTP-1 PASSIVE OSINT & SEARCH ENGINE RECON         -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="osint-ttp">
+      <h2 id="osint-ttp">3. TTP-1: Passive OSINT &amp; Search Engine Reconnaissance</h2>
+
+      <p>
+        <strong>Concept:</strong> Passive footprinting generates <strong>no packets to the target's infrastructure</strong>. 
+		The investigator relies entirely on third-party indexes, cached content, and public archives. This is the safest 
+		phase for operators and the hardest for defenders to detect.
+      </p>
+
+      <h3>3.1 Search Engine Dorking</h3>
+      <p>
+        Search engines index far more than web pages. PDFs, spreadsheets, API documentation, and configuration files often leak 
+		internal usernames, software versions, or network diagrams. Advanced search operators, sometimes called <em>Google dorks
+		</em>, allow precise targeting of these exposures.
+      </p>
+      <ul>
+        <li><strong>File-type harvesting:</strong> Query for exposed documents that reveal internal structure.</li>
+        <li><strong>Cache evasion:</strong> Use archived and cached sources to retrieve documents the target thought they deleted.</li>
+        <li><strong>Job posting analysis:</strong> "Hiring SOC Analyst with CrowdStrike Falcon v7" tells an adversary exactly which 
+		EDR evasion toolkit to bring.</li>
+      </ul>
+
+<pre><code class="language-bash"># Identify exposed documents via search engine recon
+web_search --query "site:target.com filetype:pdf intitle:confidential"
+
+# Find exposed API documentation or swagger endpoints
+web_search --query "site:target.com (swagger OR api-docs OR openapi) (json OR yaml)"
+
+# Identify technology stack leakage via job postings
+web_search --query "\"Target Corp\" ( CrowdStrike OR SentinelOne OR Splunk ) (engineer OR analyst)"
+</code></pre>
+
+      <div class="reminder-lightblue">
+        <strong>Check Your Understanding:</strong><br>
+        Why might searching for <code>filetype:pdf site:target.com</code> reveal more sensitive information than a standard Google 
+		search of the target's homepage?
+      </div>
+
+      <h3>3.2 Code Repository &amp; Paste Site Recon</h3>
+      <p>
+        Developers frequently commit hardcoded credentials, internal hostnames, and infrastructure-as-code templates. Paste sites 
+		serve as temporary drop-zones for breached credentials or troubleshooting output before formal leak databases index them.
+      </p>
+
+<pre><code class="language-bash"># Search for exposed internal hostnames or credentials in public repos
+web_search --query "site:github.com \"target.com\" (password OR api_key OR secret) extension:yml"
+
+# Direct fetch of a suspicious paste (if URL is known)
+curl --url "https://pastebin.com/raw/XXXXXX"
+</code></pre>
+
+      <h3>3.3 Metadata &amp; Image Intelligence</h3>
+      <p>
+        Images and documents carry hidden metadata. A press-release photo may contain GPS coordinates. A PDF's author field may 
+		reveal an internal Active Directory username. Understanding how to extract and interpret this data is a core OSINT skill.
+      </p>
+
+<pre><code class="language-bash"># Extract EXIF from a leaked corporate image
+image_exif --url "https://target.com/press/photo.jpg"
+</code></pre>
+
+      <div class="reminder-opsec">
+        <strong>OPSEC Principle:</strong><br>
+        Always query search engines and archival services through engagement-specific proxies or burner infrastructure. Your Google 
+		account, IP address, and browser fingerprint are logged and correlated.
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 4: TTP-2 TECHNICAL INFRASTRUCTURE RECON             -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="technical-recon">
+      <h2 id="technical-recon">4. TTP-2: Technical Infrastructure Reconnaissance</h2>
+
+      <p>
+        <strong>Concept:</strong> Once you know <em>who</em> and <em>what</em>, you must map <em>where</em> it lives. This phase 
+		transitions from purely passive OSINT to semi-active reconnaissance: DNS queries, certificate lookups, and service 
+		fingerprinting. In many jurisdictions, these activities occupy a legal grey zone unless explicitly authorized in 
+		your Rules of Engagement.
+      </p>
+
+      <h3>4.1 Domain &amp; Registration Intelligence (WHOIS / RDAP)</h3>
+      <p>
+        WHOIS and RDAP (Registration Data Access Protocol) reveal registration details, name servers, and historical contacts. 
+		Even when privacy protection is enabled, historical records, DNS delegations, and transfer histories frequently leak 
+		organizational pivots.
+      </p>
+
+<pre><code class="language-bash"># Retrieve current registration and name-server details
+whois --domain target.com
+
+# Cross-reference historical registrar contacts for pivoting
+web_search --query "target.com historical whois registrant email"
+</code></pre>
+
+      <h3>4.2 DNS Resolution &amp; Geolocation Mapping</h3>
+      <p>
+        Mapping domains to IPs reveals hosting providers, CDN usage, and geographic concentration of assets. IP geolocation informs 
+		physical social engineering, legal jurisdiction selection, and attack-path planning.
+      </p>
+
+<pre><code class="language-bash"># Resolve domain to IP
+get_domain_ip --domain target.com
+
+# Map IP geolocation for infrastructure targeting
+get_ip_geolocation --ip_address "203.0.113.45"
+</code></pre>
+
+      <h3>4.3 Subdomain Enumeration &amp; Certificate Transparency</h3>
+      <p>
+        Subdomains represent the largest expansion of attack surface. Names like <code>dev</code>, <code>staging</code>, 
+		<code>vpn</code>, and <code>backup</code> frequently host weaker authentication or older software. Certificate 
+		Transparency logs are passively harvested and cannot be disabled by defenders without breaking TLS.
+      </p>
+
+<pre><code class="language-bash"># Enumerate subdomains via passive DNS aggregation
+subfinder --target_domain target.com
+
+# Reference external CT log search (conceptual link)
+# https://crt.sh/?q=%.target.com
+</code></pre>
+
+      <h3>4.4 SSL/TLS &amp; Service Fingerprinting</h3>
+      <p>
+        TLS configuration exposes legacy protocols, cipher-suite preferences, and certificate SANs that may reveal internal service 
+		names. Web fingerprinting identifies server software, frameworks, and missing security headers critical for tailoring 
+		exploit selection.
+      </p>
+
+<pre><code class="language-bash"># Analyze TLS configuration and supported cipher suites
+sslscan --target_domain target.com
+
+# Identify server software, frameworks, and security headers
+web_fingerprint --host target.com
+</code></pre>
+
+      <div class="reminder-lightblue">
+        <strong>Check Your Understanding:</strong><br>
+        A <code>subfinder</code> scan reveals <code>legacy-api.target.com</code> resolving to an IP in a different country than the 
+		main website. What risks might this subdomain present, and why would defenders have difficulty monitoring it?
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 5: TTP-3 HUMAN ATTACK SURFACE & IDENTITY RECON      -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="human-attack-surface">
+      <h2 id="human-attack-surface">5. TTP-3: Human Attack Surface &amp; Identity Reconnaissance</h2>
+
+      <p>
+        <strong>Concept:</strong> The modern perimeter is identity. Adversaries invest heavily in mapping employees, contractors, 
+		and organizational hierarchies because a single compromised identity bypasses firewalls, EDR, and network segmentation. 
+		As an ethical operator, you must understand how to perform this mapping and when doing so requires explicit written 
+		authorization.
+      </p>
+
+      <h3>5.1 Email Enumeration &amp; Pattern Analysis</h3>
+      <p>
+        Valid email lists enable password spraying, spear-phishing, and MFA fatigue attacks. Common patterns (e.g., <code>
+		firstname.lastname</code>) can be extrapolated from a single leaked address.
+      </p>
+
+<pre><code class="language-bash"># Harvest valid corporate emails via public sources and APIs
+emailbook --domain target.com --max_results 200
+
+# Validate whether harvested emails have breach exposure
+leaks_search --query "user@target.com"
+</code></pre>
+
+      <h3>5.2 Social Engineering Considerations</h3>
+      <ul>
+        <li><strong>Requires Explicit Authorization:</strong> Any interaction with target personnel; email, phone, social media outreach, or physical pretexting must be covered by written RoE. Unsolicited contact may violate anti-stalking, fraud, or computer-misuse laws.</li>
+        <li><strong>Professional Network Mapping:</strong> LinkedIn, conference speaker lists, and certification databases build trust profiles and reveal internal team structures.</li>
+        <li><strong>AI-Enhanced Social Engineering:</strong> LLMs generate context-aware phishing lures based on recent GitHub commits or internal jargon discovered during recon.</li>
+      </ul>
+
+      <div class="reminder-opsec">
+        <strong>OPSEC Principle:</strong><br>
+        If you interact with a target employee using a synthetic identity, assume that interaction is preserved indefinitely. 
+		Burner accounts must be fully isolated; no shared IP, device, or payment method with your real identity.
+      </div>
+
+      <div class="reminder-lightblue">
+        <strong>Check Your Understanding:</strong><br>
+        During reconnaissance, you discover a Help Desk manager's email via LinkedIn. You also find their password in a 2023 breach 
+		dump. Under what conditions is it legally and ethically permissible to attempt authentication with these credentials?
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 6: OPSEC & LEGAL BOUNDARIES FOR RECON               -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="opsec-recon">
+      <h2 id="opsec-recon">6. OPSEC &amp; Legal Boundaries for Reconnaissance</h2>
+
+      <p>
+        Ethical footprinting requires a clear understanding of where reconnaissance ends and unauthorized access begins. This section establishes the guardrails that keep your investigation lawful, scoped, and defensible.
+      </p>
+
+      <h3>6.1 The Passive vs. Active Boundary</h3>
+      <ul>
+        <li><strong>Passive OSINT</strong> (search engines, public records, CT logs) is generally lawful in most jurisdictions but may violate platform Terms of Service.</li>
+        <li><strong>Semi-Active Recon</strong> (DNS queries, WHOIS lookups, <code>subfinder</code>) often leaves logs at third-party resolvers but typically does not alert the target directly.</li>
+        <li><strong>Active Scanning</strong> (port scans, vulnerability probes) crosses into unauthorized access territory under laws like the U.S. CFAA and UK Computer Misuse Act unless explicitly authorized.</li>
+      </ul>
+
+      <h3>6.2 Attribution Controls</h3>
+      <ul>
+        <li><strong>Proxy Isolation:</strong> Route all automated recon through residential or engagement-specific proxies. Corporate egress IPs link your organization directly to target intelligence gathering.</li>
+        <li><strong>Rate Limiting &amp; Rotation:</strong> Aggressive subdomain enumeration or search-engine scraping triggers CAPTCHA and IP bans. Rotate User-Agents and throttle requests.</li>
+        <li><strong>API Key Segregation:</strong> Paid recon APIs should be registered with burner identities and non-attributional payment.</li>
+      </ul>
+
+<pre><code class="language-bash"># Route tool queries through engagement proxy
+export HTTPS_PROXY=http://engagement-proxy:3128
+subfinder --target_domain target.com
+
+# Rotate Tor circuit between target queries
+torsocks subfinder --target_domain target.com
+</code></pre>
+
+      <h3>6.3 Data Hygiene for Recon Artifacts</h3>
+      <ul>
+        <li>Store recon notes, screenshots, and structured output (JSON, CSV) in an encrypted container.</li>
+        <li>Segregate recon data by engagement. Never retain employee PII, family photos, or out-of-scope corporate documents after 
+		the engagement concludes.</li>
+      </ul>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 7: QUICK TRIAGING CHECKLIST                          -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="triage-checklist">
+      <h2 id="triage-checklist">7. Quick Triaging Checklist</h2>
+
+      <ul>
+        <li>
+          <strong>Scope relevance:</strong>
+          Does the discovered asset (subdomain, email, credential, document) belong to the in-scope target or a third party? If out 
+		  of scope, cease collection immediately.
+        </li>
+        <li>
+          <strong>Freshness vs. staleness:</strong>
+          Prioritize recently discovered subdomains, live stealer-log credentials, and active job postings over archived data from 
+		  &gt;2 years ago.
+        </li>
+        <li>
+          <strong>Cross-verification:</strong>
+          Confirm critical findings across at least two independent sources before reporting or weaponizing.
+        </li>
+        <li>
+          <strong>Synthetic dump check:</strong>
+          Validate that breached credential lists are not AI-generated synthetic noise. Look for consistent hash types, realistic 
+		  password complexity, and corroborating breach sources.
+        </li>
+        <li>
+          <strong>Document provenance:</strong>
+          Record the exact query, timestamp, tool version, and source URL for every artifact. Chain of custody matters in court and 
+		  in client reporting.
+        </li>
+      </ul>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 8: QUICK REFERENCE — ADVERSARIAL RECON TOOLKIT        -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="quickref">
+      <h2 id="quickref">8. Quick Reference: Adversarial Reconnaissance Toolkit</h2>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table">
+          <thead>
+            <tr>
+              <th>Objective</th>
+              <th>Command / Tool</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Discover subdomains</td>
+              <td><code>subfinder --target_domain target.com</code></td>
+            </tr>
+            <tr>
+              <td>Resolve domain to IP</td>
+              <td><code>get_domain_ip --domain target.com</code></td>
+            </tr>
+            <tr>
+              <td>Geolocate infrastructure</td>
+              <td><code>get_ip_geolocation --ip_address &lt;IP&gt;</code></td>
+            </tr>
+            <tr>
+              <td>WHOIS / RDAP registration intel</td>
+              <td><code>whois --domain target.com</code></td>
+            </tr>
+            <tr>
+              <td>SSL/TLS configuration &amp; certificate intel</td>
+              <td><code>sslscan --target_domain target.com</code></td>
+            </tr>
+            <tr>
+              <td>Web application fingerprinting</td>
+              <td><code>web_fingerprint --host target.com</code></td>
+            </tr>
+            <tr>
+              <td>Enumerate valid emails</td>
+              <td><code>emailbook --domain target.com --max_results 200</code></td>
+            </tr>
+            <tr>
+              <td>Search engine dorking</td>
+              <td><code>web_search --query "site:target.com filetype:pdf"</code></td>
+            </tr>
+            <tr>
+              <td>Dark web target mentions</td>
+              <td><code>run_darkdump --query "target.com" --amount 20</code></td>
+            </tr>
+            <tr>
+              <td>Breach exposure validation</td>
+              <td><code>leaks_search --query "user@target.com"</code></td>
+            </tr>
+            <tr>
+              <td>Image metadata extraction</td>
+              <td><code>image_exif --url "https://target.com/photo.jpg"</code></td>
+            </tr>
+            <tr>
+              <td>Direct endpoint probing</td>
+              <td><code>curl --url "https://target.com/robots.txt"</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 9: DEFENSIVE COUNTERMEASURES & THREAT MAPPING         -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="defense">
+      <h2 id="defense">9. Defensive Countermeasures &amp; Threat Mapping</h2>
+
+      <p>
+        Defenders cannot prevent adversaries from reading public data, but they can increase the cost of reconnaissance and detect 
+		the transition from recon to exploitation.
+      </p>
+
+      <h3>Defensive Best Practices</h3>
+      <ul>
+        <li><strong>Attack Surface Reduction:</strong> Remove stale subdomains, expired certificates, and orphaned DNS records. If it resolves, it will be found.</li>
+        <li><strong>Employee Exposure Minimization:</strong> Limit detailed org charts on public websites; use role-based email aliases instead of personal addresses in public directories.</li>
+        <li><strong>Certificate Transparency Monitoring:</strong> Monitor CT logs for unauthorized certificates issued for your domains, a leading indicator of subdomain takeover or rogue infrastructure.</li>
+        <li><strong>Code &amp; Document Hygiene:</strong> Audit GitHub/GitLab orgs for secrets; strip metadata from published PDFs and images.</li>
+        <li><strong>Job Posting OpSec:</strong> Avoid listing specific security product versions. "Experience with enterprise EDR" is safer than "CrowdStrike Falcon v7.2."</li>
+        <li><strong>Geographic &amp; Hosting Obfuscation:</strong> Use global CDNs and avoid hostnames that reveal data-center locations.</li>
+      </ul>
+
+      <h3>Consolidated Adversary TTP → Defensive Control Matrix</h3>
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table">
+          <thead>
+            <tr>
+              <th>Adversary Technique</th>
+              <th>Observable Indicator</th>
+              <th>Defensive Action / Detection</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Subdomain enumeration (<code>subfinder</code>)</td>
+              <td>CT log alerts; DNS query spikes from unknown resolvers</td>
+              <td>Monitor CT logs; remove stale DNS entries; implement cert transparency alerting</td>
+            </tr>
+            <tr>
+              <td>WHOIS / RDAP recon (<code>whois</code>)</td>
+              <td>Queries to RDAP/WHOIS servers for domain records</td>
+              <td>Enable privacy protection; monitor historical WHOIS data leakage</td>
+            </tr>
+            <tr>
+              <td>Employee email enumeration (<code>emailbook</code>)</td>
+              <td>No direct server-side logs (uses third-party APIs)</td>
+              <td>Limit email exposure in public directories; use role-based aliases</td>
+            </tr>
+            <tr>
+              <td>Search engine dorking (<code>web_search</code>)</td>
+              <td>HTTP 200 probes to sensitive URLs in web logs</td>
+              <td>Require authentication on all non-public assets</td>
+            </tr>
+            <tr>
+              <td>GitHub / code repo recon</td>
+              <td>Public commit history leaks; secret-scanning alerts</td>
+              <td>Audit org repos for secrets; implement pre-commit hooks (e.g., gitleaks, truffleHog)</td>
+            </tr>
+            <tr>
+              <td>Infrastructure geolocation</td>
+              <td>Public geolocation queries (not directly observable)</td>
+              <td>Distribute infrastructure across regions; avoid geographic hints in hostnames</td>
+            </tr>
+            <tr>
+              <td>SSL/TLS fingerprinting (<code>sslscan</code>)</td>
+              <td>TLS handshake anomalies; broad cipher-suite probes</td>
+              <td>Keep TLS versions current; minimize cipher-suite variance that reveals legacy systems</td>
+            </tr>
+            <tr>
+              <td>Social media / AI-driven profiling</td>
+              <td>Connection requests from fake profiles; duplicate executive accounts</td>
+              <td>Employee training; verify identity for sensitive requests out-of-band</td>
+            </tr>
+            <tr>
+              <td>Metadata harvesting (<code>image_exif</code>)</td>
+              <td>Excessive scraping of press-kit images or document downloads</td>
+              <td>Strip EXIF from published images; sanitize document properties before release</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="info-remember">
+        <strong>Blue Team Note:</strong><br>
+        Reconnaissance is the only phase where the adversary is more vulnerable than you. They rely on third-party platforms; CT 
+		logs, search indexes, social networks that you can monitor. Focus on <strong>reducing your attackable footprint</strong> 
+		rather than trying to hide entirely. An asset that does not exist cannot be fingerprinted.
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 10: SUPPORTING RESOURCES & RECOMMENDED READING        -->
+    <!-- ============================================================ -->
+
+    <section class="resources" aria-label="Supporting resources">
+      <h2>10. Supporting Resources &amp; Recommended Reading</h2>
+      <ul>
+        <li>
+          <a href="https://owasp.org/www-project-web-security-testing-guide/latest/01-Information_Gathering/01-Information_Gathering" target="_blank" rel="noopener">
+            OWASP Web Security Testing Guide – Information Gathering
+          </a>
+          <small class="resource-path">
+            Path: Practical overview of web footprinting and OSINT techniques.
+          </small>
+        </li>
+        <li>
+          <a href="https://csrc.nist.gov/publications/detail/sp/800-115/final" target="_blank" rel="noopener">
+            NIST SP 800-115 – Technical Guide to Information Security Testing
+          </a>
+          <small class="resource-path">
+            Path: Methodological view of reconnaissance within security testing.
+          </small>
+        </li>
+        <li>
+          <a href="https://attack.mitre.org/" target="_blank" rel="noopener">
+            MITRE ATT&amp;CK Framework
+          </a>
+          <small class="resource-path">
+            Path: TTP taxonomy for adversary reconnaissance techniques (TA0043: Reconnaissance).
+          </small>
+        </li>
+        <li>
+          <a href="https://osintframework.com/" target="_blank" rel="noopener">
+            OSINT Framework
+          </a>
+          <small class="resource-path">
+            Path: Curated directory of OSINT tools and resources for manual investigation.
+          </small>
+        </li>
+        <li>
+          <a href="https://www.maltego.com/blog/open-source-intelligence-osint-guide/" target="_blank" rel="noopener">
+            Maltego OSINT Field Guide (Blog)
+          </a>
+          <small class="resource-path">
+            Path: Practical examples of OSINT-driven footprinting and link analysis.
+          </small>
+        </li>
+        <li>
+          <a href="https://www.peeringdb.com/" target="_blank" rel="noopener">PeeringDB</a>
+          <small class="resource-path">
+            Path: Global peering and IXP intelligence database for infrastructure mapping.
+          </small>
+        </li>
+        <li>
+          <a href="https://stat.ripe.net/" target="_blank" rel="noopener">RIPE Stat</a>
+          <small class="resource-path">
+            Path: Routing statistics, RPKI validation, and announced prefixes.
+          </small>
+        </li>
+        <li>
+          <a href="https://crt.sh/" target="_blank" rel="noopener">crt.sh</a>
+          <small class="resource-path">
+            Path: Certificate Transparency log search engine for passive subdomain discovery.
+          </small>
+        </li>
+      </ul>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 11: CHAPTER SUMMARY                                  -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="chapter-summary">
+      <h2 id="chapter-summary">11. Chapter Summary</h2>
+
+      <p>
+        By completing this chapter you should now be able to:
+      </p>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin: 20px 0;">
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Explain footprinting fundamentals.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;">Distinguish passive, semi-active, and active reconnaissance from both attacker and defender perspectives.</span></span>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Execute search engine reconnaissance.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;">Craft advanced dorks, harvest exposed documents, and analyze code repositories and paste sites.</span></span>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Perform technical infrastructure reconnaissance.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;">WHOIS, DNS, subdomain enumeration, SSL/TLS analysis, and IP geolocation.</span></span>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Map the human attack surface.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;">Email enumeration, professional network mapping, and AI-enhanced social engineering considerations.</span></span>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Apply OPSEC and legal boundaries.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;">Passive vs. active boundary, attribution controls, proxy isolation, and data hygiene.</span></span>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Implement defensive countermeasures.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;">Attack surface reduction, CT monitoring, job posting opsec, and TTP mapping.</span></span>
+        </div>
+
+      </div>
+
+      <div class="info-remember" style="margin: 15px 0;">
+        <strong>Why This Matters:</strong>
+        <span style="display: block; margin-top: 5px;">
+          Footprinting and reconnaissance is the disciplined foundation of every advanced security assessment and red-team 
+		  engagement. Mastery of these techniques allows you to quietly build comprehensive target profiles using publicly 
+		  available data, third-party services, and carefully scoped interactions, then translate that same knowledge into 
+		  defensive hardening strategies that raise the cost for real-world threat actors.
+        </span>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 12: KEY TAKEAWAYS                                    -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="takeaways">
+      <h2 id="takeaways">12. Key Takeaways</h2>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table">
+          <thead>
+            <tr>
+              <th>Concept</th>
+              <th>Why It Matters</th>
+              <th>Security Impact</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Passive Reconnaissance Is the Safest Phase</strong></td>
+              <td>Generates no packets to the target's infrastructure; relies entirely on third-party indexes and public archives.</td>
+              <td>Adversaries map your entire external footprint without touching your infrastructure.</td>
+            </tr>
+            <tr>
+              <td><strong>Search Engines Index More Than Web Pages</strong></td>
+              <td>PDFs, spreadsheets, and configuration files leak internal usernames, software versions, and network diagrams.</td>
+              <td>Job postings alone can reveal EDR versions, enabling targeted evasion toolkits.</td>
+            </tr>
+            <tr>
+              <td><strong>Subdomains Are the Largest Attack Surface</strong></td>
+              <td>Names like <code>dev</code>, <code>staging</code>, and <code>backup</code> frequently host weaker authentication 
+			  or older software.</td>
+              <td>Production is hardened; staging and dev are where adversaries live for months undetected.</td>
+            </tr>
+            <tr>
+              <td><strong>CT Logs Are Passively Harvested</strong></td>
+              <td>Certificate Transparency logs cannot be disabled by defenders without breaking TLS.</td>
+              <td>CT logs reveal subdomains and origin IPs behind CDNs, bypassing layer-7 protection.</td>
+            </tr>
+            <tr>
+              <td><strong>Identity Is the Modern Perimeter</strong></td>
+              <td>A single compromised identity bypasses firewalls, EDR, and network segmentation.</td>
+              <td>Professional-network reconnaissance directly enables social-engineering initial access.</td>
+            </tr>
+            <tr>
+              <td><strong>AI Scales OSINT to Nation-State Fidelity</strong></td>
+              <td>LLM pipelines automate synthetic org charts, technology stack maps, and cloned executive voices.</td>
+              <td>AI-generated audio trained on public conference recordings can authorize fraudulent transfers.</td>
+            </tr>
+            <tr>
+              <td><strong>OPSEC Separates Professionals from Amateurs</strong></td>
+              <td>Corporate egress IPs link your organization directly to target intelligence gathering.</td>
+              <td>Proxies, burner infrastructure, and API key segregation are non-negotiable for operational security.</td>
+            </tr>
+            <tr>
+              <td><strong>Defenders Must Monitor CT Logs</strong></td>
+              <td>Unauthorized certificates issued for your domains are a leading indicator of subdomain takeover.</td>
+              <td>Monitor CT logs proactively to detect reconnaissance before it escalates.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 13: KNOWLEDGE CHECK                                  -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="knowledge-check-2">
+      <h2 id="knowledge-check-2">13. Knowledge Check</h2>
+
+      <p>
+        Before moving on to the next section, take a moment to reflect on the key concepts
+        covered in this chapter.
+      </p>
+
+      <div class="card">
+        <h3>Reflection Questions</h3>
+        <ol>
+          <li>
+            <strong>Why is passive reconnaissance considered the lowest-risk phase of an engagement?</strong>
+            <br>
+            <span style="color: #aaa; font-size: 0.9rem;">
+              Consider the absence of packets to target infrastructure and the use of third-party indexes.
+            </span>
+          </li>
+          <li>
+            <strong>How can an adversary use Certificate Transparency logs to discover subdomains?</strong>
+            <br>
+            <span style="color: #aaa; font-size: 0.9rem;">
+              Think about crt.sh, wildcard certificates, and subdomain filtering.
+            </span>
+          </li>
+          <li>
+            <strong>What OPSEC measures are essential when conducting search engine reconnaissance?</strong>
+            <br>
+            <span style="color: #aaa; font-size: 0.9rem;">
+              Consider proxy routing, burner infrastructure, and browser fingerprint isolation.
+            </span>
+          </li>
+          <li>
+            <strong>Why should defenders monitor Certificate Transparency logs for their own domains?</strong>
+            <br>
+            <span style="color: #aaa; font-size: 0.9rem;">
+              Think about unauthorized certificates, subdomain takeover, and rogue infrastructure.
+            </span>
+          </li>
+          <li>
+            <strong>Describe the OPSEC failures that allowed Scattered Spider to succeed in the MGM breach.</strong>
+            <br>
+            <span style="color: #aaa; font-size: 0.9rem;">
+              Consider employee exposure, vishing, and MFA reset procedures.
+            </span>
+          </li>
+        </ol>
+      </div>
+
+      <div class="card">
+        <h3>Scenario-Based Question</h3>
+        <p>
+          <strong>Scenario:</strong> You are a Red Team operator tasked with mapping the external attack surface
+          of a mid-sized technology company. You have been authorized to perform passive reconnaissance only.
+          The company uses Cloudflare for DNS and has recently acquired a smaller startup.
+        </p>
+        <p><strong>Task:</strong> Design a complete footprinting workflow using the techniques covered in this chapter.</p>
+      </div>
+
+      <div class="info-remember">
+        <strong>Suggested Approach:</strong>
+        <ul>
+          <li><strong>Phase 1:</strong> Search engine dorking to identify exposed documents, job postings, and technology stack 
+		  indicators.</li>
+          <li><strong>Phase 2:</strong> Code repository and paste site recon for internal hostnames and credentials.</li>
+          <li><strong>Phase 3:</strong> Image and metadata extraction from public-facing documents and press photos.</li>
+          <li><strong>Phase 4:</strong> WHOIS/RDAP queries to identify domain registration details and historical pivots.</li>
+          <li><strong>Phase 5:</strong> DNS resolution and geolocation mapping for hosting providers and CDN usage.</li>
+          <li><strong>Phase 6:</strong> Subdomain enumeration via CT logs and passive DNS aggregation.</li>
+          <li><strong>Phase 7:</strong> SSL/TLS and service fingerprinting to identify legacy protocols and security headers.</li>
+          <li><strong>Phase 8:</strong> Email enumeration and professional network mapping for social engineering targeting.</li>
+        </ul>
+      </div>
+
+      <div class="reminder-lightblue">
+        <strong>Gateway Criteria:</strong><br>
+        <span>Move on to the next section when you can confidently answer
+        all five reflection questions and explain your rationale for the scenario-based question.
+        <br>If any concept is unclear, revisit the relevant sections above before moving on.</span>
+      </div>
+
+      <div class="info-remember">
+        <em>RedOps Reminder:</em> A strong assessment starts long before you touch a live service. Footprinting is where you 
+		quietly map the terrain so every later move is informed, intentional, and defensible. Use unique identifiers, scrub 
+		metadata, verify before you act and never exceed written authorization.
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- FLOATING NAVIGATION                                           -->
+    <!-- ============================================================ -->
+
+    <div class="lesson-nav-container">
+      <a href="https://iscsecurity.org/content/1-ethical-hacking/3-footprinting-and-recon/index" class="nav-link-btn">👈 Module Index</a>
+      <a href="https://iscsecurity.org/content/1-ethical-hacking/3-footprinting-and-recon/02-footprinting-concepts" class="nav-link-btn">Next 👉</a>
+    </div>
+  </article>
+</main>
+</body>
+</html>
