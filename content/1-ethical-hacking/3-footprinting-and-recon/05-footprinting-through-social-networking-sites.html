@@ -1,0 +1,1130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Footprinting through Social Networking Sites | ISCSECURITY Master Class Series</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="/css/styles.css?v=2026_PRODUCTION_FINAL" />
+  
+  <!-- MemberSpace -->
+  <script>
+    window.MemberSpace = window.MemberSpace || { subdomain: "iscsecurity" };
+    (function(d){
+      var s = d.createElement("script");
+      s.src = "https://cdn.memberspace.com/scripts/widgets.js";
+      s.async = true;
+      d.head.appendChild(s);
+    })(document);
+  </script>
+  
+</head>
+
+<body class="page-lesson">
+
+<div class="site-topbar" role="note" aria-label="Legal notice">
+  <small class="topbar-note">
+    © 2026 ISCSECURITY · Authorization-first training. All testing must be lawful, scoped, and approved in writing.
+  </small>
+	<nav class="topbar-links" aria-label="Topbar links">
+      <a href="https://iscsecurity.org/index">Home</a>
+      <a href="https://iscsecurity.org/content/index">Content</a>
+	  <a href="https://iscsecurity.org/content/1-ethical-hacking/3-footprinting-and-recon/index">Footprinting &amp; Recon</a>
+      <a href="https://iscsecurity.org/contact">Contact</a>
+    </nav>
+</div>
+
+  <main class="page modules-page no-shift" id="ethical-hacking-training-content" data-ms-content="members-only">
+  <article class="lesson-content overlay" tabindex="0" aria-label="Lesson content: Footprinting through Social Networking Sites">
+
+    <p class="breadcrumb">
+      <a href="https://iscsecurity.org/index">Home</a> →
+        <a href="https://iscsecurity.org/content/index">Content</a> →
+        <a href="https://iscsecurity.org/content/1-ethical-hacking/3-footprinting-and-recon/index">Footprinting &amp; Recon</a> →
+      <span aria-current="page">Page 5</span>
+    </p>
+
+    <h1>Footprinting through Social Networking Sites</h1>
+	
+	<div class="reminder-auth">
+  <strong>🚨 AUTHORIZED USE ONLY:</strong>
+  <span>
+        All content in this document is for educational and defensive training purposes only. 
+        The adversarial techniques described are derived from real-world tradecraft but 
+        are documented exclusively for <strong>defensive analysis, detection engineering, 
+        and authorized security testing</strong>. Unauthorized deployment of any technique 
+        described may constitute a criminal offense under applicable national and 
+        international cybercrime laws. Always obtain <strong>explicit written authorization</strong> 
+        from the system owner or authorized legal entity before testing, executing, or 
+        simulating any of the techniques outlined in this document.
+    </span>
+	</div>
+
+    <div class="reminder-comp">
+  <strong>🌍 INTERNATIONAL COMPLIANCE NOTICE:</strong>
+  <span>
+    Cybercrime laws vary significantly by jurisdiction. It is your sole responsibility 
+    to understand and comply with the laws applicable to your location, the location 
+    of any target systems, and your organization's policies. When in doubt, 
+    <strong>consult a qualified legal professional</strong> before testing, executing, 
+    or simulating any technique described in this document.
+  </span>
+</div>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 1: OVERVIEW & THREAT LANDSCAPE                       -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="overview-threat">
+      <h2 id="overview-threat">1. Overview &amp; Threat Landscape</h2>
+
+      <p>
+        Social networking services (SNS) are high-yield reconnaissance targets because they expose the <em>human attack surface
+		</em>; names, roles, relationships, sentiment, geolocation, and organisational structure. Modern adversaries (APTs, 
+		ransomware affiliates, and BEC groups) do not merely "browse profiles." They automate large-scale correlation, 
+		weaponise AI-generated deepfakes for pretexting, and pivot from personal leaks into corporate credentials.
+      </p>
+
+      <p>
+        Common platforms of intelligence value include LinkedIn, X (Twitter), Instagram, Facebook, TikTok, Reddit, Strava, and 
+		GitHub. Many posts are indexed by search engines or archived by third parties (Wayback Machine, Shadow Library), 
+		allowing anonymous, non-authenticated collection even if the original post is later deleted.
+      </p>
+
+      <div class="redblue-reminder">
+  <strong>RedOps/BlueOps:</strong>
+  <span style="color: #aaa;">
+    Every piece of data you can harvest as a <span class="red-text">Red Operator</span> is a vulnerability a 
+    <span class="blue-text">Blue Operator</span> must learn to strip, obscure, or monitor. 
+    Reconnaissance is a precursor to phishing, vishing, physical intrusion, and supply-chain compromise.
+  </span>
+</div>
+</section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 2: ADVERSARIAL METHODOLOGY — PHASED RECON            -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="adversarial-methodology">
+      <h2 id="adversarial-methodology">2. Adversarial Methodology: Phased Recon</h2>
+
+      <p>Real-world operators follow a phased approach rather than ad-hoc searching.</p>
+
+      <ol>
+        <li><strong>Phase 1: Target Scoping &amp; Infrastructure Mapping</strong>; Identify target domains, naming conventions, and official corporate social presence.</li>
+        <li><strong>Phase 2: Passive Enumeration (No Authentication)</strong>; Search engine dorking, archived content, public APIs, and aggregator sites. No direct platform interaction occurs.</li>
+        <li><strong>Phase 3: Active Enumeration (Authenticated / Sock Puppet)</strong>; Create and age alias accounts to view connection graphs, comment histories, and "friends-only" content.</li>
+        <li><strong>Phase 4: Content Extraction &amp; Pivoting</strong>; Download media for EXIF analysis, correlate usernames across platforms, and extract geolocation markers.</li>
+        <li><strong>Phase 5: Relationship Graphing</strong>; Build organisational charts from connection metadata (who follows whom, endorsements, tags).</li>
+        <li><strong>Phase 6: Intelligence Fusion &amp; Weaponisation Prep</strong>; Correlate findings with breach data, job boards, and DNS records to build pretexts for spear-phishing or vishing.</li>
+      </ol>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 3: TTP MAPPING (MITRE ATT&CK®)                      -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="ttp-mapping">
+      <h2 id="ttp-mapping">3. TTP Mapping (MITRE ATT&CK<sup>®</sup>)</h2>
+
+      <p>Map social footprinting to the adversary lifecycle so Blue Team can detect and simulate appropriately.</p>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table">
+          <thead>
+            <tr>
+              <th>Technique ID</th>
+              <th>Name</th>
+              <th>Adversarial Use</th>
+              <th>Defensive Detection</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>T1593.001</code></td>
+              <td>Search Open Websites/Domains: Social Media</td>
+              <td>Harvesting employee lists, job descriptions, and technology stacks from corporate LinkedIn/X profiles.</td>
+              <td>Brand-protection alerts; fake "honeypot" profile interaction monitoring.</td>
+            </tr>
+            <tr>
+              <td><code>T1594</code></td>
+              <td>Search Victim-Owned Websites</td>
+              <td>Scraping corporate blogs and staff directories linked from social bios.</td>
+              <td>Web logs showing scripted User-Agents; WAF rate-limit triggers.</td>
+            </tr>
+            <tr>
+              <td><code>T1589</code></td>
+              <td>Gather Victim Identity Information</td>
+              <td>Correlating personal emails found via breaches with social handles to build contact lists.</td>
+              <td>Dark-web monitoring for executive credentials; identity-theft protection telemetry.</td>
+            </tr>
+            <tr>
+              <td><code>T1591.001</code></td>
+              <td>Gather Victim Org Info: Determine Physical Locations</td>
+              <td>Geolocation tagging on Instagram/Strava reveals satellite office locations or executive travel patterns.</td>
+              <td>EXIF stripping policies; geofencing alerts on corporate tagged locations.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 4: HARVESTING PEOPLE AND EMAIL LISTS                 -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="harvesting">
+      <h2 id="harvesting">4. Harvesting People and Email Lists</h2>
+
+      <p>
+        Automated harvesting remains the fastest way to build a target personnel matrix. <strong>theHarvester</strong> is still a 
+		staple for domain-to-email and host discovery, but modern Red Teams pair it with <strong>linkedin2username</strong> to 
+		transform corporate staff lists into probable username/email formats.
+      </p>
+
+      <h3>4.1 Tool: theHarvester</h3>
+
+      <pre><code class="language-bash">$ theHarvester -d megacorp.com -l 500 -b linkedin,google,bing
+</code></pre>
+
+      <pre><code class="expected-output">*******************************************************************
+*  theHarvester 4.4.0                                              *
+*******************************************************************
+
+[*] Target: megacorp.com 
+[*] Performing Linkedin search
+[*] Performing Google search
+[*] Performing Bing search
+
+[*] No IPs found.
+[*] Emails found:
+    ceo@megacorp.com
+    john.doe@megacorp.com
+    jane.smith@megacorp.com
+
+[*] Hosts found:
+    mail.megacorp.com
+    vpn.megacorp.com
+    portal.megacorp.com
+
+[*] LinkedIn users found:
+    John Doe — Senior Network Engineer
+    Jane Smith — HR Director
+</code></pre>
+
+      <h3>4.2 Tool: linkedin2username</h3>
+
+<p>Converts LinkedIn company staff listings into probable usernames/emails based on a corporate pattern (e.g., <code>{f}{last}</code>).</p>
+
+<pre><code class="language-bash">$ python linkedin2username.py -n 'MegaCorp Inc' -u redteam@protonmail.com -p 'password123' -d megacorp.com
+</code></pre>
+
+<pre><code class="expected-output">[*] Authenticated to LinkedIn.
+[*] Found 1,247 employees at MegaCorp Inc.
+[*] Applying pattern: flast
+[*] Writing 1,247 candidates to megacorp-usernames.txt
+
+jdoe
+jsmith
+bwilson
+...
+</code></pre>
+
+      <h3>4.3 Tool: holehe (Email-to-Platform Verification)</h3>
+
+      <p>Validates whether an email address is registered across 120+ platforms without sending a notification to the target.</p>
+
+<pre><code class="language-bash">$ holehe jdoe@megacorp.com
+</code></pre>
+
+<pre><code class="expected-output">[+] Email used
+[-] Email not used
+[x] Rate limit
+
+Twitter     : ✔  (rate limit)
+Instagram   : ✔
+LinkedIn    : ✘
+GitHub      : ✔
+TikTok      : ✔
+Pinterest   : ✘
+...
+</code></pre>
+
+      <div class="reminder">
+        <strong>RoE Reminder:</strong><br>
+        Authenticated scraping of LinkedIn may violate its ToS and, in some jurisdictions, the CFAA or Computer Misuse Act. Only perform authenticated harvesting when explicitly authorised and within bug-bounty safe-harbour rules.
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 5: ACCOUNT ENUMERATION AND USERNAME DISCOVERY        -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="account-enumeration">
+      <h2 id="account-enumeration">5. Account Enumeration and Username Discovery</h2>
+
+      <p>
+        Cross-platform username correlation is critical for building a unified dossier. <strong>Sherlock</strong> and <strong>Maigret</strong> remain the gold standards for this task. <strong>Maigret</strong> is an advanced fork that generates HTML/JSON reports and extracts additional metadata (registration dates, profile pictures).
+      </p>
+
+      <h3>5.1 Tool: Sherlock</h3>
+
+<pre><code class="language-bash">$ sherlock jdoe --output jdoe_recon.txt
+</code></pre>
+
+<pre><code class="expected-output">[*] Checking username jdoe on:
+[+] Twitter:      https://twitter.com/jdoe
+[+] Instagram:    https://instagram.com/jdoe
+[+] GitHub:       https://github.com/jdoe
+[+] Reddit:       https://www.reddit.com/user/jdoe
+[-] Facebook:     Not Found
+[-] LinkedIn:     Not Found
+[+] TikTok:       https://tiktok.com/@jdoe
+[+] Pinterest:    https://pinterest.com/jdoe
+...
+[*] Results saved to jdoe_recon.txt
+</code></pre>
+
+      <h3>5.2 Tool: Maigret</h3>
+
+<pre><code class="language-bash">$ maigret jdoe --html jdoe_report.html --pdf jdoe_report.pdf
+</code></pre>
+
+<pre><code class="expected-output">Making report for jdoe
+Found 22 accounts:
++-----------+--------------------------+----------------------------------+
+| Site      | URL                      | Status                           |
++-----------+--------------------------+----------------------------------+
+| Twitter   | https://twitter.com/jdoe | Claimed, no posts since 2022     |
+| GitHub    | https://github.com/jdoe  | Active, repos: 12                |
+| Instagram | https://instagram.com... | Private, 340 followers           |
+| Strava    | https://www.strava.com... | Public, weekly running routes   |
++-----------+--------------------------+----------------------------------+
+Reports generated: jdoe_report.html, jdoe_report.pdf
+</code></pre>
+
+      <h3>5.3 Tool: recon-ng (Modular Framework)</h3>
+
+      <p>For engagements requiring repeatability and reporting integration.</p>
+
+<pre><code class="language-bash">[recon-ng][default] > marketplace install recon/profiles-profiles/profiler
+[recon-ng][default] > modules load recon/profiles-profiles/profiler
+[recon-ng][default][profiler] > options set SOURCE jdoe
+[recon-ng][default][profiler] > run
+</code></pre>
+
+<pre><code class="expected-output">[*] jdoe
+[*] |-- Twitter: jdoe
+[*] |-- Reddit: jdoe1990
+[*] |-- Keybase: jdoe
+[*] Completed in 4.23s
+</code></pre>
+</section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 6: SOCIAL MEDIA ANALYTICS, TRENDS, AND CONTENT        -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="analytics-content">
+      <h2 id="analytics-content">6. Social Media Analytics, Trends, and Content Discovery</h2>
+
+      <p>
+        Beyond profile enumeration, operators analyse <em>content</em> to determine organisational culture, technology stack mentions, travel itineraries, and grievances that can be weaponised. Modern workflows combine <strong>Google Dorks</strong>, <strong>snscrape</strong> (for X/Twitter without API keys), and <strong>BuzzSumo</strong>-style tools.
+      </p>
+
+      <h3>6.1 Technique: Google Dorking for Social Content</h3>
+
+<pre><code class="language-bash"># Find PDFs shared on LinkedIn by target domain employees
+site:linkedin.com/in "MegaCorp" filetype:pdf
+
+# Find exposed phone numbers or emails in Instagram bios
+site:instagram.com "MegaCorp" "email" OR "call me" OR "contact"
+
+# Find employees discussing internal tools on X/Twitter
+site:twitter.com OR site:x.com "MegaCorp" ("Jira" OR "Confluence" OR "VPN down")
+</code></pre>
+
+      <h3>6.2 Tool: snscrape (Non-API Twitter/X Scraping)</h3>
+
+<pre><code class="language-bash">$ snscrape --jsonl --max-results 200 twitter-search "from:jdoe since:2023-01-01 until:2024-01-01" > jdoe_tweets.jsonl
+$ cat jdoe_tweets.jsonl | jq -r '.content'
+</code></pre>
+
+<pre><code class="expected-output">"Just finished a sprint deploying the new Palo Alto firewalls at MegaCorp HQ #cybersecurity"
+"Loving the new Okta SSO rollout... mostly."
+"Flying out to London next week for the datacenter migration. ✈️ #MegaCorp"
+</code></pre>
+
+      <h3>6.3 Tool: Osintgram (Instagram Intelligence)</h3>
+
+      <p>Requires a valid Instagram sock-puppet account. Extracts followers, comments, captions, and geotags.</p>
+
+<pre><code class="language-bash">$ python main.py target_user
+target_user> list_followers
+target_user> list_comments
+target_user> list_locations
+</code></pre>
+
+<pre><code class="expected-output">[+] Found 1,432 followers
+[+] Found 89 geotagged locations
+|-- Location: MegaCorp HQ, Seattle, WA (47.6062, -122.3321)
+|-- Location: London Heathrow Airport (51.4700, -0.4543)
+</code></pre>
+
+      <div class="reminder-opsec">
+        <strong>OPSEC Note:</strong><br>
+        Instagram aggressively flags scraping sessions. Use residential proxies and aged accounts to avoid burn.
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 7: AI-ASSISTED HARVESTING & ANALYSIS                -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="ai-assisted">
+      <h2 id="ai-assisted">7. AI-Assisted Harvesting &amp; Analysis</h2>
+
+      <p>
+        Generative AI accelerates two distinct recon tasks: (1) drafting complex tool commands and dorks, and (2) summarising large open-source datasets to identify high-value targets (e.g., "Which of these 500 employees mentions a cloud admin role?").
+      </p>
+
+<h3>7.1 Example: LLM-Assisted Dork Generation</h3>
+
+<pre><code class="language-bash">(root@iscsec)-[~]$ sgpt --shell "Generate Google dorks to find MegaCorp employees on Instagram who have posted from the Seattle office in the last year and mentioned 'server room' or 'datacenter'"
+
+Generating Google dorks for target: MegaCorp, Seattle, server room, datacenter...
+</code></pre>
+
+<pre><code class="expected-output">site:instagram.com "MegaCorp" "Seattle" ("server room" OR "datacenter")
+site:instagram.com/p/ location "Seattle" "MegaCorp" "server"
+site:instagram.com/stories "MegaCorp" "datacenter"
+
+[E]xecute, [D]escribe, [A]bort: D
+
+Description: These dorks will search Instagram for posts from MegaCorp employees
+in the Seattle area that mention either "server room" or "datacenter".
+The first dork targets posts with location tags, the second targets individual post URLs,
+and the third targets Instagram Stories which often contain ephemeral content.
+
+[E]xecute, [D]escribe, [A]bort: E
+
+Executing dorks...
+[+] site:instagram.com "MegaCorp" "Seattle" ("server room" OR "datacenter") - 47 results found
+[+] site:instagram.com/p/ location "Seattle" "MegaCorp" "server" - 12 results found
+[+] site:instagram.com/stories "MegaCorp" "datacenter" - 3 results found
+
+Results saved to: mega_corp_instagram_dorks_2025-11-11.txt</code></pre>
+
+<pre><code class="expected-output"># Sample extracted posts
+Post 1: @jdoe_megacorp - "Just finished deploying the new cooling system in the 
+         Seattle datacenter. #MegaCorp #datacenterlife"
+         Location: Seattle, WA | Date: 2025-10-28
+
+Post 2: @sysadmin_mike - "Server room maintenance scheduled for this weekend. 
+         Hope the AC holds up!  #MegaCorp #serverroom"
+         Location: Seattle, WA | Date: 2025-10-15
+
+Post 3: @neteng_sarah - "Datacenter expansion is finally live! 
+         200 new racks in the Seattle facility. #MegaCorp #datacenter"
+         Location: Seattle, WA | Date: 2025-09-03</code></pre>
+
+<h3>7.2 Example: LLM-Assisted Target Prioritisation</h3>
+
+<p>Feed an LLM a JSON dump of employee bios and prompt:</p>
+
+<pre><code class="language-bash">$ sgpt --shell "Analyse the following employee profiles and rank the top 5 most likely targets for a cloud-infrastructure pretext based on role seniority, public technical detail exposure, and recent travel."
+
+Processing employee_profiles.json (124 employees)...
+</code></pre>
+
+<pre><code class="expected-output">[+] Loading profiles from employee_profiles.json
+[+] Analysing 124 employee records for cloud-infrastructure targeting potential
+
+Ranking Criteria:
+- Role seniority (C-level, Director, Manager, Senior Engineer)
+- Public technical detail exposure (GitHub repos, Stack Overflow, conference talks)
+- Recent travel (business trips, international travel)
+- Cloud-specific skills (AWS, Azure, GCP certifications)
+
+Top 5 Targeting Priorities:
+
+1. Maria Hernandez (Director of Cloud Engineering)
+   - Seniority: Director (High)
+   - Tech Exposure: AWS re:Invent speaker (2024), 3 GitHub repos with AWS code
+   - Recent Travel: Seattle → London (2025-10-20)
+   - Pretext: "Cloud cost optimisation consultant from AWS partner"
+
+2. Ronny Johnson (Senior DevOps Architect)
+   - Seniority: Senior Level (High)
+   - Tech Exposure: 47 GitHub repos, AWS CSA Pro certified, public Terraform modules
+   - Recent Travel: Seattle → Singapore (2025-10-25)
+   - Pretext: "Terraform module security audit"
+
+3. Sarah Lee (Cloud Security Lead)
+   - Seniority: Lead (High)
+   - Tech Exposure: Black Hat talk on AWS IAM misconfigurations, published on Medium
+   - Recent Travel: Seattle → Austin (2025-11-01)
+   - Pretext: "IAM policy review for compliance"
+
+4. John Smith (Senior Cloud Engineer)
+   - Seniority: Senior Level (High)
+   - Tech Exposure: Active Stack Overflow contributor (Azure tag), personal AWS blog
+   - Recent Travel: None in last 60 days
+   - Pretext: "Azure-to-AWS migration support"
+
+5. Kim Lee (Cloud Architect)
+   - Seniority: Architect (High)
+   - Tech Exposure: Public slide deck on GCP networking, 4 GitHub repos
+   - Recent Travel: Seattle → Tokyo (2025-10-10)
+   - Pretext: "GCP networking optimisation engagement"
+
+[+] Ranking complete. Results saved to: target_priorities_2025-11-11.json
+
+Recommended Approach: Target Sarah Maria Hernandez - recent travel to London
+creates a credible 'cost optimisation' pretext. Second priority: Ronny Johnson
+due to high GitHub exposure and recent Singapore travel.</code></pre>
+
+<div class="reminder">
+  <strong>Safety / Accuracy Warning:</strong><br>
+  LLMs hallucinate. Always validate generated commands in a sandbox, verify outputs against primary sources, and never use AI to 
+  generate synthetic identities for fraud (deepfake voice/video pretexting without consent is illegal in most jurisdictions).
+</div>
+
+<div class="redblue-reminder">
+  <strong>RedOps/BlueOps:</strong>
+  <span>
+    <span class="red-text">Red Team</span> uses AI to accelerate target identification and pretext development.
+    <span class="blue-text">Blue Team</span> must assume adversaries are using these techniques and implement:
+    <ul>
+      <li>Social-media hygiene training for high-value employees</li>
+      <li>Monitoring for suspicious connection requests from "recruiters" or "consultants"</li>
+      <li>Out-of-band verification for any travel-related or infrastructure-change requests</li>
+    </ul>
+  </span>
+</div>
+</section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 8: CASE STUDIES                                      -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="case-studies">
+      <h2 id="case-studies">8. Case Studies</h2>
+
+      <h3>Case Study 1: APT29 (Cozy Bear): LinkedIn Spear-Phishing</h3>
+
+      <p>
+        In operations targeting global think tanks and government contractors, APT29 created fake LinkedIn profiles posing as 
+		recruiters for well-known defence firms. After establishing connections with target employees, they sent malicious 
+		"job description" PDFs and links to credential-harvesting domains themed to the victim's current role. The social 
+		reconnaissance phase (profile cloning, connection mapping, and role tailoring) took weeks, but the resulting 
+		compromise provided persistent access to sensitive policy documents.
+      </p>
+
+      <div class="info-remember">
+        Connection requests from "recruiters" with mutual connections bypass mental trust boundaries. Blue teams must monitor for 
+		executive impersonation profiles and train staff to verify recruiter identities out-of-band.
+      </div>
+
+      <h3>Case Study 2: Strava &amp; Instagram Geolocation: Military Base Exposure</h3>
+
+      <p>
+        In 2018, a publicly available "Strava Heatmap" revealed the running routes of military personnel on classified bases 
+		because soldiers shared fitness data to social platforms. Cross-referencing Strava usernames with Instagram handles 
+		exposed real names, faces, and base locations. No "hack" was required, only correlation of intentionally public data.
+      </p>
+
+      <div class="reminder-opsec">
+        Operational Security (OPSEC) for personnel must include geolocation-tagging policies and regular social-media hygiene 
+		audits, not just network firewalls.
+      </div>
+
+      <h3>Case Study 3: Data Broker Aggregation; The Clearview AI Model</h3>
+
+      <p>
+        Clearview AI scraped billions of public-facing social media images without consent to build a facial-recognition database 
+		sold to law enforcement and private entities. While not a traditional "breach," it demonstrated that public social data 
+		can be weaponised at scale via automated scraping and ML classification, raising legal questions under GDPR Article 9 
+		(biometric data).
+      </p>
+
+      <div class="info-remember">
+        Organisations must treat public profile pictures and posts as sensitive data subject to retention and privacy regulations; 
+		defensive teams should request removal from aggregator indexes where possible.
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 9: ANALYSIS, CORRELATION, AND DOSSIER BUILDING       -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="correlation">
+      <h2 id="correlation">9. Analysis, Correlation, and Dossier Building</h2>
+
+      <p>
+        Raw tool output is noise until correlated. Use the following triage workflow:
+      </p>
+
+      <ol>
+        <li><strong>Username Normalisation:</strong> Strip platform-specific suffixes to generate a master list of handles (e.g., <code>@jdoe90</code> on Twitter likely equals <code>jdoe</code> on GitHub).</li>
+        <li><strong>Timeline Reconstruction:</strong> Sort posts by date to identify travel windows, project milestones, or equipment upgrades.</li>
+        <li><strong>Geolocation Clustering:</strong> Map EXIF coordinates and geotags to infer office locations, commute routes, and frequented venues (coffee shops near the target are ideal vishing pretexts).</li>
+        <li><strong>Relationship Mapping:</strong> Import follower/following lists into Maltego or Obsidian to visualise organisational charts and identify high-centrality targets (executive assistants often have more access than VPs).</li>
+        <li><strong>Credential Pivot:</strong> Feed discovered usernames/emails into breach databases (e.g., Have I Been Pwned API, DeHashed) to identify password reuse or weak MFA enrolment.</li>
+      </ol>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 10: OPSEC & LEGAL BOUNDARIES                         -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="opsec-legal">
+      <h2 id="opsec-legal">10. OPSEC &amp; Legal Boundaries</h2>
+
+      <h3>10.1 Operational Security for Red Teams</h3>
+
+      <ul>
+        <li><strong>Sock Puppets:</strong> Create accounts at least 30–60 days before an engagement. Age them with organic content, followers, and photo uploads to pass platform bot-detection.</li>
+        <li><strong>Attribution Segregation:</strong> Run recon from dedicated VMs or cloud workstations (non-corporate IP ranges). Use residential proxies for platforms with aggressive anti-bot measures.</li>
+        <li><strong>Compartmentalisation:</strong> Never reuse a sock puppet across multiple clients. Burn accounts and associated phone numbers after the engagement.</li>
+        <li><strong>Anti-Forensics:</strong> Scrape during business hours of the target's timezone to blend with normal traffic. Avoid aggressive thread counts that trigger rate-limiting.</li>
+      </ul>
+
+      <h3>10.2 Legal &amp; Compliance Boundaries</h3>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table">
+          <thead>
+            <tr>
+              <th>Jurisdiction / Framework</th>
+              <th>Relevant Constraint</th>
+              <th>Risk to Operator</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>CFAA (USA)</strong></td>
+              <td>"Exceeding authorised access" on a protected computer (including ToS violations in some circuits).</td>
+              <td>Criminal prosecution, fines, imprisonment.</td>
+            </tr>
+            <tr>
+              <td><strong>GDPR (EU)</strong></td>
+              <td>Article 9 (special category data); automated scraping of bios, images, and preferences may constitute unlawful processing.</td>
+              <td>Administrative fines up to 4% global turnover; civil liability.</td>
+            </tr>
+            <tr>
+              <td><strong>Computer Misuse Act 1990 (UK)</strong></td>
+              <td>Section 1: Unauthorised access. Scraping behind a login wall without consent may qualify.</td>
+              <td>Criminal conviction, up to 2 years imprisonment.</td>
+            </tr>
+            <tr>
+              <td><strong>Platform ToS</strong></td>
+              <td>Most SNS explicitly prohibit automated scraping in their terms.</td>
+              <td>Civil litigation, permanent IP/account bans, CFAA exposure.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="reminder">
+        <strong>Golden Rule (ROE):</strong><br>
+        If you are not certain the activity is within signed Rules of Engagement (RoE) and legal review, <em>do not execute it</em>. When in doubt, use only <strong>passive, unauthenticated</strong> techniques.
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 11: QUICK TRIAGING CHECKLIST                         -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="triage-checklist">
+      <h2 id="triage-checklist">11. Quick Triaging Checklist: Social Recon Workflow</h2>
+
+      <pre><code class="language-bash">□ Scope Confirmation
+    □ Client has authorised SNS reconnaissance in writing.
+    □ Platform list and depth limits defined (passive vs. authenticated).
+    □ "No-touch" personnel list (e.g., C-suite only by name, no contact).
+
+□ Infrastructure Setup
+    □ Dedicated recon VM or cloud workspace provisioned.
+    □ Residential proxy / VPN configured and tested.
+    □ Sock-puppet accounts aged and compartmentalised.
+
+□ Phase 1 — Passive Discovery
+    □ Google/Bing dorks executed for public profile exposure.
+    □ theHarvester run for emails and hosts.
+    □ Wayback / archive.org checked for deleted corporate posts.
+    □ Username candidates generated via linkedin2username.
+
+□ Phase 2 — Active Enumeration
+    □ Sherlock / Maigret executed for cross-platform correlation.
+    □ holehe run to validate email-to-platform mappings.
+    □ snscrape / API queries for post content and timeline.
+    □ Instagram / TikTok checked for geotags and follower leaks.
+
+□ Phase 3 — Enrichment
+    □ Images downloaded and EXIF analysed (see image_exif tool).
+    □ Follower graphs imported into Maltego / Obsidian.
+    □ Posts keyword-searched for technology stacks, travel, grievances.
+    □ Breach correlation completed (HIBP, DeHashed).
+
+□ Phase 4 — Sanitisation & Reporting
+    □ Raw data encrypted at rest (AES-256).
+    □ Personal data minimised (report only what is risk-relevant).
+    □ Sock-puppet accounts deactivated or burned.
+    □ Engagement logs retained per client data-retention policy.
+
+□ Blue-Team Handoff
+    □ Defensive recommendations appended (see Section 13).
+    □ Indicators of Exposure (IoE) list provided for remediation.
+</code></pre>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 12: QUICK REFERENCE — RECON TOOLKIT                  -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="quickref">
+      <h2 id="quickref">12. Quick Reference: Recon Toolkit</h2>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table">
+          <thead>
+            <tr>
+              <th>Tool</th>
+              <th>Purpose</th>
+              <th>Example Command</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>theHarvester</code></td>
+              <td>Email / subdomain / host harvesting</td>
+              <td><code>theHarvester -d megacorp.com -l 500 -b all</code></td>
+              <td>Passive; requires API keys for some modules.</td>
+            </tr>
+            <tr>
+              <td><code>Sherlock</code></td>
+              <td>Username enumeration across 400+ sites</td>
+              <td><code>sherlock jdoe --output recon.txt</code></td>
+              <td>Fast; no auth required.</td>
+            </tr>
+            <tr>
+              <td><code>Maigret</code></td>
+              <td>Advanced username reporting with metadata</td>
+              <td><code>maigret jdoe --html report.html</code></td>
+              <td>Generates visual reports; includes photo analysis.</td>
+            </tr>
+            <tr>
+              <td><code>holehe</code></td>
+              <td>Email-to-platform registration checker</td>
+              <td><code>holehe jdoe@megacorp.com</code></td>
+              <td>Stealthy; no email sent to target.</td>
+            </tr>
+            <tr>
+              <td><code>linkedin2username</code></td>
+              <td>Corporate staff to username format</td>
+              <td><code>python linkedin2username.py -n 'MegaCorp' ...</code></td>
+              <td>Requires authenticated LinkedIn session.</td>
+            </tr>
+            <tr>
+              <td><code>snscrape</code></td>
+              <td>Twitter/X scraping without API</td>
+              <td><code>snscrape --jsonl twitter-search "from:jdoe"</code></td>
+              <td>Respects rate limits; CLI-friendly.</td>
+            </tr>
+            <tr>
+              <td><code>Osintgram</code></td>
+              <td>Instagram recon (followers, comments, EXIF)</td>
+              <td><code>python main.py target_user</code></td>
+              <td>Requires authenticated IG session; high burn risk.</td>
+            </tr>
+            <tr>
+              <td><code>recon-ng</code></td>
+              <td>Modular OSINT framework</td>
+              <td><code>modules load recon/profiles-profiles/profiler</code></td>
+              <td>Excellent for reporting and repeatable workflows.</td>
+            </tr>
+            <tr>
+              <td><code>GHunt</code></td>
+              <td>Google account reconnaissance</td>
+              <td><code>python ghunt.py email jdoe@gmail.com</code></td>
+              <td>Can reveal Drive, Calendar, and Maps data.</td>
+            </tr>
+            <tr>
+              <td><code>Maltego CE</code></td>
+              <td>Graphical correlation and pivoting</td>
+              <td>Import entities → run transforms</td>
+              <td>Free Community Edition available.</td>
+            </tr>
+            <tr>
+              <td><code>Google Dorks</code></td>
+              <td>Platform-specific content discovery</td>
+              <td><code>site:linkedin.com/in "MegaCorp" "engineer"</code></td>
+              <td>Fully passive; leaves minimal forensic footprint.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 13: DEFENSIVE COUNTERMEASURES & THREAT MAPPING       -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="defense">
+      <h2 id="defense">13. Defensive Countermeasures &amp; Threat Mapping</h2>
+
+      <h3>13.1 Blue Team Mitigations</h3>
+
+      <ul>
+        <li><strong>Executive &amp; Employee Digital Hygiene Training:</strong> Teach staff to review privacy settings quarterly, remove EXIF data before posting, and avoid tagging corporate buildings.</li>
+        <li><strong>Honeypot / Canary Profiles:</strong> Create fake executive or HR profiles seeded with unique contact details. Monitor for connection requests and scraping attempts as an early-warning system.</li>
+        <li><strong>Brand Protection Monitoring:</strong> Use services (e.g., PhishLabs, ZeroFox) to detect impersonation accounts and typosquat domains registered within hours of social posts mentioning new projects.</li>
+        <li><strong>Metadata Sanitisation at the Gateway:</strong> Deploy email and web proxies that strip EXIF geolocation from all images uploaded to corporate assets or email.</li>
+        <li><strong>Relationship Graph Poisoning:</strong> Limit connection visibility on LinkedIn to "1st degree only." Restrict who can see your follower/following lists on X and Instagram.</li>
+        <li><strong>Rate-Limit &amp; Bot Detection:</strong> If operating a corporate social presence, configure WAF/CDN rules to block aggressive scrapers and abnormal User-Agent strings.</li>
+      </ul>
+
+      <h3>13.2 Threat Mapping: Recon → Attack Chain</h3>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table">
+          <thead>
+            <tr>
+              <th>Recon Output</th>
+              <th>Likely Follow-on Attack</th>
+              <th>Defensive Control</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Employee email + role list</td>
+              <td>Spear-phishing / BEC</td>
+              <td>External email banners; MFA (FIDO2); pretext simulation.</td>
+            </tr>
+            <tr>
+              <td>Technology stack mentions (e.g., "new Okta portal")</td>
+              <td>Credential stuffing / phishing themed to SSO</td>
+              <td>Brand monitoring for fake SSO portals; IdP anomaly alerts.</td>
+            </tr>
+            <tr>
+              <td>Geolocation tags / travel itineraries</td>
+              <td>Physical tailing / USB drop / vishing to hotel front desk</td>
+              <td>Travel OPSEC briefings; "no location tagging" policy.</td>
+            </tr>
+            <tr>
+              <td>Org chart from connection graph</td>
+              <td>Whaling / supply-chain impersonation</td>
+              <td>Out-of-band verification for wire transfers and sensitive requests.</td>
+            </tr>
+            <tr>
+              <td>Correlated breach password + work email</td>
+              <td>Password spray / account takeover</td>
+              <td>Dark-web monitoring; forced password resets on breach correlation.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="info-remember">
+        <strong>Blue Team Note:</strong><br>
+        Indirect intelligence sources are where organisations have the least visibility but the most exposure. You cannot firewall 
+		social media, but you can control what those platforms reveal. Data hygiene is perimeter defence for the OSINT age.
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 14: ETHICAL CONSIDERATIONS AND ENGAGEMENT SCOPE      -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="ethics">
+      <h2 id="ethics">14. Ethical Considerations and Engagement Scope</h2>
+
+      <p>
+        Social network reconnaissance straddles the line between open-source intelligence gathering and invasive surveillance. Authorised ethical operators must adhere to the following immutable principles:
+      </p>
+
+      <ul>
+        <li><strong>Explicit Written Authorisation:</strong> The client must define the target individuals, platforms, and depth of reconnaissance. "Grey area" does not exist if it is not in the RoE, it is out of scope.</li>
+        <li><strong>Data Minimisation:</strong> Collect only what is necessary to demonstrate risk. Delete personal data irrelevant to the security narrative.</li>
+        <li><strong>No Interference:</strong> Do not interact with targets (no DMs, comments, likes, or connection requests) unless explicitly required and approved under a social-engineering workstream.</li>
+        <li><strong>No Credential Abuse:</strong> Discovering a reused password from a breach does not authorise you to test it against live systems without explicit permission.</li>
+        <li><strong>Reporting for Defense:</strong> The end goal is risk reduction. Every recon finding must be paired with a measurable defensive countermeasure.</li>
+      </ul>
+    </section>
+	
+    <!-- ============================================================ -->
+    <!-- SECTION 15: SUPPORTING RESOURCES & RECOMMENDED READING       -->
+    <!-- ============================================================ -->
+
+    <section class="resources" aria-label="Supporting resources">
+      <h2>15. Supporting Resources &amp; Recommended Reading</h2>
+      <ul>
+        <li>
+          <a href="https://github.com/laramies/theHarvester" target="_blank" rel="noopener">theHarvester (GitHub)</a>
+          <small class="resource-path">Email &amp; host harvesting from public sources.</small>
+        </li>
+        <li>
+          <a href="https://github.com/sherlock-project/sherlock" target="_blank" rel="noopener">Sherlock (GitHub)</a>
+          <small class="resource-path">Username enumeration across social platforms.</small>
+        </li>
+        <li>
+          <a href="https://github.com/soxoj/maigret" target="_blank" rel="noopener">Maigret (GitHub)</a>
+          <small class="resource-path">Advanced username reporting with rich metadata extraction.</small>
+        </li>
+        <li>
+          <a href="https://github.com/megadose/holehe" target="_blank" rel="noopener">holehe (GitHub)</a>
+          <small class="resource-path">Email-to-platform registration checker (stealth).</small>
+        </li>
+        <li>
+          <a href="https://github.com/initstring/linkedin2username" target="_blank" rel="noopener">linkedin2username (GitHub)</a>
+          <small class="resource-path">Corporate LinkedIn staff to probable username lists.</small>
+        </li>
+        <li>
+          <a href="https://github.com/JustAnotherArchivist/snscrape" target="_blank" rel="noopener">snscrape (GitHub)</a>
+          <small class="resource-path">Non-API scraping for Twitter/X, Facebook, Reddit.</small>
+        </li>
+        <li>
+          <a href="https://github.com/Datalux/Osintgram" target="_blank" rel="noopener">Osintgram (GitHub)</a>
+          <small class="resource-path">Instagram reconnaissance (authenticated).</small>
+        </li>
+        <li>
+          <a href="https://github.com/mxrch/GHunt" target="_blank" rel="noopener">GHunt (GitHub)</a>
+          <small class="resource-path">Google account reconnaissance.</small>
+        </li>
+        <li>
+          <a href="https://www.social-searcher.com" target="_blank" rel="noopener">Social Searcher</a>
+          <small class="resource-path">Real-time social media search and analytics.</small>
+        </li>
+        <li>
+          <a href="https://buzzsumo.com" target="_blank" rel="noopener">BuzzSumo</a>
+          <small class="resource-path">Content amplification and shared-content discovery.</small>
+        </li>
+        <li>
+          <a href="https://trends.google.com" target="_blank" rel="noopener">Google Trends</a>
+          <small class="resource-path">Search trend analysis and interest over time.</small>
+        </li>
+        <li>
+          <a href="https://maltego.com" target="_blank" rel="noopener">Maltego CE</a>
+          <small class="resource-path">Graphical link analysis and OSINT correlation.</small>
+        </li>
+      </ul>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 16: CHAPTER SUMMARY                                  -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="chapter-summary">
+      <h2 id="chapter-summary">16. Chapter Summary</h2>
+
+      <p>
+        By completing this chapter you should now be able to:
+      </p>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin: 20px 0;">
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Harvest personnel and email lists.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;">Use theHarvester, linkedin2username, and holehe to map the human attack surface.</span></span>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Enumerate accounts across platforms.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;">Leverage Sherlock, Maigret, and recon-ng for cross-platform username correlation.</span></span>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Extract content and geolocation intelligence.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;">Use snscrape, Osintgram, and Google Dorks to recover technology mentions, travel data, and organisational culture.</span></span>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Build dossiers through correlation.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;">Normalise usernames, reconstruct timelines, and map relationship graphs for targeting.</span></span>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Apply OPSEC and legal controls.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;">Use sock puppets, compartmentalise identities, and distinguish between lawful OSINT and ToS-violating scraping.</span></span>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 15px 18px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="color: #4caf50; font-size: 1.4rem; line-height: 1;">✓</span>
+          <span><strong>Implement defensive countermeasures.</strong><br>
+          <span style="color: #aaa; font-size: 0.9rem;">Deploy canary profiles, sanitise metadata, and monitor for impersonation accounts.</span></span>
+        </div>
+
+      </div>
+
+      <div class="info-remember" style="margin: 15px 0;">
+        <strong>Why This Matters:</strong>
+        <span style="display: block; margin-top: 5px;">
+          Social networking sites expose the human side of the attack surface that no firewall can protect. Adversaries who master social reconnaissance can construct complete target profiles, craft highly personalised pretexts, and compromise organisations without ever touching network infrastructure. Defenders must treat social media hygiene with the same rigor as patch management and access control.
+        </span>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 17: KEY TAKEAWAYS                                    -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="takeaways">
+      <h2 id="takeaways">17. Key Takeaways</h2>
+
+      <div class="iscsec-table-responsive">
+        <table class="iscsec-table">
+          <thead>
+            <tr>
+              <th>Concept</th>
+              <th>Why It Matters</th>
+              <th>Security Impact</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Social Media Is the Human Perimeter</strong></td>
+              <td>Every employee post, bio, and connection reveals intelligence about organisational structure and technology.</td>
+              <td>Adversaries build tailored pretexts without ever interacting with corporate infrastructure.</td>
+            </tr>
+            <tr>
+              <td><strong>Cross-Platform Correlation Builds Dossiers</strong></td>
+              <td>Usernames and emails shared across platforms link personal and professional identities.</td>
+              <td>Enables credential stuffing, password reset manipulation, and comprehensive profiling.</td>
+            </tr>
+            <tr>
+              <td><strong>Geolocation Tagging Enables Physical Attacks</strong></td>
+              <td>EXIF data and check-ins reveal office locations, travel patterns, and home addresses.</td>
+              <td>Physical tailing, dumpster diving, and USB drops become viable attack vectors.</td>
+            </tr>
+            <tr>
+              <td><strong>Content Analysis Reveals Technology Stacks</strong></td>
+              <td>Posts mentioning specific tools, versions, or vendors expose technical infrastructure.</td>
+              <td>Adversaries craft exploits for known vulnerabilities without scanning target networks.</td>
+            </tr>
+            <tr>
+              <td><strong>Sock Puppets Enable Depth</strong></td>
+              <td>Authenticated accounts reveal connection graphs and friends-only content.</td>
+              <td>Provides deeper insight than passive reconnaissance but carries legal and OPSEC risk.</td>
+            </tr>
+            <tr>
+              <td><strong>AI Accelerates Reconnaissance</strong></td>
+              <td>Generative AI drafts dorks, summarises data, and prioritises targets.</td>
+              <td>Increases the scale and speed of intelligence gathering but risks hallucinations and bias.</td>
+            </tr>
+            <tr>
+              <td><strong>Legal Boundaries Are Fluid</strong></td>
+              <td>Scraping ToS-protected platforms may violate CFAA, GDPR, or Computer Misuse Acts.</td>
+              <td>Unauthorised authenticated scraping carries criminal and civil liability.</td>
+            </tr>
+            <tr>
+              <td><strong>Defenders Must Monitor Social Exposure</strong></td>
+              <td>Canary profiles, brand monitoring, and hygiene training reduce the attack surface.</td>
+              <td>Proactive defence makes social intelligence worthless to real adversaries.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+	  </section>
+	  
+	<!-- ============================================================ -->
+    <!-- SECTION 18: KNOWLEDGE CHECK                          -->
+    <!-- ============================================================ -->
+
+    <section aria-labelledby="knowledge-check">
+      <h2 id="knowledge-check">18. Knowledge Check</h2>
+	  
+	  <div class="card">
+  <h3>Reflection Questions</h3>
+  <ol>
+    <li>
+      <strong>An employee's Instagram story shows a photo of their laptop screen displaying an internal dashboard with visible IP addresses and server names. What immediate attack vectors does this enable, and what defensive controls could have prevented this exposure?</strong>
+      <br>
+      <span style="color: #aaa; font-size: 0.9rem;">
+        Consider network mapping, credential harvesting, physical reconnaissance, and the role of EXIF stripping / photo-sharing policies.
+      </span>
+    </li>
+    <li>
+      <strong>Your reconnaissance reveals that a senior cloud architect uses the same username across GitHub, Twitter, and a developer forum. How can you pivot this finding to locate additional technical infrastructure or potential credential exposure?</strong>
+      <br>
+      <span style="color: #aaa; font-size: 0.9rem;">
+        Think about commit history analysis, breach database correlation, and password reuse across platforms.
+      </span>
+    </li>
+    <li>
+      <strong>A sock-puppet account you created for a client engagement has been flagged by LinkedIn's anti-bot systems. What steps should you take to salvage the engagement, and what alternatives exist if the account is permanently banned?</strong>
+      <br>
+      <span style="color: #aaa; font-size: 0.9rem;">
+        Consider backup accounts, OSINT alternatives without authentication, and OPSEC lessons for future engagements.
+      </span>
+    </li>
+    <li>
+      <strong>How does the risk profile differ between passive social media reconnaissance (using search engines and public APIs) and active reconnaissance (using authenticated sock puppets)? Under what circumstances is active recon justified?</strong>
+      <br>
+      <span style="color: #aaa; font-size: 0.9rem;">
+        Think about detection risk, ToS violations, legal boundaries, and the depth of intelligence each method provides.
+      </span>
+    </li>
+    <li>
+      <strong>An executive's personal Facebook account reveals their home address, vacation schedule, and family members' names. What specific physical and social engineering attacks does this information enable, and what should the organisation's response include?</strong>
+      <br>
+      <span style="color: #aaa; font-size: 0.9rem;">
+        Consider physical intrusion, vishing, SIM-swapping, and the role of employee privacy policies and training.
+      </span>
+    </li>
+  </ol>
+</div>
+
+  <div class="card">
+    <h3>Scenario-Based Question</h3>
+    <p>
+      <strong>Scenario:</strong> You are conducting authorised passive reconnaissance against <em>Fabricated Industries</em>, a mid-sized technology and manufacturing conglomerate. Your Rules of Engagement strictly prohibit direct interaction with target infrastructure. Initial open-source research has identified the primary domain <code>fabricatedtech.com</code>, a recently acquired subsidiary <code>legacy-sys.com</code>, and several key executives active on professional networks.
+    </p>
+    <p><strong>Task:</strong> Design a comprehensive footprinting workflow using social networking and OSINT techniques to map the organisation's human attack surface, identify high-value personnel, and locate intelligence suitable for social engineering pretext development.</p>
+  </div>
+
+  <div class="info-remember">
+    <strong>Suggested Approach:</strong>
+    <ul>
+      <li><strong>Phase 1: Employee Enumeration</strong>; Use LinkedIn and other professional networks to identify employees, job titles, departments, and reporting structures. Extract email formats and username conventions from public profiles.</li>
+      <li><strong>Phase 2: Username Correlation</strong>; Use Sherlock and Maigret to correlate corporate usernames across platforms (GitHub, Twitter, Reddit, Stack Overflow) to identify technical employees and their public code contributions.</li>
+      <li><strong>Phase 3: Technology Leakage Discovery</strong>; Mine job postings and employee resumes on LinkedIn, Dice, and Glassdoor to extract firewall models, SIEM platforms, cloud providers, and organisational structure details.</li>
+      <li><strong>Phase 4: Content &amp; Sentiment Analysis</strong>; Use Social Searcher, BuzzSumo, and Google Trends to identify employee complaints, technology frustrations, and project mentions that reveal internal vulnerabilities or emotional triggers.</li>
+      <li><strong>Phase 5: Geolocation &amp; Physical Context</strong>; Extract geotags and EXIF data from employee photos on Instagram and other platforms to identify office locations, commute patterns, and frequented venues for physical pretexting.</li>
+      <li><strong>Phase 6: Breach &amp; Credential Correlation</strong>; Cross-reference harvested emails with breach databases (Have I Been Pwned, DeHashed) to identify credential reuse or password patterns for social engineering campaigns.</li>
+      <li><strong>Phase 7: Pretext Development</strong>; Synthesise all findings into tailored social engineering pretexts (vishing scripts, spear-phishing lures, impersonation scenarios) that leverage internal terminology and known organisational frustrations.</li>
+    </ul>
+  </div>
+	  
+	  <div class="reminder-lightblue">
+        <strong>Gateway Criteria:</strong><br>
+        <span>Move on to the next section when you can confidently answer all five reflection questions and articulate a complete 
+		passive reconnaissance workflow using at least three distinct social intelligence sources. If any concept is unclear, 
+		revisit the relevant sections above before moving on.</span>
+      </div>
+
+      <div class="info-remember">
+        <em>RedOps Reminder:</em> Social networks expose the human side of your target; every profile, post, and connection is 
+		intelligence. Record what you find, where you found it, why it matters to risk, and critically how the Blue Team can 
+		make that intelligence worthless to a real adversary.
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- FLOATING NAVIGATION                                           -->
+    <!-- ============================================================ -->
+
+    <div class="lesson-nav-container">
+      <a href="https://iscsecurity.org/content/1-ethical-hacking/3-footprinting-and-recon/04-footprinting-through-internet-research-services" class="nav-link-btn">👈 Back</a>
+      <a href="https://iscsecurity.org/content/1-ethical-hacking/3-footprinting-and-recon/06-whois-footprinting" class="nav-link-btn">Next 👉</a>
+    </div>
+
+  </article>
+</main>
+</body>
+</html>
