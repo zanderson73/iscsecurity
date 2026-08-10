@@ -121,9 +121,3 @@
 /content/1-ethical-hacking/10-social-engineering/07-module-summary.html /content/1-ethical-hacking/10-social-engineering/07-module-summary 301!
 /content/1-ethical-hacking/10-social-engineering/08-social-engineering-cheat-sheet.html /content/1-ethical-hacking/10-social-engineering/08-social-engineering-cheat-sheet 301!
 
-
-# MemberSpace needs to handle protected pages first
-/content/1-ethical-hacking/1-introduction-to-ethical-hacking/* /index.html 404
-
-# Fallback for all other routes
-/* /index.html 200
